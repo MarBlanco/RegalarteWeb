@@ -24,7 +24,7 @@ CONSTRUCCIÓN NO INICIADA
 
 Overall Progress
 
-0%
+5%
 
 ---
 
@@ -32,24 +32,24 @@ Overall Progress
 
 Estado:
 
-NOT STARTED
+IN PROGRESS
 
 Items:
 
-- Next.js Setup
-- Payload Setup
-- PostgreSQL
-- Cloudflare R2
-- Environment Variables
-- Authentication
-- Roles
-- Providers
-- Layouts
-- Theme
+- [x] Next.js Setup
+- [x] Payload Setup
+- [x] PostgreSQL
+- [ ] Cloudflare R2
+- [x] Environment Variables
+- [ ] Authentication
+- [ ] Roles
+- [ ] Providers
+- [ ] Layouts
+- [ ] Theme
 
 Progreso:
 
-0%
+40%
 
 ---
 
