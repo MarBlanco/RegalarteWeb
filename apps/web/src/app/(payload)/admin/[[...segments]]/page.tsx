@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import config from '@payload-config'
 import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
 // @ts-expect-error - import map is generated dynamically
-import { importMap } from './importMap.js'
+import { importMap } from '../importMap.js'
 
 type Args = {
   params: Promise<{
