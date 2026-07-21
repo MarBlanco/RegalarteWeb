@@ -20,8 +20,19 @@ export default function VerifyPage() {
 
   useEffect(() => {
     if (token) {
-      // TODO: Implement Payload CMS email verification
-      setTimeout(() => setStatus('success'), 1000)
+      fetch('/api/users/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      })
+        .then((res) => {
+          if (res.ok) {
+            setStatus('success')
+          } else {
+            setStatus('error')
+          }
+        })
+        .catch(() => setStatus('error'))
     } else {
       setStatus('error')
     }

@@ -1,5 +1,18 @@
 # REGALARTE
 
+## 2026-07-20
+
+- **[COMPLETADO]** Auth pages wired to Payload REST API:
+  - Register: `POST /api/users` + auto-login after registration
+  - Login: `POST /api/users/login` with JWT token storage
+  - Forgot Password: `POST /api/users/forgot-password`
+  - Reset Password: `POST /api/users/reset-password` with token
+  - Verify Email: `POST /api/users/verify` with token
+  - Profile: `PATCH /api/users/:id` with auth header
+- **[CORREGIDO]** Users collection `role` field access control — cleaned up for proper first-user creation via `/admin/create-first-user`
+- **[VERIFICADO]** Payload admin panel correctly detects empty users table and redirects to `/admin/create-first-user`
+- **[NOTA]** Sprint 1 — Foundation complete. All auth flows functional (register, login, forgot/reset password, email verification, profile update).
+
 ## 2026-07-18
 
 - **[SETUP]** Configuración de entorno de desarrollo documentada.

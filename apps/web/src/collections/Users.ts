@@ -4,12 +4,7 @@ export const Users: CollectionConfig = {
   slug: 'users',
   auth: {
     tokenExpiration: 7200,
-    verify: {
-      generateEmailHTML: (args: any) => {
-        const token = args?.token || ''
-        return `<a href="${process.env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${token}">Verificar email</a>`
-      },
-    },
+    verify: false,
     forgotPassword: {
       generateEmailSubject: () => 'Regalarte - Restablecer contraseña',
       generateEmailHTML: (args: any) => {
@@ -40,7 +35,8 @@ export const Users: CollectionConfig = {
         read: () => true,
         update: ({ req: { user } }) => {
           const u = user as { role?: string } | null
-          return u?.role === 'admin' || u?.role === 'staff'
+          if (!u) return false
+          return u.role === 'admin' || u.role === 'staff'
         },
       },
     },

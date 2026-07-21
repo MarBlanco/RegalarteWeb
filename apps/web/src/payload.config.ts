@@ -26,28 +26,35 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  email: resendAdapter({
-    defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'noreply@regalarte.com',
-    defaultFromName: process.env.RESEND_FROM_NAME || 'REGALARTE',
-    apiKey: process.env.RESEND_API_KEY || '',
-  }),
+  email:
+    process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.startsWith('placeholder')
+      ? resendAdapter({
+          defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'noreply@regalarte.com',
+          defaultFromName: process.env.RESEND_FROM_NAME || 'REGALARTE',
+          apiKey: process.env.RESEND_API_KEY,
+        })
+      : undefined,
   plugins: [
-    s3Storage({
-      collections: {
-        media: {
-          prefix: 'media',
-        },
-      },
-      bucket: process.env.R2_BUCKET || '',
-      config: {
-        region: 'auto',
-        endpoint: process.env.R2_ENDPOINT || '',
-        forcePathStyle: true,
-        credentials: {
-          accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
-          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
-        },
-      },
-    }),
+    ...(process.env.R2_ACCESS_KEY_ID && !process.env.R2_ACCESS_KEY_ID.startsWith('placeholder')
+      ? [
+          s3Storage({
+            collections: {
+              media: {
+                prefix: 'media',
+              },
+            },
+            bucket: process.env.R2_BUCKET || '',
+            config: {
+              region: 'auto',
+              endpoint: process.env.R2_ENDPOINT || '',
+              forcePathStyle: true,
+              credentials: {
+                accessKeyId: process.env.R2_ACCESS_KEY_ID,
+                secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+              },
+            },
+          }),
+        ]
+      : []),
   ],
 })

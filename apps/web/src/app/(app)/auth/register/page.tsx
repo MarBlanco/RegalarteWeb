@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,20 +14,79 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { useAuth } from '@/hooks/use-auth'
 
 export default function RegisterPage() {
+  const router = useRouter()
+  const { setUser, setToken } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [customerType, setCustomerType] = useState<'RETAIL' | 'WHOLESALE'>('RETAIL')
+  const [businessName, setBusinessName] = useState('')
+  const [cuit, setCuit] = useState('')
+  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setIsLoading(true)
-    // TODO: Implement Payload CMS registration
-    await new Promise((r) => setTimeout(r, 1000))
-    setIsLoading(false)
+    setError('')
+
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          role: 'retail',
+          customer_type: customerType,
+          business_name: customerType === 'WHOLESALE' ? businessName : undefined,
+          cuit: customerType === 'WHOLESALE' ? cuit : undefined,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.errors?.[0]?.message || 'Error al crear la cuenta')
+      }
+
+      const loginRes = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const loginData = await loginRes.json()
+
+      if (!loginRes.ok) {
+        throw new Error(loginData.errors?.[0]?.message || 'Error al iniciar sesión')
+      }
+
+      setUser({
+        id: loginData.doc.id,
+        email: loginData.doc.email,
+        name: loginData.doc.name,
+        role: loginData.doc.role,
+        customer_type: loginData.doc.customer_type,
+        business_name: loginData.doc.business_name,
+        cuit: loginData.doc.cuit,
+        phone: loginData.doc.phone,
+        province: loginData.doc.province,
+        city: loginData.doc.city,
+        whatsapp: loginData.doc.whatsapp,
+      })
+      setToken(loginData.token)
+
+      router.push('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al crear la cuenta')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -99,6 +159,12 @@ export default function RegisterPage() {
               />
             </div>
 
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
+
             {customerType === 'WHOLESALE' && (
               <>
                 <div className="space-y-2">
@@ -107,6 +173,8 @@ export default function RegisterPage() {
                     id="business_name"
                     type="text"
                     placeholder="Razón social"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
                     required
                   />
                 </div>
@@ -116,6 +184,8 @@ export default function RegisterPage() {
                     id="cuit"
                     type="text"
                     placeholder="XX-XXXXXXXX-X"
+                    value={cuit}
+                    onChange={(e) => setCuit(e.target.value)}
                     required
                   />
                 </div>

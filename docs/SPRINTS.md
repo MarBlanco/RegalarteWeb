@@ -40,7 +40,7 @@ Proyecto ejecutando localmente.
 
 Estado:
 
-NOT STARTED
+COMPLETE
 
 ---
 

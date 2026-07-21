@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,18 +14,55 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { useAuth } from '@/hooks/use-auth'
 
 export default function LoginPage() {
+  const router = useRouter()
+  const { setUser, setToken } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setIsLoading(true)
-    // TODO: Implement Payload CMS auth
-    await new Promise((r) => setTimeout(r, 1000))
-    setIsLoading(false)
+    setError('')
+
+    try {
+      const res = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.errors?.[0]?.message || 'Email o contraseña incorrectos')
+      }
+
+      setUser({
+        id: data.doc.id,
+        email: data.doc.email,
+        name: data.doc.name,
+        role: data.doc.role,
+        customer_type: data.doc.customer_type,
+        business_name: data.doc.business_name,
+        cuit: data.doc.cuit,
+        phone: data.doc.phone,
+        province: data.doc.province,
+        city: data.doc.city,
+        whatsapp: data.doc.whatsapp,
+      })
+      setToken(data.token)
+
+      router.push('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -68,6 +106,11 @@ export default function LoginPage() {
                 required
               />
             </div>
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
