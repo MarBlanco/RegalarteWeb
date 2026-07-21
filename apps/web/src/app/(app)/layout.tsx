@@ -1,12 +1,24 @@
 import React from 'react'
 import './globals.css'
-import { Inter } from 'next/font/google'
+import { Inter, Playfair_Display } from 'next/font/google'
+import { Header } from '@/components/layout/header'
+import { Footer } from '@/components/layout/footer'
+import { Providers } from '@/providers'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+})
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-serif',
+  display: 'swap',
+})
 
 export const metadata = {
-  title: 'REGALARTE',
-  description: 'Universo Solística y Regalarte',
+  title: 'Regalarte',
+  description: 'Descubrí el regalo perfecto. Universo Solística y Regalarte.',
 }
 
 export default function RootLayout({
@@ -15,9 +27,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
-      <body className={inter.className}>
-        {children}
+    <html lang="es" className={`${inter.variable} ${playfair.variable}`}>
+      <body className={`${inter.className} min-h-screen flex flex-col`}>
+        <Providers>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   )
