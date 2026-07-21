@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,15 +15,71 @@ import {
 import { useAuth } from '@/hooks/use-auth'
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth()
+  const router = useRouter()
+  const { user, token, setUser, logout } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setIsLoading(true)
-    // TODO: Implement profile update
-    await new Promise((r) => setTimeout(r, 1000))
-    setIsLoading(false)
+    setError('')
+    setSuccess('')
+
+    try {
+      const form = e.target as HTMLFormElement
+      const formData = new FormData(form)
+
+      const res = await fetch(`/api/users/${user!.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({
+          name: formData.get('name'),
+          phone: formData.get('phone'),
+          whatsapp: formData.get('whatsapp'),
+          province: formData.get('province'),
+          city: formData.get('city'),
+          ...(user!.customer_type === 'WHOLESALE'
+            ? {
+                business_name: formData.get('business_name'),
+                cuit: formData.get('cuit'),
+              }
+            : {}),
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.errors?.[0]?.message || 'Error al guardar')
+      }
+
+      setUser({
+        ...user!,
+        name: data.doc.name,
+        phone: data.doc.phone,
+        whatsapp: data.doc.whatsapp,
+        province: data.doc.province,
+        city: data.doc.city,
+        business_name: data.doc.business_name,
+        cuit: data.doc.cuit,
+      })
+
+      setSuccess('Perfil actualizado correctamente')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al guardar')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  function handleLogout() {
+    logout()
+    router.push('/')
   }
 
   if (!user) {
@@ -130,10 +187,20 @@ export default function ProfilePage() {
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? 'Guardando...' : 'Guardar cambios'}
                 </Button>
-                <Button type="button" variant="outline" onClick={logout}>
+                <Button type="button" variant="outline" onClick={handleLogout}>
                   Cerrar sesión
                 </Button>
               </div>
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="text-sm text-green-600 bg-green-50 p-3 rounded-md">
+                  {success}
+                </div>
+              )}
             </form>
           </CardContent>
         </Card>

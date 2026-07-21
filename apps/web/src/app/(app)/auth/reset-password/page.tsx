@@ -22,15 +22,35 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (password !== confirmPassword) return
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
     setIsLoading(true)
-    // TODO: Implement Payload CMS reset password
-    await new Promise((r) => setTimeout(r, 1000))
-    setSuccess(true)
-    setIsLoading(false)
+    setError('')
+
+    try {
+      const res = await fetch('/api/users/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.errors?.[0]?.message || 'Error al restablecer la contraseña')
+      }
+
+      setSuccess(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al restablecer la contraseña')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (!token) {
@@ -108,6 +128,11 @@ export default function ResetPasswordPage() {
                 minLength={8}
               />
             </div>
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full" size="lg" disabled={isLoading}>

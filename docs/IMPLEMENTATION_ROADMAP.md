@@ -30,7 +30,7 @@ FOUNDATION
 
 Estado:
 
-NOT STARTED
+COMPLETE
 
 Objetivo:
 

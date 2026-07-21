@@ -18,14 +18,31 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setIsLoading(true)
-    // TODO: Implement Payload CMS forgot password
-    await new Promise((r) => setTimeout(r, 1000))
-    setSent(true)
-    setIsLoading(false)
+    setError('')
+
+    try {
+      const res = await fetch('/api/users/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.errors?.[0]?.message || 'Error al enviar el email')
+      }
+
+      setSent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al enviar el email')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (sent) {
@@ -71,6 +88,11 @@ export default function ForgotPasswordPage() {
                 required
               />
             </div>
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
