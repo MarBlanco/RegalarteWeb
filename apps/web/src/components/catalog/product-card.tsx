@@ -2,17 +2,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import type { ProductWithImage } from '@/lib/catalog'
+import { formatPrice } from '@/lib/format'
 
 export interface ProductCardProps {
   product: ProductWithImage
-}
-
-function formatPrice(value: number) {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    maximumFractionDigits: 0,
-  }).format(value)
 }
 
 export function ProductCard({ product }: ProductCardProps) {

@@ -51,6 +51,35 @@ interface FetchProductsResult {
   page: number
 }
 
+function appendNestedField(
+  usp: URLSearchParams,
+  prefix: string,
+  value: unknown,
+): void {
+  if (value === null || typeof value === 'object') {
+    if (Array.isArray(value)) {
+      value.forEach((item, idx) =>
+        appendNestedField(usp, `${prefix}[${idx}]`, item),
+      )
+      return
+    }
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      appendNestedField(usp, `${prefix}[${k}]`, v)
+    }
+    return
+  }
+  usp.append(prefix, String(value))
+}
+
+function urlForWhere(where: Where | undefined, prefix = 'where'): string {
+  const usp = new URLSearchParams()
+  if (!where) return usp.toString()
+  for (const [k, v] of Object.entries(where)) {
+    appendNestedField(usp, `${prefix}[${k}]`, v)
+  }
+  return usp.toString()
+}
+
 interface ResolveRefsInput {
   categorySlug?: string
   tagSlug?: string
@@ -200,4 +229,5 @@ export async function fetchProductTags(): Promise<ProductTag[]> {
   )
   return result.docs
 }
+
 
