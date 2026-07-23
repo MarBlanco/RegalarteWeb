@@ -30,6 +30,12 @@
   - **CommerceSettings API** (`src/app/api/commerce-settings/route.ts`) for minimum wholesale order config
   - Typecheck & lint pass
 
+- **[CORREGIDO]** Sprint 2 — Fixed 405 Method Not Allowed on `/api/products`
+  - Removed custom `/api/products/route.ts` and `/api/products/[slug]/route.ts` that only handled GET
+  - Payload's REST API at `/api/[...slug]` (auto-generated) now handles all methods (GET, POST, PUT, PATCH, DELETE) for products
+  - Catalog page updated to use Payload's REST API query format (where[], sort, depth, etc.)
+  - Product detail page uses Payload REST API for single product fetch
+
 ## 2026-07-20
 
 - **[COMPLETADO]** Auth pages wired to Payload REST API:

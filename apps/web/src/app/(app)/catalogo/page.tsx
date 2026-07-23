@@ -60,8 +60,9 @@ export default function CatalogoPage() {
       const params = new URLSearchParams({
         limit: ITEMS_PER_PAGE.toString(),
         page: page.toString(),
-        sort: sort,
-        ...(category && { 'category.slug': category }),
+        sort: sortMap[sort] || '-createdAt',
+        depth: '1',
+        ...(category && { 'where[category][slug][equals]': category }),
       })
       const res = await fetch(`/api/products?${params}`)
       if (!res.ok) throw new Error('Error al cargar productos')
@@ -105,6 +106,14 @@ export default function CatalogoPage() {
     setCategory('')
     setSort('newest')
     updateParams({ category: '', sort: 'newest' })
+  }
+
+  const sortMap: Record<string, string> = {
+    newest: '-createdAt',
+    'price-asc': 'price',
+    'price-desc': '-price',
+    'name-asc': 'name',
+    'name-desc': '-name',
   }
 
   const sortOptions = [

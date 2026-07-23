@@ -13,9 +13,8 @@ export async function GET(
     const result = await payload.find({
       collection: 'products',
       where: {
-        slug: {
-          equals: slug,
-        },
+        slug: { equals: slug },
+        isActive: { equals: true },
       },
       depth: 2,
       limit: 1,
@@ -27,22 +26,22 @@ export async function GET(
 
     const product = result.docs[0] as any
 
-    const category = product.category
-    const categoryData = category && typeof category === 'object' && 'name' in category
-      ? { name: category.name, slug: category.slug }
-      : null
-
     return NextResponse.json({
       id: product.id,
       name: product.name,
       slug: product.slug,
       description: product.description,
-      shortDescription: product.shortDescription || '',
+      shortDescription: product.shortDescription,
       price: product.price,
       wholesalePrice: product.wholesalePrice,
       isWholesaleAvailable: product.isWholesaleAvailable,
       images: product.images || [],
-      category: categoryData,
+      category: product.category
+        ? {
+            name: product.category.name,
+            slug: product.category.slug,
+          }
+        : null,
       tags: product.tags?.map((tag: any) => ({
         name: tag.name,
         slug: tag.slug,
