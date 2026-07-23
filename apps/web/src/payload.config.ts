@@ -7,6 +7,11 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { Users } from '@/collections/Users'
 import { Media } from '@/collections/Media'
+import { Categories } from '@/collections/Categories'
+import { Products } from '@/collections/Products'
+import { Attributes } from '@/collections/Attributes'
+import { Tags } from '@/collections/Tags'
+import { CommerceSettings } from '@/globals/CommerceSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -15,7 +20,8 @@ export default buildConfig({
   admin: {
     user: 'users',
   },
-  collections: [Users, Media],
+  collections: [Users, Media, Categories, Products, Attributes, Tags],
+  globals: [CommerceSettings],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({

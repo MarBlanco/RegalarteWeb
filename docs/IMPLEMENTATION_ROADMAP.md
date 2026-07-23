@@ -61,7 +61,11 @@ ECOMMERCE CORE
 
 Estado:
 
-NOT STARTED
+COMPLETE
+
+Objetivo:
+
+Implementar el núcleo de ecommerce.
 
 Entregables:
 
@@ -75,7 +79,7 @@ Entregables:
 
 Definition Of Done:
 
-Flujo completo de compra funcionando.
+Catálogo navegable y carrito funcional.
 
 ---
 

@@ -68,7 +68,7 @@ Catálogo navegable.
 
 Estado:
 
-NOT STARTED
+COMPLETE
 
 ---
 

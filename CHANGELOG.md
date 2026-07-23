@@ -1,5 +1,35 @@
 # REGALARTE
 
+## 2026-07-21
+
+- **[COMPLETADO]** Sprint 2 — Catalog: Core collections created
+  - **Categories** (`src/collections/Categories.ts`): hierarchical (parent/child), name, slug, description (richText), image, isActive, sortOrder
+  - **Products** (`src/collections/Products.ts`): name, slug, description (richText), category (required), tags, attributes, images array, price, wholesalePrice, isWholesaleAvailable, stock, SKU, isActive, isFeatured, sortOrder
+  - **Attributes** (`src/collections/Attributes.ts`): name, slug, type (text/select/number/boolean), values (for select), unit, isRequired, isFilterable, group
+  - **Tags** (`src/collections/Tags.ts`): name, slug, description, color (hex for UI)
+  - **CommerceSettings** global (`src/globals/CommerceSettings.ts`): minimumWholesaleOrder, wholesaleEnabled, defaultCurrency
+  - All collections added to Payload config, types regenerated (`payload-types.ts`)
+  - Typecheck & lint pass
+
+- **[COMPLETADO]** Sprint 2 — Catalog: Frontend catalog page
+  - **Catalog page** (`src/app/(app)/catalogo/page.tsx`): server-ready with TanStack Query, filters (category, sort), pagination, grid/list view toggle
+  - **ProductCard** component (`src/components/catalog/product-card.tsx`): displays product with image, name, description, price (retail/wholesale based on user type), badges
+  - Added shadcn/ui components: Select, Badge, Skeleton, Separator, Pagination
+  - API route for products (`src/app/api/products/route.ts`) using Payload local API
+
+- **[COMPLETADO]** Sprint 2 — Catalog: Product Detail page
+  - **Product Detail page** (`src/app/(app)/producto/[slug]/page.tsx`): dynamic route with image gallery, breadcrumbs, price display (retail/wholesale), description, specifications, quantity selector, add to cart (integrates with cart store), wishlist, share buttons
+  - API route for single product (`src/app/api/products/[slug]/route.ts`)
+  - **ProductCard** now integrates with cart store (`useCart` hook) — addItem called on click
+  - Typecheck & lint pass
+
+- **[COMPLETADO]** Sprint 2 — Cart integration
+  - **Cart store** (`src/hooks/use-cart.ts`): updated to read wholesale status from `useAuth` store, automatically applies wholesale/retail pricing in `getTotal()`
+  - **ProductCard** and **ProductDetail** pages integrate with cart — add to cart works for both retail and wholesale users
+  - **Cart page** (`src/app/(app)/carrito/page.tsx`): displays cart items with quantity controls, shows wholesale pricing when applicable, validates minimum wholesale order, shipping calculation, proceed to checkout button
+  - **CommerceSettings API** (`src/app/api/commerce-settings/route.ts`) for minimum wholesale order config
+  - Typecheck & lint pass
+
 ## 2026-07-20
 
 - **[COMPLETADO]** Auth pages wired to Payload REST API:
