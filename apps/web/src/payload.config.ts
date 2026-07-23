@@ -9,6 +9,9 @@ import { Users } from '@/collections/Users'
 import { Media } from '@/collections/Media'
 import { Categories } from '@/collections/Categories'
 import { ProductTags } from '@/collections/ProductTags'
+import { Products } from '@/collections/Products'
+import { ProductAttributes } from '@/collections/ProductAttributes'
+import { ProductImages } from '@/collections/ProductImages'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -17,7 +20,7 @@ export default buildConfig({
   admin: {
     user: 'users',
   },
-  collections: [Users, Media, Categories, ProductTags],
+  collections: [Users, Media, Categories, ProductTags, Products, ProductAttributes, ProductImages],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({
