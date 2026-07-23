@@ -24,6 +24,7 @@ export default buildConfig({
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({
+    push: false,
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
