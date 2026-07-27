@@ -13,6 +13,7 @@ import type {
 import { formatPrice } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { AddToCartButton } from '@/components/cart/add-to-cart-button'
 
 interface PageProps {
   params?: Promise<{ slug: string }>
@@ -243,6 +244,31 @@ export default async function ProductDetailPage({ params }: PageProps) {
                     {stockLabel(product.stock)}
                   </Badge>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <AddToCartButton
+                  product={{
+                    id: product.id,
+                    slug: product.slug,
+                    title: product.title,
+                    price: product.price,
+                    compareAtPrice: product.compareAtPrice ?? null,
+                    wholesalePrice: wholesalePrice,
+                    isWholesaleAvailable:
+                      product.isWholesaleAvailable === true,
+                    featuredImage: galleryImages[0]
+                      ? {
+                          url: galleryImages[0].url ?? null,
+                          alt:
+                            galleryImages[0].alt ?? product.title,
+                        }
+                      : null,
+                  }}
+                  stock={product.stock ?? null}
+                />
               </CardContent>
             </Card>
 
