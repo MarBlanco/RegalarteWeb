@@ -74,6 +74,7 @@ export interface Config {
     products: Product;
     'product-attributes': ProductAttribute;
     'product-images': ProductImage;
+    orders: Order;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -87,6 +88,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     'product-attributes': ProductAttributesSelect<false> | ProductAttributesSelect<true>;
     'product-images': ProductImagesSelect<false> | ProductImagesSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -355,6 +357,56 @@ export interface ProductImage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  /**
+   * Identificador público human-readable (ej. RG-2026-00001).
+   */
+  orderNumber: string;
+  status: 'pending' | 'paid' | 'rejected' | 'cancelled' | 'fulfilled';
+  mode: 'RETAIL' | 'WHOLESALE';
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+  address: {
+    province: string;
+    city: string;
+    street: string;
+    postalCode: string;
+  };
+  notes?: {
+    message?: string | null;
+  };
+  items: {
+    product: number | Product;
+    slug: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+    id?: string | null;
+  }[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+  /**
+   * Completado por el provider tras la inicialización del pago.
+   */
+  paymentProvider?: ('mock' | 'mercadopago') | null;
+  /**
+   * Identificador devuelto por el provider (preference_id, etc.).
+   */
+  paymentExternalId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -387,6 +439,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'product-images';
         value: number | ProductImage;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -651,6 +707,54 @@ export interface ProductImagesSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  status?: T;
+  mode?: T;
+  customer?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        email?: T;
+        phone?: T;
+      };
+  address?:
+    | T
+    | {
+        province?: T;
+        city?: T;
+        street?: T;
+        postalCode?: T;
+      };
+  notes?:
+    | T
+    | {
+        message?: T;
+      };
+  items?:
+    | T
+    | {
+        product?: T;
+        slug?: T;
+        name?: T;
+        quantity?: T;
+        unitPrice?: T;
+        lineTotal?: T;
+        id?: T;
+      };
+  subtotal?: T;
+  shipping?: T;
+  total?: T;
+  paymentProvider?: T;
+  paymentExternalId?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

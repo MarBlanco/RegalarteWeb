@@ -8,12 +8,16 @@
  *   - 'success' { redirectUrl?, orderId? }
  *   - 'error'   { message, fieldErrors? }
  *
- * Esta capa aisla al UI del backend. Hoy contiene un mock con
- * latencia simulada; el reemplazo por la llamada real al endpoint
- * de Orders vive en TICKET-009 (Orders).
+ * Esta capa aísla al UI del backend. Hoy delega a POST /api/orders.
  */
 
 import type { CheckoutFormValues } from './types'
+import type {
+  CreateOrderError,
+  CreateOrderResult,
+} from '@/lib/orders/types'
+import type { CartItem, CartMode } from '@/lib/cart/types'
+import { useCartStore } from '@/lib/cart/store'
 
 export type CheckoutSubmitStatus =
   | 'idle'
@@ -30,50 +34,101 @@ export interface CheckoutSubmitSuccess {
 export interface CheckoutSubmitError {
   status: 'error'
   message: string
-  /**
-   * Errores por campo indexados por la misma key que usa el form
- * (ej. "customer.email"). Solo presente cuando el backend (o el mock)
- * devuelve errores por campo. Las keys vacias se ignoran en el render.
-   */
   fieldErrors?: Partial<Record<string, string>>
 }
 
 export type SubmitResult = CheckoutSubmitSuccess | CheckoutSubmitError
 
-// TODO(TICKET-009): reemplazar este mock por una llamada real al endpoint
-// de Orders (coleccion de Payload + servicio de Payments). El contrato
-// publico (submitCheckout / SubmitResult) se mantiene, solo cambia el
-// cuerpo de la funcion. Tambien conviene mover la validacion de campos
-// al backend y traducir la respuesta a SubmitResult aqui.
+function indexFieldErrors(
+  errors: ReadonlyArray<{ path: string; message: string }>,
+): Partial<Record<string, string>> {
+  const map: Partial<Record<string, string>> = {}
+  for (const { path, message } of errors) {
+    if (!path) continue
+    if (!map[path]) map[path] = message
+  }
+  return map
+}
+
+function mapCreateOrderError(error: CreateOrderError): SubmitResult {
+  return {
+    status: 'error',
+    message: error.message,
+    fieldErrors: error.fieldErrors
+      ? indexFieldErrors(error.fieldErrors)
+      : undefined,
+  }
+}
+
 export async function submitCheckout(
   values: CheckoutFormValues,
 ): Promise<SubmitResult> {
-  // Latencia simulada para poder validar el UX de loading.
-  await new Promise((resolve) => setTimeout(resolve, 1200))
+  const cart = useCartStore.getState()
+  const items: CartItem[] = cart.items
+  const mode: CartMode = cart.mode
 
-  const fieldErrors: Record<string, string> = {}
-  if (!values.customer.email) fieldErrors['customer.email'] = 'Requerido'
-  if (!values.customer.firstName)
-    fieldErrors['customer.firstName'] = 'Requerido'
-  if (!values.customer.lastName)
-    fieldErrors['customer.lastName'] = 'Requerido'
-  if (!values.address.province)
-    fieldErrors['address.province'] = 'Requerido'
-  if (!values.address.city) fieldErrors['address.city'] = 'Requerido'
-  if (!values.address.street)
-    fieldErrors['address.street'] = 'Requerido'
-
-  if (Object.keys(fieldErrors).length > 0) {
+  if (items.length === 0) {
     return {
       status: 'error',
-      message: 'Revisá los datos obligatorios antes de continuar.',
-      fieldErrors,
+      message: 'Tu carrito está vacío. Volvé al catálogo para elegir productos.',
+    }
+  }
+
+  const body = {
+    customer: values.customer,
+    address: values.address,
+    notes: values.notes,
+    mode,
+    items: items.map((item) => ({
+      id: item.id,
+      productId: item.productId,
+      slug: item.slug,
+      name: item.name,
+      price: item.price,
+      compareAtPrice: item.compareAtPrice,
+      wholesalePrice: item.wholesalePrice,
+      isWholesaleAvailable: item.isWholesaleAvailable,
+      image: item.image,
+      quantity: item.quantity,
+    })),
+  }
+
+  let response: Response
+  try {
+    response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch {
+    return {
+      status: 'error',
+      message:
+        'No pudimos procesar tu pedido. Revisá tu conexión e intentá de nuevo.',
+    }
+  }
+
+  let payload: CreateOrderResult
+  try {
+    payload = (await response.json()) as CreateOrderResult
+  } catch {
+    return {
+      status: 'error',
+      message: 'Respuesta inesperada del servidor. Intentá de nuevo.',
+    }
+  }
+
+  if (!response.ok || payload.status === 'error') {
+    if (payload.status === 'error') return mapCreateOrderError(payload)
+    return {
+      status: 'error',
+      message: 'No pudimos procesar tu pedido. Intentá de nuevo.',
     }
   }
 
   return {
     status: 'success',
-    orderId: 'mock-order-id',
-    redirectUrl: '/checkout?status=mock-success',
+    orderId: payload.orderId,
+    redirectUrl: payload.redirectUrl,
   }
 }
