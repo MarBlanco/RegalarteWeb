@@ -15,7 +15,7 @@ import {
   type CheckoutSubmitStatus,
   type SubmitResult,
 } from '@/lib/checkout'
-import { useCartStore } from '@/lib/cart'
+import { syncCartWithOrder } from '@/lib/cart/cart-sync'
 import { CheckoutFormFields } from './checkout-form-fields'
 
 export function CheckoutForm() {
@@ -44,10 +44,11 @@ export function CheckoutForm() {
       setStatus(submitResult.status)
 
       if (submitResult.status === 'success') {
-        // TICKET-009: vaciar el carrito solo despues de que la Order
-        // se persistio. Asi evitamos re-compras si el submit falla
-        // o el provider rechaza el pago.
-        useCartStore.getState().clearCart()
+        // TICKET-009 + TICKET-011: vaciar el carrito solo despues de que
+        // la Order se persistio. La operacion se delega a la capa de
+        // sync (lib/cart/cart-sync) para mantener un solo punto de
+        // sincronizacion Cart <-> Orders.
+        syncCartWithOrder(submitResult.orderId)
 
         const decision = await continueCheckout(submitResult)
         setFlow(decision)
