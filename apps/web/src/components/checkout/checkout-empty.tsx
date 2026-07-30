@@ -13,6 +13,7 @@ export function CheckoutEmptyState() {
           className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary"
         >
           <svg
+            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             width="22"
             height="22"

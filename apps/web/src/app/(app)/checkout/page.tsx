@@ -10,7 +10,6 @@ import { CheckoutSummary } from '@/components/checkout/checkout-summary'
 import { CheckoutLineList } from '@/components/checkout/checkout-line-list'
 import { CheckoutEmptyState } from '@/components/checkout/checkout-empty'
 import { useCartStore } from '@/lib/cart'
-import { formatPrice } from '@/lib/format'
 
 export default function CheckoutPage() {
   const items = useCartStore((s) => s.items)

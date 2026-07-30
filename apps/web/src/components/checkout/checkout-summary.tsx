@@ -5,7 +5,6 @@ import { formatPrice } from '@/lib/format'
 import { Card, CardContent } from '@/components/ui/card'
 
 export function CheckoutSummary() {
-  const items = useCartStore((s) => s.items)
   const mode = useCartStore((s) => s.mode)
   const hydrated = useCartStore((s) => s.hydrated)
   const totals = useCartStore((s) =>

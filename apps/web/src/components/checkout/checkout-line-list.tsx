@@ -60,7 +60,7 @@ export function CheckoutLineList() {
   const mode = useCartStore((s) => s.mode)
 
   return (
-    <ul className="divide-y">
+    <ul className="divide-y" aria-label="Productos en el carrito">
       {items.map((item) => (
         <CheckoutLineRow
           key={item.id}
