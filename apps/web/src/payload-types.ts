@@ -69,6 +69,12 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    categories: Category;
+    'product-tags': ProductTag;
+    products: Product;
+    'product-attributes': ProductAttribute;
+    'product-images': ProductImage;
+    orders: Order;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -77,6 +83,12 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    'product-tags': ProductTagsSelect<false> | ProductTagsSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    'product-attributes': ProductAttributesSelect<false> | ProductAttributesSelect<true>;
+    'product-images': ProductImagesSelect<false> | ProductImagesSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -194,6 +206,207 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  slug: string;
+  description?: string | null;
+  image?: (number | null) | Media;
+  parent?: (number | null) | Category;
+  sortOrder?: number | null;
+  featured?: boolean | null;
+  active?: boolean | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-tags".
+ */
+export interface ProductTag {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  color?: string | null;
+  icon?: string | null;
+  sortOrder?: number | null;
+  featured?: boolean | null;
+  active?: boolean | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: number;
+  title: string;
+  slug: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  price: number;
+  compareAtPrice?: number | null;
+  /**
+   * Si está vacío y el producto mayorista, no aplica precio B2B.
+   */
+  wholesalePrice?: number | null;
+  isWholesaleAvailable?: boolean | null;
+  sku?: string | null;
+  stock?: number | null;
+  active?: boolean | null;
+  featured?: boolean | null;
+  /**
+   * Marca el producto como parte del universo Solística. No es un catálogo paralelo: sigue siendo un producto REGALARTE.
+   */
+  isSolistica?: boolean | null;
+  sortOrder?: number | null;
+  category: number | Category;
+  tags?: (number | ProductTag)[] | null;
+  attributes?: (number | ProductAttribute)[] | null;
+  images?: (number | ProductImage)[] | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-attributes".
+ */
+export interface ProductAttribute {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  values: {
+    value: string;
+    sortOrder?: number | null;
+    id?: string | null;
+  }[];
+  sortOrder?: number | null;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-images".
+ */
+export interface ProductImage {
+  id: number;
+  alt: string;
+  caption?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    desktop?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  /**
+   * Identificador público human-readable (ej. RG-2026-00001).
+   */
+  orderNumber: string;
+  status: 'pending' | 'paid' | 'rejected' | 'cancelled' | 'fulfilled';
+  mode: 'RETAIL' | 'WHOLESALE';
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+  address: {
+    province: string;
+    city: string;
+    street: string;
+    postalCode: string;
+  };
+  notes?: {
+    message?: string | null;
+  };
+  items: {
+    product: number | Product;
+    slug: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+    id?: string | null;
+  }[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+  /**
+   * Completado por el provider tras la inicialización del pago.
+   */
+  paymentProvider?: ('mock' | 'mercadopago') | null;
+  /**
+   * Identificador devuelto por el provider (preference_id, etc.).
+   */
+  paymentExternalId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -206,6 +419,30 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'product-tags';
+        value: number | ProductTag;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'product-attributes';
+        value: number | ProductAttribute;
+      } | null)
+    | ({
+        relationTo: 'product-images';
+        value: number | ProductImage;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -334,6 +571,190 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  image?: T;
+  parent?: T;
+  sortOrder?: T;
+  featured?: T;
+  active?: T;
+  seoTitle?: T;
+  seoDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-tags_select".
+ */
+export interface ProductTagsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  color?: T;
+  icon?: T;
+  sortOrder?: T;
+  featured?: T;
+  active?: T;
+  seoTitle?: T;
+  seoDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  price?: T;
+  compareAtPrice?: T;
+  wholesalePrice?: T;
+  isWholesaleAvailable?: T;
+  sku?: T;
+  stock?: T;
+  active?: T;
+  featured?: T;
+  isSolistica?: T;
+  sortOrder?: T;
+  category?: T;
+  tags?: T;
+  attributes?: T;
+  images?: T;
+  seoTitle?: T;
+  seoDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-attributes_select".
+ */
+export interface ProductAttributesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  values?:
+    | T
+    | {
+        value?: T;
+        sortOrder?: T;
+        id?: T;
+      };
+  sortOrder?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-images_select".
+ */
+export interface ProductImagesSelect<T extends boolean = true> {
+  alt?: T;
+  caption?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        desktop?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  status?: T;
+  mode?: T;
+  customer?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        email?: T;
+        phone?: T;
+      };
+  address?:
+    | T
+    | {
+        province?: T;
+        city?: T;
+        street?: T;
+        postalCode?: T;
+      };
+  notes?:
+    | T
+    | {
+        message?: T;
+      };
+  items?:
+    | T
+    | {
+        product?: T;
+        slug?: T;
+        name?: T;
+        quantity?: T;
+        unitPrice?: T;
+        lineTotal?: T;
+        id?: T;
+      };
+  subtotal?: T;
+  shipping?: T;
+  total?: T;
+  paymentProvider?: T;
+  paymentExternalId?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

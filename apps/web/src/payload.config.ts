@@ -7,6 +7,12 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { Users } from '@/collections/Users'
 import { Media } from '@/collections/Media'
+import { Categories } from '@/collections/Categories'
+import { ProductTags } from '@/collections/ProductTags'
+import { Products } from '@/collections/Products'
+import { ProductAttributes } from '@/collections/ProductAttributes'
+import { ProductImages } from '@/collections/ProductImages'
+import { Orders } from '@/collections/Orders'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -15,10 +21,11 @@ export default buildConfig({
   admin: {
     user: 'users',
   },
-  collections: [Users, Media],
+  collections: [Users, Media, Categories, ProductTags, Products, ProductAttributes, ProductImages, Orders],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({
+    push: false,
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },

@@ -1,5 +1,43 @@
 # REGALARTE
 
+## 2026-07-27
+
+- **[COMPLETADO]** Sprint 3 — Storefront del carrito (paso 1/2/3).
+  - **[INFRA]** Carrito Zustand con persistencia en `localStorage` (key `regalarte-cart-v1`, versionada, `partialize`, `onRehydrateStorage`, `migrate` defensivo), selector `hydrated` para evitar hydration mismatch.
+  - **[INFRA]** Pricing resolvers puros: `resolveUnitPrice` con fallback minorista cuando el mayorista no aplica (regla `13_DATABASE_DESIGN`), `getSubtotal`, `getTotals`, `clampQuantity`.
+  - **[UI]** Drawer del carrito con backdrop, ESC keyboard support, scroll lock del body, controles `+`/`-` por item, eliminar individual, vaciar, subtotal y total.
+  - **[UI]** Botón "Agregar al carrito" en la Product Detail Page con selector de cantidad (capado por stock), feedback "Agregado ✓" y apertura automática del drawer.
+  - **[UI]** Trigger del carrito en el header con contador en tiempo real y badge numerico (badge oculto cuando el contador es 0 o no hidrato).
+  - **[UI]** Página `/cart` con breadcrumb, header, lista editable, card de resumen (cantidad, modo de precios activo, subtotal, total), CTAs (Seguir comprando, Vaciar, Continuar con el checkout) y empty state con CTA al catálogo.
+  - **[UI]** Empty state dedicado para `/cart` cuando no hay productos.
+  - **[INTEGRACION]** `CartProvider` integrado dentro del árbol de `Providers` global. `Header` actualizado para reemplazar el link estático a `/cart` por el `CartTrigger`.
+- **[NOTA]** Tareas pendientes del Sprint 3 (no realizadas en este commit): checkout, integración Mercado Pago, pedidos/orders y sincronización server del carrito para usuarios autenticados.
+
+## 2026-07-23
+
+- **[COMPLETADO]** Sprint 2 — Backend del catálogo y storefront completo.
+  - **[BACKEND]** Colecciones Payload: `Categories`, `ProductTags`, `Products`, `ProductAttributes`, `ProductImages` registradas en `payload.config.ts`.
+  - **[BACKEND]** `Products` modela title/slug, descripción richText (Lexical), precios (minorista + tachado + mayorista + flag `isWholesaleAvailable`), SKU, stock, badges (`featured`, `active`, `isSolistica`, `sortOrder`), relaciones (categoría, tags, atributos, imágenes), SEO (`seoTitle`, `seoDescription`). Principio "no catálogos paralelos" aplicado: el universo Solística se representa como booleano sobre el mismo producto, no como colección aparte.
+  - **[BACKEND]** `ProductImages` como colección upload con `imageSizes` (thumbnail/card/desktop), `focalPoint` y `staticDir` local; integración con R2 pendiente de activación real.
+  - **[BACKEND]** `ProductAttributes` con lista de valores (`values: { value, sortOrder }`).
+- **[CORREGIDO]** Causa raíz del `Internal server error` (Postgres `42P16: la columna id está en la llave primaria`) en `/admin` y `/api/*`:
+  - `push: false` en `postgresAdapter` para deshabilitar la reconciliación automática del schema en cada arranque.
+  - Primera migración formal versionada: `apps/web/src/migrations/20260723_105205.{ts,json}` + `index.ts`. Generada vía `payload migrate:create`.
+- **[FRONTEND]** `/catalogo` con `ProductGrid` (cards), `CatalogFilters` (búsqueda libre, categoría, tag, rango de precio, sort), `CatalogPagination`, loading skeleton y empty state.
+- **[FRONTEND]** Product Detail Page en `/catalogo/[slug]` con `generateMetadata` (SEO dinámico), `notFound()` + `not-found.tsx` para slug inexistente, `ImageGallery` client con thumbnails, badges (Destacado/Solística/Mayorista), precio + precio tachado + precio mayorista, `stockLabel` por niveles, descripción Lexical con renderer ligero, tags como chips y atributos como filas.
+- **[DESIGN]** Primitive shadcn `Badge` (variants: default/secondary/destructive/accent/outline/wholesale) alineado a los tokens del design system.
+- **[LIB]** `lib/format.ts` con `formatPrice` (es-AR, ARS, 0 fracciones) compartido por `ProductCard` y PDP.
+- **[LIB]** `lib/product-by-slug.ts` con helper de fetch bracket-notation REST Payload (`?where[slug][equals]=...`) para resolver productos por slug.
+- **[LIB]** `lib/catalog.ts` con `fetchProducts`, `fetchCategories`, `fetchProductTags` (server fetch + `revalidate` + cache por tags).
+- **[NOTA]** Smoke tests durante implementación insertaron 3 productos y 1 categoría (`vela-aromatica-001`, `gift-box-001`, `difusor-premium-001`) directamente en la DB local. Sin imágenes porque R2 está desactivado por placeholders; los endpoints devuelven `image:null` y la UI muestra fallbacks.
+- **[VERIFICADO]** `/catalogo` 200 con grid; PDPs 200 para slugs válidos; PDP inexistente renderiza `not-found.tsx` (status 200 por comportamiento conocido de Next 15 `notFound()` en dev); `/admin` 307 → `/admin/login`; todos los `/api/*` 200 sin `42P16`.
+- **[VERIFICADO]** `tsc --noEmit`: 0 errores nuevos (sólo los 2 preexistentes autogenerados por Payload).
+
+## 2026-07-22
+
+- **[SETUP]** Causa raíz de `Cannot find package '@/collections'` resuelta: agregado `"type": "module"` en `apps/web/package.json`. Sin esto, `tsx` + Node ESM no respetaban los `paths` de `tsconfig.json` (`@/*`, `@payload-config`) y `payload generate:types` fallaba con `ERR_MODULE_NOT_FOUND`. Cambio soportado oficialmente por Payload 3 y documentado en el issue upstream.
+- **[CORREGIDO]** Imports relativos rotos en `payload.config.ts` corregidos al cambiar a `"type": "module"`.
+
 ## 2026-07-20
 
 - **[COMPLETADO]** Auth pages wired to Payload REST API:
