@@ -1,3 +1,15 @@
+## Sprint 4 — Administration
+
+| Ticket | Descripción | Responsable | Estado |
+|---------|-------------|-------------|--------|
+| TICKET-012 | Dashboard administrativo | Martín | ⏳ PENDIENTE |
+| TICKET-013 | Gestión de Productos | Martín | ⏳ PENDIENTE |
+| TICKET-014 | Gestión de Pedidos | Martín | ⏳ PENDIENTE |
+| TICKET-015 | Gestión de Clientes | Martín | ⏳ PENDIENTE |
+| TICKET-016 | Gestión de Categorías | MANCHY | ⏳ PENDIENTE |
+| TICKET-017 | Gestión de Contenido | MANCHY | ⏳ PENDIENTE |
+| TICKET-018 | Configuración básica de la tienda | Martín | ⏳ PENDIENTE |
+
 ## Sprint 3 — Compra
 
 | Ticket | Descripción | Responsable | Estado |
