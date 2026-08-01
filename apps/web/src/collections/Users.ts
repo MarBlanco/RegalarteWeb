@@ -1,5 +1,21 @@
 import type { CollectionConfig } from 'payload'
 
+/**
+ * TICKET-015 — Gestión de Clientes (administración).
+ *
+ * Esta colección representa tanto a clientes como a usuarios internos.
+ * Para administración se exponen únicamente mejoras nativas de Payload:
+ *
+ *  - admin.description: contexto en el sidebar del panel.
+ *  - admin.defaultColumns: columnas relevantes para identificar clientes.
+ *  - admin.listSearchableFields: búsqueda nativa por email/nombre/teléfono/cuit/razón social.
+ *  - access.delete: protegido (admin). Se desactiva en lugar de borrar para
+ *    preservar integridad referencial con Orders. Los clientes se registran
+ *    públicamente vía POST /api/users (self-registration), por lo que NO se
+ *    restringe access.create ni access.read.
+ *
+ * No se modifican flujos públicos ni se introduce arquitectura nueva.
+ */
 export const Users: CollectionConfig = {
   slug: 'users',
   auth: {
@@ -16,6 +32,34 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     group: 'Usuarios',
+    description:
+      'Gestión de clientes y usuarios internos. Los clientes se registran desde el storefront. Solo admin puede eliminar registros para preservar historial de pedidos.',
+    defaultColumns: [
+      'email',
+      'name',
+      'customer_type',
+      'role',
+      'phone',
+      'city',
+      'province',
+      'createdAt',
+    ],
+    listSearchableFields: [
+      'email',
+      'name',
+      'phone',
+      'whatsapp',
+      'cuit',
+      'business_name',
+      'city',
+    ],
+  },
+  access: {
+    delete: ({ req: { user } }) => {
+      const u = user as { role?: string } | null
+      if (!u) return false
+      return u.role === 'admin'
+    },
   },
   fields: [
     {
