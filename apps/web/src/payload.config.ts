@@ -21,6 +21,9 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   admin: {
     user: 'users',
+    components: {
+      beforeDashboard: ['@/components/admin/dashboard#AdminDashboard'],
+    },
   },
   collections: [Users, Media, Categories, ProductTags, Products, ProductAttributes, ProductImages, Orders],
   globals: [CommerceSettings],

@@ -2,7 +2,7 @@
 
 | Ticket | Descripción | Responsable | Estado |
 |---------|-------------|-------------|--------|
-| TICKET-012 | Dashboard administrativo | Martín | ⏳ PENDIENTE |
+| TICKET-012 | Dashboard administrativo | Martín | ✅ COMPLETADO |
 | TICKET-013 | Gestión de Productos | Martín | ⏳ PENDIENTE |
 | TICKET-014 | Gestión de Pedidos | Martín | ⏳ PENDIENTE |
 | TICKET-015 | Gestión de Clientes | Martín | ⏳ PENDIENTE |
