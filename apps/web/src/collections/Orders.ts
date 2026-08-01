@@ -11,25 +11,49 @@ import type { CollectionConfig } from 'payload'
  * `paymentProvider` y `paymentExternalId` son completados por el
  * provider de pago tras la inicializacion (TICKET-010). El campo
  * `status` refleja el ciclo de vida de la orden.
+ *
+ * Gestion administrativa (TICKET-014):
+ *   - `read` y `update` permiten acceso a usuarios admin/staff.
+ *   - El POST publico desde /api/orders (checkout) sigue funcionando
+ *     porque `create` se mantiene abierto para todos.
+ *   - `delete` permanece bloqueado: una Order nunca se borra, solo
+ *     se anula cambiando `status` a cancelled.
  */
 export const Orders: CollectionConfig = {
   slug: 'orders',
   admin: {
     useAsTitle: 'orderNumber',
+    description:
+      'Pedidos generados por el checkout. El admin puede ver y actualizar el estado (p. ej. pending → paid). El storefront solo crea orders via POST /api/orders; nunca las lee.',
     defaultColumns: [
       'orderNumber',
       'status',
       'mode',
+      'customer.email',
       'total',
       'paymentProvider',
       'createdAt',
     ],
     group: 'Operación',
+    listSearchableFields: [
+      'orderNumber',
+      'customer.email',
+      'customer.phone',
+      'paymentExternalId',
+    ],
   },
   access: {
-    read: () => false,
+    read: ({ req: { user } }) => {
+      const u = user as { role?: string } | null
+      if (!u) return false
+      return u.role === 'admin' || u.role === 'staff'
+    },
     create: () => true,
-    update: () => false,
+    update: ({ req: { user } }) => {
+      const u = user as { role?: string } | null
+      if (!u) return false
+      return u.role === 'admin' || u.role === 'staff'
+    },
     delete: () => false,
   },
   fields: [
