@@ -249,6 +249,8 @@ export interface ProductTag {
   createdAt: string;
 }
 /**
+ * Catálogo único de productos REGALARTE. No existen catálogos paralelos para mayoristas: el flag isWholesaleAvailable define qué productos aplican precio B2B.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
  */

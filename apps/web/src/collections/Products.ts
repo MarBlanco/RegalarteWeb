@@ -4,8 +4,20 @@ export const Products: CollectionConfig = {
   slug: 'products',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'price', 'stock', 'active', 'featured'],
+    description:
+      'Catálogo único de productos REGALARTE. No existen catálogos paralelos para mayoristas: el flag isWholesaleAvailable define qué productos aplican precio B2B.',
+    defaultColumns: [
+      'title',
+      'category',
+      'price',
+      'stock',
+      'isSolistica',
+      'isWholesaleAvailable',
+      'active',
+      'featured',
+    ],
     group: 'Catálogo',
+    listSearchableFields: ['title', 'slug', 'sku'],
   },
   access: {
     read: () => true,
