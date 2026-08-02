@@ -1,18 +1,23 @@
 import type { CollectionConfig } from 'payload'
 
 /**
- * TICKET-016 — Gestión de Categorías (administración).
+ * Categories — árbol jerárquico de categorías del catálogo REGALARTE.
  *
- * Mejoras nativas de Payload aplicadas al panel admin:
+ * Se modela como una colección auto-referenciada vía el campo `parent`,
+ * dando soporte a subcategorías arbitrarias. Es el eje de navegación del
+ * storefront (`/catalogo?categoria=...`) y de la organización de productos.
  *
- *  - admin.description: contexto en el sidebar del panel.
- *  - admin.defaultColumns: columnas relevantes para identificar categorías.
- *  - admin.listSearchableFields: búsqueda nativa por título/slug/descripción/SEO.
+ * Gestión administrativa (TICKET-016):
+ *  - `read` público: el storefront y la API REST consumen categorías sin
+ *    autenticación (`/api/categories`, `where[category.slug][equals]`).
+ *  - `create`/`update` restringidos a admin/staff: el storefront nunca
+ *    crea categorías, sólo el panel administración.
+ *  - `delete` sólo admin con guard anti auto-borrado: eliminar una
+ *    categoría con `parent` rompería el árbol y dejaría huérfanos a los
+ *    productos que la referencian; el curso correcto es desactivar
+ *    (`active = false`) en su lugar.
  *
- * El campo `parent` (self-relationship), `featured`, `active`, `sortOrder`
- * y los campos SEO ya estaban presentes. No se modifican fields, no se
- * agregan hooks, endpoints, plugins ni migraciones. La storefront sigue
- * leyendo categorías vía `access.read: () => true`.
+ * Sin cambios de schema. Sin migraciones. Sin arquitectura nueva.
  */
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -20,12 +25,37 @@ export const Categories: CollectionConfig = {
     useAsTitle: 'title',
     group: 'Catálogo',
     description:
-      'Jerarquía de categorías del catálogo. Soporta sub-categorías vía campo parent y orden manual vía sortOrder.',
-    defaultColumns: ['title', 'slug', 'parent', 'featured', 'active', 'sortOrder', 'updatedAt'],
-    listSearchableFields: ['title', 'slug', 'description', 'seoTitle', 'seoDescription'],
+      'Árbol jerárquico de categorías del catálogo. El storefront las lee públicamente; crear/editar requiere staff/admin. Para retirar una categoría del catálogo, desactivarla (active=false) en lugar de borrarla: preserva el árbol y los productos asociados.',
+    defaultColumns: [
+      'title',
+      'slug',
+      'parent',
+      'sortOrder',
+      'featured',
+      'active',
+      'createdAt',
+    ],
+    listSearchableFields: ['title', 'slug', 'seoTitle'],
   },
   access: {
     read: () => true,
+    create: ({ req: { user } }) => {
+      const u = user as { role?: string } | null
+      if (!u) return false
+      return u.role === 'admin' || u.role === 'staff'
+    },
+    update: ({ req: { user } }) => {
+      const u = user as { role?: string } | null
+      if (!u) return false
+      return u.role === 'admin' || u.role === 'staff'
+    },
+    delete: ({ req: { user }, id }) => {
+      const u = user as { role?: string; id?: string | number } | null
+      if (!u) return false
+      if (u.role !== 'admin') return false
+      if (u.id !== undefined && String(u.id) === String(id)) return false
+      return true
+    },
   },
   fields: [
     {
