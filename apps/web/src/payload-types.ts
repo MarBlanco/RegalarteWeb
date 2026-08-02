@@ -209,6 +209,8 @@ export interface Media {
   };
 }
 /**
+ * Jerarquía de categorías del catálogo. Soporta sub-categorías vía campo parent y orden manual vía sortOrder.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */

@@ -1,10 +1,28 @@
 import type { CollectionConfig } from 'payload'
 
+/**
+ * TICKET-016 — Gestión de Categorías (administración).
+ *
+ * Mejoras nativas de Payload aplicadas al panel admin:
+ *
+ *  - admin.description: contexto en el sidebar del panel.
+ *  - admin.defaultColumns: columnas relevantes para identificar categorías.
+ *  - admin.listSearchableFields: búsqueda nativa por título/slug/descripción/SEO.
+ *
+ * El campo `parent` (self-relationship), `featured`, `active`, `sortOrder`
+ * y los campos SEO ya estaban presentes. No se modifican fields, no se
+ * agregan hooks, endpoints, plugins ni migraciones. La storefront sigue
+ * leyendo categorías vía `access.read: () => true`.
+ */
 export const Categories: CollectionConfig = {
   slug: 'categories',
   admin: {
     useAsTitle: 'title',
     group: 'Catálogo',
+    description:
+      'Jerarquía de categorías del catálogo. Soporta sub-categorías vía campo parent y orden manual vía sortOrder.',
+    defaultColumns: ['title', 'slug', 'parent', 'featured', 'active', 'sortOrder', 'updatedAt'],
+    listSearchableFields: ['title', 'slug', 'description', 'seoTitle', 'seoDescription'],
   },
   access: {
     read: () => true,
