@@ -20,4 +20,4 @@
 | TICKET-015 | Gestión de Clientes | Martín | ✅ COMPLETADO |
 | TICKET-016 | Gestión de Categorías | MANCHY | ⏳ PENDIENTE |
 | TICKET-017 | Gestión de Contenido | MANCHY | 🚫 BLOQUEADO |
-| TICKET-018 | Configuración básica de la tienda | Martín | ⏳ PENDIENTE |
+| TICKET-018 | Configuración básica de la tienda | Martín | ✅ COMPLETADO |

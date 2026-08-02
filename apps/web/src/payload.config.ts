@@ -13,6 +13,7 @@ import { Products } from '@/collections/Products'
 import { ProductAttributes } from '@/collections/ProductAttributes'
 import { ProductImages } from '@/collections/ProductImages'
 import { Orders } from '@/collections/Orders'
+import { CommerceSettings } from '@/globals/CommerceSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -22,6 +23,7 @@ export default buildConfig({
     user: 'users',
   },
   collections: [Users, Media, Categories, ProductTags, Products, ProductAttributes, ProductImages, Orders],
+  globals: [CommerceSettings],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({

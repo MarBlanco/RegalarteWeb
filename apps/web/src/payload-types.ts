@@ -96,8 +96,12 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'commerce-settings': CommerceSetting;
+  };
+  globalsSelect: {
+    'commerce-settings': CommerceSettingsSelect<false> | CommerceSettingsSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -787,6 +791,36 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Parámetros administrativos de la tienda. Modificables únicamente por admin y staff.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "commerce-settings".
+ */
+export interface CommerceSetting {
+  id: number;
+  /**
+   * Habilita el canal mayorista en la storefront. Cuando está deshabilitado, los mayoristas no pueden comprar.
+   */
+  wholesale_enabled: boolean;
+  /**
+   * Monto mínimo (en ARS) que debe alcanzar un pedido para ser aceptado en el canal mayorista.
+   */
+  minimum_wholesale_order: number;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "commerce-settings_select".
+ */
+export interface CommerceSettingsSelect<T extends boolean = true> {
+  wholesale_enabled?: T;
+  minimum_wholesale_order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
