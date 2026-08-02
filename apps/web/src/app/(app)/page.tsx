@@ -1,5 +1,36 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
+
+export const metadata: Metadata = {
+  title: 'Regalarte',
+  description:
+    'Encontrá el regalo perfecto. Ideas únicas para cada persona, ocasión y presupuesto.',
+  openGraph: {
+    title: 'Regalarte',
+    description:
+      'Encontrá el regalo perfecto. Ideas únicas para cada persona, ocasión y presupuesto.',
+    url: '/',
+    siteName: 'Regalarte',
+    locale: 'es_AR',
+    type: 'website',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Regalarte',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Regalarte',
+    description:
+      'Encontrá el regalo perfecto. Ideas únicas para cada persona, ocasión y presupuesto.',
+    images: ['/opengraph-image'],
+  },
+}
 
 export default function HomePage() {
   return (
