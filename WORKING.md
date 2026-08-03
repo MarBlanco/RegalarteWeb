@@ -21,3 +21,15 @@
 | TICKET-016 | Gestión de Categorías | MANCHY | ✅ COMPLETADO |
 | TICKET-017 | Gestión de Contenido | MANCHY | 🚫 BLOQUEADO |
 | TICKET-018 | Configuración básica de la tienda | Martín | ✅ COMPLETADO |
+
+## Sprint 5 — Marketing
+
+| Ticket | Descripción | Responsable | Estado |
+|---------|-------------|-------------|--------|
+| TICKET-019 | SEO técnico | Martín | ✅ COMPLETADO |
+| TICKET-020 | Open Graph | Martín | ✅ COMPLETADO |
+| TICKET-021 | WhatsApp comercial | Martín | 🚫 BLOQUEADO |
+| TICKET-022 | Google Analytics | Martín | ⏳ PENDIENTE |
+| TICKET-023 | PostHog | Martín | ⏳ PENDIENTE |
+| TICKET-024 | Clarity | Martín | ⏳ PENDIENTE |
+| TICKET-025 | Resend / Leads | Martín | 🚫 BLOQUEADO |
