@@ -30,6 +30,5 @@ Continuous Integration runs automatically on every pull request and on pushes to
 
 ## Notes
 
-- The `type-check` job currently has `continue-on-error: true` because of 2 pre-existing tsc errors in Payload admin boilerplate (Sprint 1, untouched by feature work). Remove this once those are fixed to make the gate strictly blocking.
 - Build is wired with dummy env vars (`PAYLOAD_SECRET`, `DATABASE_URI`) so `next build` succeeds in CI without a real database.
 - Workflows use `concurrency` to cancel in-flight runs when a new commit is pushed to a PR — saves Actions minutes.

@@ -40,11 +40,6 @@ jobs:
 
       - name: Type-check
         run: npm run type-check
-        # NOTE: Today there are 2 pre-existing tsc errors in (payload)/admin
-        # boilerplate (Sprint 1 foundation). They are unrelated to feature work.
-        # Once fixed on main, remove this continue-on-error to make the gate
-        # blocking again.
-        continue-on-error: true
 
       - name: Build
         run: npm run build
