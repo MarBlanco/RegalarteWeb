@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit AI PR review configuration.
+# Free for public repos (install the CodeRabbit GitHub App from the Marketplace
+# once, then this config takes effect automatically on every PR).
+# Docs: https://github.com/coderabbitai/ai-pr-reviewer
+
+reviews:
+  # Post a high-level summary on the PR overview.
+  summary: true
+  # Line-by-line review comments — points out bugs, smells, missing types.
+  comments: true
+  # Review in Spanish to match the project's working language.
+  language: es
+  # Auto-review on every PR + every push to an open PR.
+  auto_review:
+    enabled: true
+    drafts: false
+
+  path_filters:
+    # Only review real app code; skip generated/vendored/build artifacts.
+    - '!apps/web/src/payload-types.ts'
+    - '!apps/web/src/migrations/**'
+    - '!apps/web/src/app/(payload)/**'
+    - '!**/package-lock.json'
+    - '!**/*.md'
+
+  # Tell CodeRabbit what the project is, so reviews stay on-topic.
+  project_context: |
+    Regalarte — Next.js 15 App Router + Payload CMS 3 + PostgreSQL ecommerce.
+    Docs under docs/ are APPROVED + FROZEN source of truth.
+    Commits follow: feat(scope): complete TICKET-0XX description.
+
+chat:
+  # Lets maintainers talk to CodeRabbit in PR comments (@coderabbitai ...).
+  auto_reply: true
