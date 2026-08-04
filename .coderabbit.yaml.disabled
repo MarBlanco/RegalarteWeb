@@ -1,3 +1,18 @@
+# =============================================================================
+# DISABLED — CodeRabbit AI PR review configuration.
+# Reason: CodeRabbit is an external GitHub App that must be installed by the
+# repo owner (MarBlanco) from the GitHub Marketplace. The current contributor
+# is a collaborator without owner access, so the app cannot be installed yet.
+# To re-enable:
+#   1. Rename this file back to `.coderabbit.yaml`:
+#        git mv .coderabbit.yaml.disabled .coderabbit.yaml
+#   2. Have the repo owner install the CodeRabbit GitHub App (free for public
+#      repos) and authorize it for MarBlanco/RegalarteWeb.
+# Note: even while named `.coderabbit.yaml.disabled`, this file is inert —
+# CodeRabbit only acts on a file named exactly `.coderabbit.yaml` at the repo
+# root, and only after the app is installed.
+# =============================================================================
+
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 # CodeRabbit AI PR review configuration.
 # Free for public repos (install the CodeRabbit GitHub App from the Marketplace
