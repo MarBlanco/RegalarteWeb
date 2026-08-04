@@ -14,6 +14,7 @@ import { formatPrice } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { AddToCartButton } from '@/components/cart/add-to-cart-button'
+import { ViewItemTracker } from '@/components/analytics/view-item-tracker'
 
 interface PageProps {
   params?: Promise<{ slug: string }>
@@ -184,6 +185,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <li className="font-medium text-foreground">{product.title}</li>
           </ol>
         </nav>
+
+        <ViewItemTracker
+          id={product.id}
+          title={product.title}
+          price={product.price}
+          compareAtPrice={product.compareAtPrice ?? null}
+          categoryTitle={product.categoryDetail?.title ?? null}
+        />
 
         <div className="flex flex-col gap-10 lg:flex-row">
           <div className="flex-1">
