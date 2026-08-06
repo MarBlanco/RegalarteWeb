@@ -11,9 +11,33 @@ import { CatalogPagination } from '@/components/catalog/catalog-pagination'
 import { ProductGrid } from '@/components/catalog/product-grid'
 
 export const metadata: Metadata = {
-  title: 'Catálogo · Regalarte',
+  title: 'Catálogo',
   description:
     'Descubrí todos los regalos y propuestas de Regalarte. Filtrá por categoría, etiqueta y precio.',
+  openGraph: {
+    title: 'Catálogo · Regalarte',
+    description:
+      'Descubrí todos los regalos y propuestas de Regalarte. Filtrá por categoría, etiqueta y precio.',
+    url: '/catalogo',
+    siteName: 'Regalarte',
+    locale: 'es_AR',
+    type: 'website',
+    images: [
+      {
+        url: '/catalogo/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Catálogo · Regalarte',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Catálogo · Regalarte',
+    description:
+      'Descubrí todos los regalos y propuestas de Regalarte. Filtrá por categoría, etiqueta y precio.',
+    images: ['/catalogo/opengraph-image'],
+  },
 }
 
 export const revalidate = 30
