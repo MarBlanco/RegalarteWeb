@@ -40,3 +40,20 @@
 - Bloqueados: TICKET-021, TICKET-025.
 - Todos los tickets poseen Pull Request abierto.
 - Pendiente: revisión final, merge de PRs y cierre oficial del Sprint 5.
+
+## Sprint 6 — Hardening
+
+| Ticket | Descripción | Responsable | Estado |
+|---------|-------------|-------------|--------|
+| TICKET-026 | Validaciones generales | Martín | ⏳ PENDIENTE |
+| TICKET-027 | Seguridad | Martín | ⏳ PENDIENTE |
+| TICKET-028 | Performance | MANCHY | ⏳ PENDIENTE |
+| TICKET-029 | Accesibilidad | MANCHY | ⏳ PENDIENTE |
+| TICKET-030 | Observabilidad | MANCHY | ⏳ PENDIENTE |
+| TICKET-031 | Backups y recuperación | Martín | ⏳ PENDIENTE |
+
+### Estado del Sprint
+
+- Sprint preparado.
+- No comenzar ningún ticket hasta finalizar oficialmente el Sprint 5.
+- La asignación de responsables queda congelada.
