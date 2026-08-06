@@ -9,7 +9,9 @@ import {
   EMPTY_CHECKOUT_FORM,
   NOTES_FIELDS,
   continueCheckout,
+  fieldErrorsToMessage,
   submitCheckout,
+  validateCheckoutForm,
   type CheckoutFlowDecision,
   type CheckoutFormValues,
   type CheckoutSubmitStatus,
@@ -36,6 +38,17 @@ export function CheckoutForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (isLocked) return
+
+    const clientErrors = validateCheckoutForm(values)
+    if (Object.keys(clientErrors).length > 0) {
+      setStatus('error')
+      setResult({
+        status: 'error',
+        message: fieldErrorsToMessage(clientErrors),
+        fieldErrors: clientErrors,
+      })
+      return
+    }
 
     setStatus('submitting')
     setResult(null)
