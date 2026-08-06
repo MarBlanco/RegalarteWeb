@@ -27,6 +27,12 @@
 | Ticket | Descripción | Responsable | Estado |
 |---------|-------------|-------------|--------|
 | TICKET-019 | SEO técnico | Martín | ✅ COMPLETADO |
+| TICKET-020 | Metadatos / Open Graph | Martín | ⏳ PENDIENTE |
+| TICKET-021 | WhatsApp comercial | Martín | ⏳ PENDIENTE |
+| TICKET-022 | Google Analytics | MANCHY | ⏳ PENDIENTE |
+| TICKET-023 | PostHog | MANCHY | ⏳ PENDIENTE |
+| TICKET-024 | Microsoft Clarity | MANCHY | ⏳ PENDIENTE |
+| TICKET-025 | Resend / Leads | Martín | ⏳ PENDIENTE |
 | TICKET-020 | Open Graph | Martín | ✅ COMPLETADO |
 | TICKET-021 | WhatsApp comercial | Martín | 🚫 BLOQUEADO |
 | TICKET-022 | Google Analytics | MANCHY | ✅ COMPLETADO |
