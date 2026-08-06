@@ -31,5 +31,5 @@
 | TICKET-021 | WhatsApp comercial | Martín | 🚫 BLOQUEADO |
 | TICKET-022 | Google Analytics | MANCHY | ⏳ PENDIENTE |
 | TICKET-023 | PostHog | MANCHY | ⏳ PENDIENTE |
-| TICKET-024 | Microsoft Clarity | MANCHY | ⏳ PENDIENTE |
+| TICKET-024 | Microsoft Clarity | MANCHY | ✅ COMPLETADO |
 | TICKET-025 | Resend / Leads | Martín | 🚫 BLOQUEADO |
