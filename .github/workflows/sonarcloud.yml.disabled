@@ -1,0 +1,52 @@
+# =============================================================================
+# DISABLED — SonarCloud workflow.
+# Reason: requires the SONAR_TOKEN GitHub secret, which only the repo owner
+# (MarBlanco) can add under Settings > Secrets. The current contributor is a
+# collaborator without admin access, so the job cannot be configured yet.
+# To re-enable:
+#   1. Rename this file back to `sonarcloud.yml`:
+#        git mv .github/workflows/sonarcloud.yml.disabled .github/workflows/sonarcloud.yml
+#   2. Have the repo owner add the SONAR_TOKEN secret (see setup steps below).
+# Until then this file is ignored by GitHub Actions (the `.disabled` suffix
+# means it's not a recognized workflow file).
+# =============================================================================
+
+name: SonarCloud
+
+# SonarCloud static analysis — code smells, bugs, security hotspots, coverage.
+# Free for public repos.
+#
+# Prerequisite setup (one-time, ~5 min):
+#   1. Sign in at https://sonarcloud.io with your GitHub account.
+#   2. Add the "MarBlanco/RegalarteWeb" repository to SonarCloud.
+#   3. Generate a token at My Account > Security > Generate Tokens.
+#   4. Add it as a GitHub secret named SONAR_TOKEN (repo Settings > Secrets).
+#   5. Edit the sonar.organization / sonar.projectKey values below (and in
+#      sonar-project.properties) to match what SonarCloud shows you.
+#
+# It posts a PR comment with the quality gate + issue count automatically.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # SonarCloud needs full history to assign issues to commits/blame.
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

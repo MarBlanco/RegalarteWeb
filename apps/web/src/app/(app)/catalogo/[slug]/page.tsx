@@ -14,6 +14,7 @@ import { formatPrice } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { AddToCartButton } from '@/components/cart/add-to-cart-button'
+import { ViewItemTracker } from '@/components/analytics/view-item-tracker'
 
 interface PageProps {
   params?: Promise<{ slug: string }>
@@ -103,13 +104,58 @@ export async function generateMetadata({
   const result = await fetchProductBySlugRaw(slug)
   const product = result.docs.length > 0 ? buildDetail(result.docs[0]) : null
   if (!product) {
-    return { title: 'Producto no encontrado · Regalarte' }
+    return {
+      title: 'Producto no encontrado · Regalarte',
+      robots: { index: false, follow: false },
+    }
   }
+
+  const title = product.seoTitle ?? product.title
+  const description =
+    product.seoDescription ??
+    `Descubrí ${product.title} en el catálogo de Regalarte.`
+
+  const featuredImage =
+    product.imagesDetail.find(
+      (image) => typeof image.url === 'string' && image.url.length > 0,
+    ) ?? null
+
+  const ogImages = featuredImage?.url
+    ? [
+        {
+          url: featuredImage.url,
+          width: 1200,
+          height: 630,
+          alt: featuredImage.alt ?? product.title,
+        },
+      ]
+    : [
+        {
+          url: '/opengraph-image',
+          width: 1200,
+          height: 630,
+          alt: product.title,
+        },
+      ]
+
   return {
-    title: `${product.seoTitle ?? product.title} · Regalarte`,
-    description:
-      product.seoDescription ??
-      `Descubrí ${product.title} en el catálogo de Regalarte.`,
+    title,
+    description,
+    openGraph: {
+      type: 'website',
+      siteName: 'Regalarte',
+      locale: 'es_AR',
+      url: `/catalogo/${product.slug}`,
+      title,
+      description,
+      images: ogImages,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: featuredImage?.url ? [featuredImage.url] : ['/opengraph-image'],
+    },
   }
 }
 
@@ -184,6 +230,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <li className="font-medium text-foreground">{product.title}</li>
           </ol>
         </nav>
+
+        <ViewItemTracker
+          id={product.id}
+          title={product.title}
+          price={product.price}
+          compareAtPrice={product.compareAtPrice ?? null}
+          categoryTitle={product.categoryDetail?.title ?? null}
+        />
 
         <div className="flex flex-col gap-10 lg:flex-row">
           <div className="flex-1">
