@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 
 import config from '@payload-config'
 import { NotFoundPage, generatePageMetadata } from '@payloadcms/next/views'
-// @ts-expect-error - import map is generated dynamically
+// @ts-ignore - import map is generated dynamically
 import { importMap } from '../importMap.js'
 
 type Args = {

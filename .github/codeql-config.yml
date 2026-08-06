@@ -1,0 +1,11 @@
+name: 'Regalarte CodeQL Config'
+
+# Tell the CodeQL scanner where the real sources are (avoid building / node_modules).
+# https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning
+
+paths:
+  - apps/web/src
+paths-ignore:
+  - apps/web/src/payload-types.ts
+  - apps/web/src/migrations
+  - apps/web/src/app/(payload)/admin
