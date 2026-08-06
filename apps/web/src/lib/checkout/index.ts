@@ -22,3 +22,7 @@ export {
   continueCheckout,
   type CheckoutFlowDecision,
 } from './checkout-flow'
+export {
+  validateCheckoutForm,
+  fieldErrorsToMessage,
+} from './validation'
