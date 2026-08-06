@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { CartItemInput } from '@/lib/cart'
 import { useCartStore, useCartUIStore } from '@/lib/cart'
+import { trackAddToCart } from '@/lib/analytics/ga'
 import { Button } from '@/components/ui/button'
 
 export interface AddToCartButtonProps {
@@ -64,6 +65,7 @@ export function AddToCartButton({
       quantity,
     }
     addItem(input)
+    trackAddToCart(input)
     setJustAdded(true)
     openCart()
     window.setTimeout(() => setJustAdded(false), 1600)

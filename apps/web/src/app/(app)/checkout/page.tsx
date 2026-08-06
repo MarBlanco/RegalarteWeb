@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -9,11 +10,18 @@ import { CheckoutForm } from '@/components/checkout/checkout-form'
 import { CheckoutSummary } from '@/components/checkout/checkout-summary'
 import { CheckoutLineList } from '@/components/checkout/checkout-line-list'
 import { CheckoutEmptyState } from '@/components/checkout/checkout-empty'
-import { useCartStore } from '@/lib/cart'
+import { useCartStore, getSubtotal } from '@/lib/cart'
+import { trackBeginCheckout } from '@/lib/analytics/ga'
 
 export default function CheckoutPage() {
   const items = useCartStore((s) => s.items)
   const hydrated = useCartStore((s) => s.hydrated)
+
+  useEffect(() => {
+    if (hydrated && items.length > 0) {
+      trackBeginCheckout(items, getSubtotal(items, 'RETAIL'))
+    }
+  }, [hydrated, items])
 
   return (
     <>

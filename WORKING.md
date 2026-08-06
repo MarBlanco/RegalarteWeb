@@ -29,7 +29,7 @@
 | TICKET-019 | SEO técnico | Martín | ✅ COMPLETADO |
 | TICKET-020 | Open Graph | Martín | ✅ COMPLETADO |
 | TICKET-021 | WhatsApp comercial | Martín | 🚫 BLOQUEADO |
-| TICKET-022 | Google Analytics | Martín | ⏳ PENDIENTE |
-| TICKET-023 | PostHog | Martín | ⏳ PENDIENTE |
-| TICKET-024 | Clarity | Martín | ⏳ PENDIENTE |
+| TICKET-022 | Google Analytics | MANCHY | ✅ COMPLETADO |
+| TICKET-023 | PostHog | MANCHY | ⏳ PENDIENTE |
+| TICKET-024 | Microsoft Clarity | MANCHY | ⏳ PENDIENTE |
 | TICKET-025 | Resend / Leads | Martín | 🚫 BLOQUEADO |
