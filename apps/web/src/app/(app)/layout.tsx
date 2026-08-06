@@ -17,29 +17,31 @@ const playfair = Playfair_Display({
   display: 'swap',
 })
 
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || ''
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'Regalarte'
+
 export const metadata: Metadata = {
-  title: 'Regalarte',
-  description: 'Descubrí el regalo perfecto. Universo Solística y Regalarte.',
-  openGraph: {
-    type: 'website',
-    locale: 'es_AR',
-    siteName: 'Regalarte',
-    title: 'Regalarte',
-    description: 'Descubrí el regalo perfecto. Universo Solística y Regalarte.',
-    images: [
-      {
-        url: '/opengraph-image',
-        width: 1200,
-        height: 630,
-        alt: 'Regalarte',
-      },
-    ],
+  metadataBase: SITE_URL ? new URL(SITE_URL) : undefined,
+  title: {
+    default: APP_NAME,
+    template: `%s · ${APP_NAME}`,
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Regalarte',
-    description: 'Descubrí el regalo perfecto. Universo Solística y Regalarte.',
-    images: ['/opengraph-image'],
+  description: 'Descubrí el regalo perfecto. Universo Solística y Regalarte.',
+  applicationName: APP_NAME,
+  generator: 'Next.js',
+  authors: [{ name: APP_NAME }],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: '/',
   },
 }
 
