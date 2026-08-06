@@ -5,6 +5,7 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Providers } from '@/providers'
+import { Clarity } from '@/components/analytics/clarity'
 import { GoogleAnalytics } from '@/components/analytics/google-analytics'
 
 const inter = Inter({
@@ -54,6 +55,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${inter.variable} ${playfair.variable}`}>
       <body className={`${inter.className} min-h-screen flex flex-col`}>
+        <Clarity />
         <GoogleAnalytics />
         <Providers>
           <Header />
