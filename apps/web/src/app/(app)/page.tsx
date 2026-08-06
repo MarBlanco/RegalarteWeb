@@ -1,5 +1,15 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
+
+export const metadata: Metadata = {
+  title: 'Inicio',
+  description:
+    'Encontrá el regalo perfecto. Ideas únicas para cada persona, ocasión y presupuesto. Universo Solística y Regalarte.',
+  alternates: {
+    canonical: '/',
+  },
+}
 
 export default function HomePage() {
   return (

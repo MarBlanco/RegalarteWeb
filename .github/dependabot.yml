@@ -1,0 +1,56 @@
+# Dependabot — opens PRs for outdated / insecure dependencies.
+# Free for all repos (public and private).
+# Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # npm app deps (apps/web)
+  - package-ecosystem: 'npm'
+    directory: '/apps/web'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    groups:
+      # Group minor/patch updates to avoid one-PR-per-dependency noise.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    labels:
+      - dependencies
+
+  # npm root deps
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    labels:
+      - dependencies
+
+  # GitHub Actions — keep workflow actions on current versions.
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore(ci)'
+      include: 'scope'
+    labels:
+      - dependencies
+      - ci

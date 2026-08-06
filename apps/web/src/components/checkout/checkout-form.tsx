@@ -16,6 +16,9 @@ import {
   type SubmitResult,
 } from '@/lib/checkout'
 import { syncCartWithOrder } from '@/lib/cart/cart-sync'
+import { useCartStore } from '@/lib/cart/store'
+import { getSubtotal } from '@/lib/cart/pricing'
+import { trackPurchase } from '@/lib/analytics/ga'
 import { CheckoutFormFields } from './checkout-form-fields'
 
 export function CheckoutForm() {
@@ -44,6 +47,16 @@ export function CheckoutForm() {
       setStatus(submitResult.status)
 
       if (submitResult.status === 'success') {
+        // TICKET-022: emitir el evento GA4 `purchase` antes de vaciar el
+        // carrito. Capturamos el snapshot de items + subtotal aca para que
+        // el evento refleje exactamente lo que el usuario compro.
+        const { items, mode } = useCartStore.getState()
+        trackPurchase(
+          submitResult.orderId ?? 'unknown',
+          items,
+          getSubtotal(items, mode),
+        )
+
         // TICKET-009 + TICKET-011: vaciar el carrito solo despues de que
         // la Order se persistio. La operacion se delega a la capa de
         // sync (lib/cart/cart-sync) para mantener un solo punto de
