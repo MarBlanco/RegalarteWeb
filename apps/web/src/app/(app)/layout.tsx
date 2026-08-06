@@ -4,6 +4,7 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Providers } from '@/providers'
+import { PostHog } from '@/components/analytics/posthog'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${inter.variable} ${playfair.variable}`}>
       <body className={`${inter.className} min-h-screen flex flex-col`}>
+        <PostHog />
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
