@@ -32,4 +32,4 @@
 | TICKET-022 | Google Analytics | Martín | ⏳ PENDIENTE |
 | TICKET-023 | PostHog | Martín | ⏳ PENDIENTE |
 | TICKET-024 | Clarity | Martín | ⏳ PENDIENTE |
-| TICKET-025 | Resend / Leads | Martín | ⏳ PENDIENTE |
+| TICKET-025 | Resend / Leads | Martín | 🚫 BLOQUEADO |
