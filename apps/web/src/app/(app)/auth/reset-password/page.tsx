@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   const [password, setPassword] = useState('')
@@ -146,5 +146,13 @@ export default function ResetPasswordPage() {
         </form>
       </Card>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="container flex items-center justify-center min-h-[80vh] py-12"><p>Cargando...</p></div>}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }

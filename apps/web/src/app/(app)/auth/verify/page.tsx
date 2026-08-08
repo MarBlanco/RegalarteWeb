@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-export default function VerifyPage() {
+function VerifyContent() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -86,5 +86,13 @@ export default function VerifyPage() {
         </CardFooter>
       </Card>
     </div>
+  )
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div className="container flex items-center justify-center min-h-[80vh] py-12"><p>Cargando...</p></div>}>
+      <VerifyContent />
+    </Suspense>
   )
 }

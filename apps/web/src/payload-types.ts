@@ -130,6 +130,8 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Gestión de clientes y usuarios internos. Los clientes se registran desde el storefront. Solo admin puede eliminar registros para preservar historial de pedidos.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -364,6 +366,8 @@ export interface ProductImage {
   };
 }
 /**
+ * Pedidos generados por el checkout. El admin puede ver y actualizar el estado (p. ej. pending → paid). El storefront solo crea orders via POST /api/orders; nunca las lee.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "orders".
  */
