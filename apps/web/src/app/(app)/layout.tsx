@@ -46,6 +46,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  other: {
+    'preconnect': 'https://fonts.googleapis.com https://fonts.gstatic.com https://www.googletagmanager.com https://www.clarity.ms https://app.posthog.com',
+    'dns-prefetch': 'https://fonts.googleapis.com https://fonts.gstatic.com https://www.googletagmanager.com https://www.clarity.ms https://app.posthog.com',
+  },
 }
 
 export default function RootLayout({
