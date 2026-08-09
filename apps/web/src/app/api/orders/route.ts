@@ -32,6 +32,12 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function isValidEmail(value: string): boolean {
+  return EMAIL_REGEX.test(value)
+}
+
 function validate(input: unknown): {
   ok: true
   value: CreateOrderInput
@@ -52,6 +58,12 @@ function validate(input: unknown): {
     if (!isNonEmptyString(customer[field])) {
       errors.push({ path: `customer.${field}`, message: 'Requerido' })
     }
+  }
+  if (
+    isNonEmptyString(customer.email) &&
+    !isValidEmail(String(customer.email))
+  ) {
+    errors.push({ path: 'customer.email', message: 'Email invalido' })
   }
 
   const address = (body.address ?? {}) as Record<string, unknown>

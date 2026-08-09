@@ -33,6 +33,15 @@ export default function RegisterPage() {
     setIsLoading(true)
     setError('')
 
+    if (customerType === 'WHOLESALE') {
+      const digits = cuit.replace(/\D/g, '')
+      if (digits.length !== 11) {
+        setError('El CUIT debe tener 11 dígitos')
+        setIsLoading(false)
+        return
+      }
+    }
+
     try {
       const res = await fetch('/api/users', {
         method: 'POST',
