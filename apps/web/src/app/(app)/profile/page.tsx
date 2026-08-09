@@ -192,12 +192,20 @@ export default function ProfilePage() {
                 </Button>
               </div>
               {error && (
-                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className="text-sm text-destructive bg-destructive/10 p-3 rounded-md"
+                >
                   {error}
                 </div>
               )}
               {success && (
-                <div className="text-sm text-green-600 bg-green-50 p-3 rounded-md">
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="text-sm text-green-600 bg-green-50 p-3 rounded-md"
+                >
                   {success}
                 </div>
               )}

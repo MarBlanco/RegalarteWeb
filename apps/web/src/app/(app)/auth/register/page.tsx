@@ -111,9 +111,11 @@ export default function RegisterPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Tipo de cliente</Label>
-              <div className="flex gap-2">
+              <div role="radiogroup" aria-label="Tipo de cliente" className="flex gap-2">
                 <Button
                   type="button"
+                  role="radio"
+                  aria-checked={customerType === 'RETAIL'}
                   variant={customerType === 'RETAIL' ? 'default' : 'outline'}
                   className="flex-1"
                   onClick={() => setCustomerType('RETAIL')}
@@ -122,6 +124,8 @@ export default function RegisterPage() {
                 </Button>
                 <Button
                   type="button"
+                  role="radio"
+                  aria-checked={customerType === 'WHOLESALE'}
                   variant={customerType === 'WHOLESALE' ? 'wholesale' : 'outline'}
                   className="flex-1"
                   onClick={() => setCustomerType('WHOLESALE')}
@@ -169,7 +173,11 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="text-sm text-destructive bg-destructive/10 p-3 rounded-md"
+              >
                 {error}
               </div>
             )}

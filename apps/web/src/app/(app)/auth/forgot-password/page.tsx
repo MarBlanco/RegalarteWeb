@@ -89,7 +89,11 @@ export default function ForgotPasswordPage() {
               />
             </div>
             {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="text-sm text-destructive bg-destructive/10 p-3 rounded-md"
+              >
                 {error}
               </div>
             )}
