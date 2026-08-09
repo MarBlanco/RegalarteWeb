@@ -39,11 +39,11 @@
 | Ticket | Descripción | Responsable | Estado |
 |---------|-------------|-------------|--------|
 | TICKET-026 | Validaciones generales | Martín | ✅ COMPLETADO |
-| TICKET-027 | Seguridad | Martín | ⏳ PENDIENTE |
-| TICKET-028 | Performance | MANCHY | ⏳ PENDIENTE |
-| TICKET-029 | Accesibilidad | MANCHY | ⏳ PENDIENTE |
-| TICKET-030 | Observabilidad | MANCHY | ⏳ PENDIENTE |
-| TICKET-031 | Backups y recuperación | Martín | ⏳ PENDIENTE |
+| TICKET-027 | Seguridad | Martín | ✅ COMPLETADO |
+| TICKET-028 | Performance | MANCHY | ✅ COMPLETADO |
+| TICKET-029 | Accesibilidad | MANCHY | ✅ COMPLETADO |
+| TICKET-030 | Observabilidad | MANCHY | 🚫 BLOQUEADO |
+| TICKET-031 | Backups y recuperación | Martín | 🚫 BLOQUEADO |
 
 ### Estado del Sprint
 

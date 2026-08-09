@@ -165,6 +165,10 @@ function mapFieldErrorsToMessage(
     : 'Revisá los datos obligatorios antes de continuar.'
 }
 
+const NO_STORE: ResponseInit['headers'] = {
+  'Cache-Control': 'no-store, max-age=0',
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
   let payload: unknown
   try {
@@ -175,7 +179,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         status: 'error',
         message: 'Body invalido',
       } satisfies CreateOrderResult,
-      { status: 400 },
+      { status: 400, headers: NO_STORE },
     )
   }
 
@@ -187,13 +191,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         message: mapFieldErrorsToMessage(result.errors),
         fieldErrors: result.errors,
       } satisfies CreateOrderResult,
-      { status: 400 },
+      { status: 400, headers: NO_STORE },
     )
   }
 
   try {
     const created = await createOrder(result.value)
-    return NextResponse.json(created, { status: 201 })
+    return NextResponse.json(created, { status: 201, headers: NO_STORE })
   } catch {
     return NextResponse.json(
       {
@@ -201,7 +205,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         message:
           'No pudimos crear tu pedido. Intentá de nuevo en unos minutos.',
       } satisfies CreateOrderResult,
-      { status: 500 },
+      { status: 500, headers: NO_STORE },
     )
   }
 }
