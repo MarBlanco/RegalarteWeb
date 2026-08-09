@@ -33,3 +33,20 @@
 | TICKET-023 | PostHog | MANCHY | ⏳ PENDIENTE |
 | TICKET-024 | Microsoft Clarity | MANCHY | ✅ COMPLETADO |
 | TICKET-025 | Resend / Leads | Martín | 🚫 BLOQUEADO |
+
+## Sprint 6 — Hardening
+
+| Ticket | Descripción | Responsable | Estado |
+|---------|-------------|-------------|--------|
+| TICKET-026 | Validaciones generales | Martín | ✅ COMPLETADO |
+| TICKET-027 | Seguridad | Martín | ✅ COMPLETADO |
+| TICKET-028 | Performance | MANCHY | ✅ COMPLETADO |
+| TICKET-029 | Accesibilidad | MANCHY | ✅ COMPLETADO |
+| TICKET-030 | Observabilidad | MANCHY | 🚫 BLOQUEADO |
+| TICKET-031 | Backups y recuperación | Martín | 🚫 BLOQUEADO |
+
+### Estado del Sprint
+
+- Sprint preparado.
+- No comenzar ningún ticket hasta finalizar oficialmente el Sprint 5.
+- La asignación de responsables queda congelada.
