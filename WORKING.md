@@ -50,3 +50,44 @@
 - Sprint preparado.
 - No comenzar ningún ticket hasta finalizar oficialmente el Sprint 5.
 - La asignación de responsables queda congelada.
+
+# DEVEX — Developer Experience
+
+Objetivo:
+
+Profesionalizar el flujo de desarrollo antes del Go Live sin agregar funcionalidades nuevas al producto.
+
+| Ticket | Descripción | Responsable | Estado |
+|---------|-------------|-------------|--------|
+| TICKET-032 | Continuous Integration | Martín | ✅ COMPLETADO |
+| TICKET-033 | CodeRabbit | MANCHY | ⏳ PENDIENTE |
+| TICKET-034 | SonarCloud | MANCHY | ⏳ PENDIENTE |
+| TICKET-035 | Branch Protection | Martín | ✅ COMPLETADO |
+| TICKET-036 | GitHub Templates | MANCHY | ⏳ PENDIENTE |
+| TICKET-037 | Dependabot | Martín | ⏳ PENDIENTE |
+
+## Descripción de Tickets
+
+### TICKET-032 — Continuous Integration
+
+Configurar GitHub Actions para ejecutar automáticamente Build, Lint y Typecheck en cada Pull Request.
+
+### TICKET-033 — CodeRabbit
+
+Integrar CodeRabbit para obtener revisiones automáticas de código en todos los Pull Requests.
+
+### TICKET-034 — SonarCloud
+
+Integrar SonarCloud para análisis de calidad, vulnerabilidades, bugs y mantener un Quality Gate.
+
+### TICKET-035 — Branch Protection
+
+Configurar reglas de protección de la rama main para impedir cambios directos y exigir Pull Requests con verificaciones aprobadas.
+
+### TICKET-036 — GitHub Templates
+
+Crear templates oficiales para Pull Requests, Issues, Bug Reports y Feature Requests.
+
+### TICKET-037 — Dependabot
+
+Configurar Dependabot para detectar y proponer automáticamente actualizaciones de dependencias.
