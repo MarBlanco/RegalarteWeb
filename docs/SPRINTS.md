@@ -6,7 +6,7 @@ REGALARTE
 
 Estado:
 
-PRE BUILD
+RELEASE READINESS
 
 ---
 
@@ -68,7 +68,7 @@ Catálogo navegable.
 
 Estado:
 
-NOT STARTED
+COMPLETE
 
 ---
 
@@ -94,7 +94,7 @@ Compra completa funcionando.
 
 Estado:
 
-NOT STARTED
+COMPLETE
 
 ---
 
@@ -120,7 +120,7 @@ Experiencia de descubrimiento operativa.
 
 Estado:
 
-NOT STARTED
+COMPLETE
 
 ---
 
@@ -145,142 +145,11 @@ Experiencias diferenciadoras funcionales.
 
 Estado:
 
-NOT STARTED
+COMPLETE
 
 ---
 
 # SPRINT 6
-
-SOLISTICA
-
-Objetivo:
-
-Implementar universo Solística.
-
-Entregables:
-
-- Solística Home
-- Solística PDP
-- Solística Content
-- Solística Categories
-- Solística Tags
-
-Resultado esperado:
-
-Universo independiente operativo.
-
-Estado:
-
-NOT STARTED
-
----
-
-# SPRINT 7
-
-WHOLESALE
-
-Objetivo:
-
-Implementar canal mayorista.
-
-Entregables:
-
-- Registro Mayorista
-- Perfil Comercial
-- Pricing Mayorista
-- Compra Mínima
-- Checkout Mayorista
-- Analytics Mayoristas
-
-Resultado esperado:
-
-B2B operativo.
-
-Estado:
-
-NOT STARTED
-
----
-
-# SPRINT 8
-
-CMS
-
-Objetivo:
-
-Completar administración.
-
-Entregables:
-
-- Collections
-- Globals
-- Media Library
-- Access Control
-- Dashboard
-
-Resultado esperado:
-
-Administración completa.
-
-Estado:
-
-NOT STARTED
-
----
-
-# SPRINT 9
-
-PWA
-
-Objetivo:
-
-Convertir la plataforma en aplicación instalable.
-
-Entregables:
-
-- Manifest
-- Service Worker
-- Offline Strategy
-- Install Flow
-- Cache Strategy
-
-Resultado esperado:
-
-PWA funcional.
-
-Estado:
-
-NOT STARTED
-
----
-
-# SPRINT 10
-
-MARKETING
-
-Objetivo:
-
-Implementar tracking y comunicación.
-
-Entregables:
-
-- SEO
-- PostHog
-- Clarity
-- Google Analytics
-- Resend
-
-Resultado esperado:
-
-Marketing operativo.
-
-Estado:
-
-NOT STARTED
-
----
-
-# SPRINT 11
 
 HARDENING
 
@@ -302,7 +171,60 @@ Release Candidate.
 
 Estado:
 
-NOT STARTED
+COMPLETED
+
+---
+
+# SPRINT 7
+
+DEVEX — Developer Experience
+
+Objetivo:
+
+Profesionalizar el flujo de desarrollo antes del Go Live sin agregar funcionalidades nuevas al producto.
+
+Entregables:
+
+- Continuous Integration
+- CodeRabbit
+- SonarCloud
+- Branch Protection
+- GitHub Templates
+- Dependabot
+
+Resultado esperado:
+
+Developer Experience profesional.
+
+Estado:
+
+IN PROGRESS
+
+---
+
+# SPRINT 8
+
+RELEASE READINESS
+
+Objetivo:
+
+Preparar Release Candidate y Go Live.
+
+Entregables:
+
+- PWA
+- Testing E2E
+- Cloudflare R2 configurado
+- Tag RC
+- Documentación final
+
+Resultado esperado:
+
+Go Live listo.
+
+Estado:
+
+PLANNED
 
 ---
 
