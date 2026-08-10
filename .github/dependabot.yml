@@ -1,4 +1,4 @@
-# Dependabot — opens PRs for outdated / insecure dependencies.
+# Dependabot �?" opens PRs for outdated / insecure dependencies.
 # Free for all repos (public and private).
 # Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates
 
@@ -22,6 +22,7 @@ updates:
       include: 'scope'
     labels:
       - dependencies
+      - devex
 
   # npm root deps
   - package-ecosystem: 'npm'
@@ -40,8 +41,9 @@ updates:
       include: 'scope'
     labels:
       - dependencies
+      - devex
 
-  # GitHub Actions — keep workflow actions on current versions.
+  # GitHub Actions �?" keep workflow actions on current versions.
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
@@ -53,4 +55,5 @@ updates:
       include: 'scope'
     labels:
       - dependencies
+      - devex
       - ci
