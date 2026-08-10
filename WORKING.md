@@ -62,7 +62,8 @@ Profesionalizar el flujo de desarrollo antes del Go Live sin agregar funcionalid
 | TICKET-032 | Continuous Integration | Martín | ✅ COMPLETADO |
 | TICKET-033 | CodeRabbit | MANCHY | ⏳ PENDIENTE |
 | TICKET-034 | SonarCloud | MANCHY | ⏳ PENDIENTE |
-| TICKET-035 | Branch Protection | Martín | ⏳ PENDIENTE |
+<<<<<<< HEAD
+| TICKET-035 | Branch Protection | Martín | ✅ COMPLETADO |
 | TICKET-036 | GitHub Templates | MANCHY | ⏳ PENDIENTE |
 | TICKET-037 | Dependabot | Martín | ⏳ PENDIENTE |
 
