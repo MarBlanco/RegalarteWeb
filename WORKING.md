@@ -103,18 +103,23 @@ Configurar Dependabot para detectar y proponer automáticamente actualizaciones 
 | AUDIT-003 | ✅ CLOSED | Security & Production Config Audit certificada y cerrada. Ver Final Closure Report. |
 | AUDIT-004 | ✅ CLOSED | Ecommerce Critical Flows & Data Integrity Audit certificada y cerrada. Ver Final Closure Report. |
 | AUDIT-005 | ✅ CLOSED | Order, Stock & Payment Integrity Audit certificada y cerrada. Ver Final Closure Report. |
+| AUDIT-006 | ❌ OPEN | Release & Production Readiness: BLOCKERS externos (deploy prod, R2, backups, observabilidad, dominio). Ver Go Live Assessment. |
 
 ## Estado General de la Fase
 
-Todas las auditorías requeridas para Go Live han sido completadas satisfactoriamente.
+AUDIT-001 a AUDIT-005 se encuentran CLOSED, certificados por auditor independiente.
 
-AUDIT-001 se encuentra CLOSED, certificado por auditor independiente.
-AUDIT-002 se encuentra CLOSED, certificado por auditor independiente.
-AUDIT-003 se encuentra CLOSED, certificado por auditor independiente.
-AUDIT-004 se encuentra CLOSED, certificado por auditor independiente.
-AUDIT-005 se encuentra CLOSED, certificado por auditor independiente.
+AUDIT-006 (Release & Production Readiness) se encuentra **OPEN**: la ingeniería está
+técnicamente lista (build/CI/tests/hardening), pero el Go Live requiere completar los
+entregables del Sprint 8 — RELEASE READINESS (PLANNED): deploy de producción, PostgreSQL
+de producción + migraciones, Cloudflare R2 activo, dominio/HTTPS, spec de backups
+(TICKET-031) y observabilidad mínima (TICKET-030). Ver `docs/AUDIT-006_GO_LIVE_ASSESSMENT.md`.
 
-El repositorio está listo para iniciar el proceso de Release Candidate.
+Mercado Pago real (TICKET-010), idempotencia y stock quedan DEFERRED/ACCEPTED según la
+documentación aceptada: la V1 puede operar sin pagos online reales (provider mock, órdenes
+`pending` gestionadas por admin).
+
+El repositorio no debe declararse Release Candidate hasta resolver los BLOCKERS del assessment.
 
 ---
 
