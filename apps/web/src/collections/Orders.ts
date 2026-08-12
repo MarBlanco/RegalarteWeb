@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { canTransition, isOrderStatus } from '@/lib/orders/transitions'
 
 /**
  * Orders: coleccion transaccional de pedidos creados por el checkout.
@@ -55,6 +56,27 @@ export const Orders: CollectionConfig = {
       return u.role === 'admin' || u.role === 'staff'
     },
     delete: () => false,
+  },
+  hooks: {
+    beforeChange: [
+      ({ data, operation, originalDoc }) => {
+        // AUDIT-005: bloquear transiciones de estado invalidas.
+        // En create el estado parte de 'pending' (default). En update solo
+        // se valida cuando el payload cambia el campo `status`.
+        if (operation === 'update' && originalDoc && data?.status !== undefined) {
+          const prev = originalDoc.status
+          const next = data.status
+          if (
+            isOrderStatus(prev) &&
+            isOrderStatus(next) &&
+            !canTransition(prev, next)
+          ) {
+            throw new Error(`Transición de estado inválida: ${prev} -> ${next}`)
+          }
+        }
+        return data
+      },
+    ],
   },
   fields: [
     {
