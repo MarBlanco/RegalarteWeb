@@ -11,7 +11,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server'
 
-import { createOrder } from '@/lib/orders/service'
+import { createOrder, OrderRejectedError } from '@/lib/orders/service'
 import type { CreateOrderInput, CreateOrderResult } from '@/lib/orders/types'
 
 const REQUIRED_CUSTOMER_FIELDS = [
@@ -198,7 +198,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const created = await createOrder(result.value)
     return NextResponse.json(created, { status: 201, headers: NO_STORE })
-  } catch {
+  } catch (err) {
+    if (err instanceof OrderRejectedError) {
+      return NextResponse.json(
+        {
+          status: 'error',
+          message:
+            'Algunos productos de tu carrito ya no están disponibles. Revisá el catálogo e intentá nuevamente.',
+        } satisfies CreateOrderResult,
+        { status: 409, headers: NO_STORE },
+      )
+    }
     return NextResponse.json(
       {
         status: 'error',
