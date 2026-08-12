@@ -102,6 +102,7 @@ Configurar Dependabot para detectar y proponer automáticamente actualizaciones 
 | AUDIT-002 | ✅ CLOSED | Build & Quality Audit certificada y cerrada. Ver Final Closure Report. |
 | AUDIT-003 | ✅ CLOSED | Security & Production Config Audit certificada y cerrada. Ver Final Closure Report. |
 | AUDIT-004 | ✅ CLOSED | Ecommerce Critical Flows & Data Integrity Audit certificada y cerrada. Ver Final Closure Report. |
+| AUDIT-005 | ✅ CLOSED | Order, Stock & Payment Integrity Audit certificada y cerrada. Ver Final Closure Report. |
 
 ## Estado General de la Fase
 
@@ -111,6 +112,7 @@ AUDIT-001 se encuentra CLOSED, certificado por auditor independiente.
 AUDIT-002 se encuentra CLOSED, certificado por auditor independiente.
 AUDIT-003 se encuentra CLOSED, certificado por auditor independiente.
 AUDIT-004 se encuentra CLOSED, certificado por auditor independiente.
+AUDIT-005 se encuentra CLOSED, certificado por auditor independiente.
 
 El repositorio está listo para iniciar el proceso de Release Candidate.
 
