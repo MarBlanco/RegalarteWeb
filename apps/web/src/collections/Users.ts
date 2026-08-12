@@ -11,8 +11,16 @@ import type { CollectionConfig } from 'payload'
  *  - admin.listSearchableFields: búsqueda nativa por email/nombre/teléfono/cuit/razón social.
  *  - access.delete: protegido (admin). Se desactiva en lugar de borrar para
  *    preservar integridad referencial con Orders. Los clientes se registran
- *    públicamente vía POST /api/users (self-registration), por lo que NO se
- *    restringe access.create ni access.read.
+ *    públicamente vía POST /api/users (self-registration).
+ *
+ * AUDIT-003 (seguridad):
+ *   - `admin`:    solo admin/staff pueden acceder al panel de administración.
+ *   - `read`:     self-registration mediante POST /api/users devuelve solo el
+ *                 documento propio; el resto solo es visible para admin/staff.
+ *   - `update`:   cada usuario actualiza su propio documento; admin/staff el resto.
+ *   - `role`:     el valor de role es asignado únicamente por admin/staff; el
+ *                 registro público queda con defaultValue 'retail' (evita
+ *                 escalada de privilegios enviando role: 'admin' en el POST).
  *
  * No se modifican flujos públicos ni se introduce arquitectura nueva.
  */
@@ -55,6 +63,25 @@ export const Users: CollectionConfig = {
     ],
   },
   access: {
+    admin: ({ req: { user } }) => {
+      const u = user as { role?: string } | null
+      if (!u) return false
+      return u.role === 'admin' || u.role === 'staff'
+    },
+    read: ({ req: { user }, id }) => {
+      const u = user as { role?: string; id?: string | number } | null
+      if (!u || !id) return false
+      // Cada usuario puede leer su propio documento (perfil / me).
+      if (String(u.id) === String(id)) return true
+      return u.role === 'admin' || u.role === 'staff'
+    },
+    update: ({ req: { user }, id }) => {
+      const u = user as { role?: string; id?: string | number } | null
+      if (!u || !id) return false
+      // Cada usuario actualiza su propio documento (perfil / me).
+      if (String(u.id) === String(id)) return true
+      return u.role === 'admin' || u.role === 'staff'
+    },
     delete: ({ req: { user } }) => {
       const u = user as { role?: string } | null
       if (!u) return false
@@ -75,7 +102,11 @@ export const Users: CollectionConfig = {
         { label: 'Admin', value: 'admin' },
       ],
       access: {
-        create: () => true,
+        create: ({ req: { user } }) => {
+          const u = user as { role?: string } | null
+          if (!u) return false
+          return u.role === 'admin' || u.role === 'staff'
+        },
         read: () => true,
         update: ({ req: { user } }) => {
           const u = user as { role?: string } | null
