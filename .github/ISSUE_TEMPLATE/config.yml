@@ -1,0 +1,15 @@
+# GitHub Issue Template Configuration
+# https://docs.github.com/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository
+
+blank_issues_enabled: false
+
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/MarBlanco/RegalarteWeb/wiki
+    about: Check the project documentation first
+  - name: 💬 Discussions
+    url: https://github.com/MarBlanco/RegalarteWeb/discussions
+    about: Ask questions or discuss ideas with the community
+  - name: 🔒 Security Vulnerability
+    url: https://github.com/MarBlanco/RegalarteWeb/security/advisories/new
+    about: Report a security vulnerability privately

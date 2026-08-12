@@ -1,16 +1,3 @@
-# =============================================================================
-# DISABLED — SonarCloud workflow.
-# Reason: requires the SONAR_TOKEN GitHub secret, which only the repo owner
-# (MarBlanco) can add under Settings > Secrets. The current contributor is a
-# collaborator without admin access, so the job cannot be configured yet.
-# To re-enable:
-#   1. Rename this file back to `sonarcloud.yml`:
-#        git mv .github/workflows/sonarcloud.yml.disabled .github/workflows/sonarcloud.yml
-#   2. Have the repo owner add the SONAR_TOKEN secret (see setup steps below).
-# Until then this file is ignored by GitHub Actions (the `.disabled` suffix
-# means it's not a recognized workflow file).
-# =============================================================================
-
 name: SonarCloud
 
 # SonarCloud static analysis — code smells, bugs, security hotspots, coverage.

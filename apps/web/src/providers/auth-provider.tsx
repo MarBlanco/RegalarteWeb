@@ -7,11 +7,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setLoading, token } = useAuth()
 
   useEffect(() => {
-    if (token) {
-      setLoading(false)
-    } else {
-      setLoading(false)
-    }
+    setLoading(false)
   }, [token, setLoading])
 
   return <>{children}</>

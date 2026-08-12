@@ -13,6 +13,7 @@
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { randomBytes } from 'crypto'
 
 import type {
   CreateOrderInput,
@@ -25,7 +26,8 @@ import { resolveUnitPrice } from '@/lib/cart/pricing'
 function buildOrderNumber(now: Date): string {
   const year = now.getUTCFullYear()
   // Random suffix evita colisiones dentro del mismo timestamp.
-  const suffix = Math.random().toString(36).slice(2, 8).toUpperCase()
+  // crypto.randomBytes(3) -> 6 hex chars, cryptographically secure.
+  const suffix = randomBytes(3).toString('hex').toUpperCase()
   return `RG-${year}-${suffix}`
 }
 
