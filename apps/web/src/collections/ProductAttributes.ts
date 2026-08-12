@@ -8,6 +8,21 @@ export const ProductAttributes: CollectionConfig = {
   },
   access: {
     read: () => true,
+    create: ({ req: { user } }) => {
+      const u = user as { role?: string } | null
+      if (!u) return false
+      return u.role === 'admin' || u.role === 'staff'
+    },
+    update: ({ req: { user } }) => {
+      const u = user as { role?: string } | null
+      if (!u) return false
+      return u.role === 'admin' || u.role === 'staff'
+    },
+    delete: ({ req: { user } }) => {
+      const u = user as { role?: string } | null
+      if (!u) return false
+      return u.role === 'admin' || u.role === 'staff'
+    },
   },
   fields: [
     {
