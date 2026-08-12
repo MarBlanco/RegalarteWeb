@@ -4,7 +4,11 @@
  *
  * Responsabilidades:
  *  - generar `orderNumber` unico.
- *  - calcular totales server-side desde el snapshot de items.
+ *  - calcular totales server-side desde PRECIOS DE LA DB (AUDIT-004):
+ *    el payload del cliente solo aporta carrito (productId + quantity);
+ *    identidad, precio unitario y totales se resuelven consultando
+ *    Products en Payload. Se rechaza la orden si el producto no existe
+ *    o no esta activo.
  *  - persistir via `payload.create`.
  *
  * El service NO se llama desde el cliente. Solo desde
@@ -18,10 +22,14 @@ import { randomBytes } from 'crypto'
 import type {
   CreateOrderInput,
   CreateOrderResult,
-  OrderItemLine,
-  OrderTotals,
 } from './types'
-import { resolveUnitPrice } from '@/lib/cart/pricing'
+import {
+  buildLinesFromProducts,
+  buildTotals,
+  OrderRejectedError,
+  parseProductId,
+  type ProductPricingSource,
+} from './lines'
 
 function buildOrderNumber(now: Date): string {
   const year = now.getUTCFullYear()
@@ -31,34 +39,35 @@ function buildOrderNumber(now: Date): string {
   return `RG-${year}-${suffix}`
 }
 
-function buildItemLines(input: CreateOrderInput): OrderItemLine[] {
-  return input.items.map((item) => {
-    const unitPrice = resolveUnitPrice(item, input.mode)
-    const lineTotal = unitPrice * item.quantity
-    return {
-      productId: item.productId,
-      slug: item.slug,
-      name: item.name,
-      quantity: item.quantity,
-      unitPrice,
-      lineTotal,
-    }
+async function loadProducts(ids: number[]): Promise<
+  ReadonlyMap<number, ProductPricingSource>
+> {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'products',
+    where: { id: { in: ids } },
+    limit: Math.max(1, ids.length),
+    depth: 0,
   })
+  return new Map(
+    docs.map((p) => [p.id, p as unknown as ProductPricingSource]),
+  )
 }
 
-function buildTotals(lines: ReadonlyArray<OrderItemLine>): OrderTotals {
-  const subtotal = lines.reduce((acc, line) => acc + line.lineTotal, 0)
-  return {
-    subtotal,
-    shipping: 0,
-    total: subtotal,
-  }
-}
+export { OrderRejectedError }
 
 export async function createOrder(
   input: CreateOrderInput,
 ): Promise<CreateOrderResult> {
-  const lines = buildItemLines(input)
+  const ids = Array.from(
+    new Set(input.items.map((item) => parseProductId(item.productId))),
+  )
+  if (ids.length === 0) {
+    throw new OrderRejectedError('Carrito sin productos validos')
+  }
+
+  const productsById = await loadProducts(ids)
+  const lines = buildLinesFromProducts(input, productsById)
   const totals = buildTotals(lines)
 
   const payload = await getPayload({ config })
