@@ -12,7 +12,11 @@
     "test": "vitest run",
     "payload": "payload",
     "generate:types": "payload generate:types",
-    "generate:importmap": "payload generate:importmap"
+    "generate:importmap": "payload generate:importmap",
+    "migrate:create": "payload migrate:create",
+    "migrate": "payload migrate",
+    "migrate:down": "payload migrate:down",
+    "migrate:status": "payload migrate:status"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.87.1",
