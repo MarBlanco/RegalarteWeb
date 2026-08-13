@@ -103,23 +103,26 @@ Configurar Dependabot para detectar y proponer automáticamente actualizaciones 
 | AUDIT-003 | ✅ CLOSED | Security & Production Config Audit certificada y cerrada. Ver Final Closure Report. |
 | AUDIT-004 | ✅ CLOSED | Ecommerce Critical Flows & Data Integrity Audit certificada y cerrada. Ver Final Closure Report. |
 | AUDIT-005 | ✅ CLOSED | Order, Stock & Payment Integrity Audit certificada y cerrada. Ver Final Closure Report. |
-| AUDIT-006 | ❌ OPEN | Release & Production Readiness: BLOCKERS externos (deploy prod, R2, backups, observabilidad, dominio). Ver Go Live Assessment. |
+| AUDIT-006 | ❌ OPEN | Release & Production Readiness: **3 BLOCKERS reales externos** (deploy/hosting, PostgreSQL prod, Cloudflare R2). Resto reclasificado ACCEPTED/DEFERRED. Ver Go Live Assessment + Reevaluación 2026-08-13. |
 
 ## Estado General de la Fase
 
 AUDIT-001 a AUDIT-005 se encuentran CLOSED, certificados por auditor independiente.
 
 AUDIT-006 (Release & Production Readiness) se encuentra **OPEN**: la ingeniería está
-técnicamente lista (build/CI/tests/hardening), pero el Go Live requiere completar los
-entregables del Sprint 8 — RELEASE READINESS (PLANNED): deploy de producción, PostgreSQL
-de producción + migraciones, Cloudflare R2 activo, dominio/HTTPS, spec de backups
-(TICKET-031) y observabilidad mínima (TICKET-030). Ver `docs/AUDIT-006_GO_LIVE_ASSESSMENT.md`.
+técnicamente lista (build/CI/tests/hardening, Ronda 1: R2 config + `prodMigrations` + scripts
+de migración), pero el Go Live requiere completar **3 acciones de infraestructura externa
+(owner)**: hosting/deploy de producción, PostgreSQL de producción + migraciones, y Cloudflare
+R2 activo. Tras la reevaluación 2026-08-13, backups (TICKET-031), observabilidad (TICKET-030),
+dominio, Resend y pagos quedaron **ACCEPTED/DEFERRED** (no impiden la operación de V1 según
+documentación aprobada). Ver `docs/AUDIT-006_GO_LIVE_ASSESSMENT.md`.
 
 Mercado Pago real (TICKET-010), idempotencia y stock quedan DEFERRED/ACCEPTED según la
 documentación aceptada: la V1 puede operar sin pagos online reales (provider mock, órdenes
 `pending` gestionadas por admin).
 
-El repositorio no debe declararse Release Candidate hasta resolver los BLOCKERS del assessment.
+El repositorio no debe declararse Release Candidate hasta resolver los **3 BLOCKERS reales**
+del assessment (deploy, DB prod, R2).
 
 ---
 
