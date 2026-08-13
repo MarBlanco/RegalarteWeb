@@ -3,6 +3,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { resendAdapter } from '@payloadcms/email-resend'
+import { migrations } from '@/migrations'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { Users } from '@/collections/Users'
@@ -31,6 +32,7 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({
     push: false,
+    prodMigrations: migrations,
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
@@ -53,6 +55,9 @@ export default buildConfig({
             collections: {
               media: {
                 prefix: 'media',
+              },
+              'product-images': {
+                prefix: 'product-images',
               },
             },
             bucket: process.env.R2_BUCKET || '',
