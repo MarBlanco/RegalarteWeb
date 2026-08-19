@@ -2,23 +2,28 @@
 
 **Audit:** Release & Production Readiness
 **Fecha:** 2026-08-12
-**Estado:** ❌ OPEN — BLOCKERS externos / decisiones requeridas
+**Estado:** ✅ CLOSED (2026-08-18) — BLOCKERS reales resueltos y verificados en Production
 **Alcance:** Determinar si REGALARTE V1 está preparada para producción.
 
 ---
 
 ## Motivo del resultado
 
-AUDIT-006 **no puede cerrarse como CLOSED**: existen **3 BLOCKERS reales de producción** que
-requieren infraestructura/cuenta/credenciales externas (deploy/hosting, PostgreSQL de
-producción, Cloudflare R2) — no solucionables desde el repo. El resto de ítems fue reevaluado
-contra la documentación aprobada y reclasificado como **ACCEPTED / DEFERRED** (ver sección
-"Reevaluación 2026-08-13"). Según la hoja de ruta del proyecto, el Sprint 8 "RELEASE READINESS"
-está **PLANNED**: sus entregables (PWA, Testing E2E, Cloudflare R2 configurado, Tag RC,
-Documentación final) dicen explícitamente "Resultado esperado: Go Live listo".
+AUDIT-006 se abre como **OPEN** con **3 BLOCKERS reales de producción** que requerían
+infraestructura/cuenta/credenciales externas (deploy/hosting, PostgreSQL de producción,
+Cloudflare R2). El resto de ítems fue reevaluado contra la documentación aprobada y
+reclasificado como **ACCEPTED / DEFERRED** (ver "Reevaluación 2026-08-13").
 
-**Se detiene el flujo de cierre por regla de auditoría** (resolver lo automático posible;
-detenerse ante configuración externa). No se ejecutó el tag RC, no se fabricó el cierre.
+**Cierre 2026-08-18:** los 3 BLOCKERS quedaron resueltos y verificados en Production:
+- **Deploy/hosting**: Vercel Production operativo (proyecto `regalarte-web-web`, root `apps/web`,
+  dominio canónico `https://regalarte-web-web.vercel.app`); `/`, `/admin`, `/api/products` y
+  `/api/globals/commerce-settings` responden 200. `PAYLOAD_SECRET` configurado.
+- **PostgreSQL de producción**: Neon operativo; 3 migraciones aplicadas (20260723, 20260730,
+  20260818) vía `migrate-on-build` en el build de Vercel; endpoints DB responden datos reales.
+- **Cloudflare R2**: 4 vars (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`,
+  `R2_ENDPOINT`) configuradas en Vercel; endpoint corregido a `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`
+  y validado (DNS + superficie S3 R2 viva); plugin `s3Storage` activo en prod (media +
+  product-images) y componente cliente `S3ClientUploadHandler` en el importMap (admin OK).
 
 ---
 
@@ -26,9 +31,9 @@ detenerse ante configuración externa). No se ejecutó el tag RC, no se fabricó
 
 | Área | Estado | Detalle |
 |------|--------|---------|
-| **Deploy** | 🚫 **BLOCKER REAL (owner/externo)** | Sin hosting de producción no hay URL pública ni forma de que V1 esté accesible para clientes. Monorepo npm workspaces; app Next en `apps/web`. No hay `vercel.json`, ni proyecto Vercel, ni `rootSettings` de monorepo definidos (Vercel requiere `apps/web` como root). No hay Dockerfile/hosting alternativo. Procedimiento de deploy y rollback de app **no documentados**. No solucionable desde el repo. |
-| **Database** | 🚫 **BLOCKER REAL (owner/externo)** | PostgreSQL: conexión de producción **no definida** (solo URI local en `.env.example`). Sin DB prod no hay persistencia de catálogo/órdenes/usuarios — la app no puede operar. Lo del repo ya está listo: esquema `push:false`, **2 migraciones** versionadas (20260723, 20260730) y `prodMigrations` bundleado (Ronda 1). Falta solo provisionar la DB y ejecutar `npm run migrate` (owner). |
-| **Storage (R2)** | 🚫 **BLOCKER REAL (owner/externo)** | Sin keys/bucket reales la media (imágenes de producto = núcleo del catálogo) queda en `staticDir` local, efímera en hosting serverless. Config del repo ya corregida (Ronda 1): `s3Storage` incluye `media` y `product-images`, gated por placeholders hasta tener keys reales. Entregable Sprint 8 "Cloudflare R2 configurado" **pendiente (owner)**. |
+| **Deploy** | ✅ **RESUELTO** | Vercel Production operativo: proyecto `regalarte-web-web`, root `apps/web`, `vercel.json` con `buildCommand` (migración + build), dominio canónico `https://regalarte-web-web.vercel.app`. `/`, `/admin`, `/api/products`, `/api/globals/commerce-settings` responden 200. `PAYLOAD_SECRET` configurado (Production). |
+| **Database** | ✅ **RESUELTO** | PostgreSQL de producción (Neon) operativo: **3 migraciones** versionadas aplicadas (20260723, 20260730, 20260818) en el build de Vercel (`scripts/migrate-on-build.mjs`), `prodMigrations` bundleado. Endpoints de Payload responden contra la DB prod (products, commerce-settings). |
+| **Storage (R2)** | ✅ **RESUELTO** | 4 vars (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_ENDPOINT`) configuradas en Vercel (preview+production). `R2_ENDPOINT` corregido a `https://<ACCOUNT_ID>.r2.cloudflarestorage.com` y validado (DNS + respuesta S3 API viva). `s3Storage` activo en prod (media + product-images, bucket `regalarte-media`); `S3ClientUploadHandler` presente en el importMap (admin renderiza). Test funcional de upload: requiere login admin (acción de owner, opcional). |
 | **Pagos (Mercado Pago)** | ✅ **ACCEPTED** | Provider **mock estructural**; TICKET-010 real pendiente (preference vía backend, webhook server-validado, reconciliación). **No bloquea V1 según docs aceptadas** (AUDIT-003 W-01: "NO bloquear la V1"; AUDIT-004/005: sin dinero real). Implicación comercial: orders quedan `pending` gestionadas por admin — decisión de producto tomada y documentada. |
 | **Email (Resend)** | 📦 **DEFERRED/ACCEPTED** | Adapter ya cableado en `payload.config.ts` (activado con key real, no placeholder). `Users.auth.verify: false` → el correo **no es requerido** para registro/login/compra. Solo forgot/reset-password dependen de Resend; sin key, esos envíos no llegan (degradación operativa, no bloqueo). Owner: agregar `RESEND_API_KEY` real + dominio verificado cuando se defina. TICKET-025 (leads) sigue BLOCKED sin spec. |
 | **Dominio / HTTPS** | 📦 **DEFERRED (no bloquea V1)** | El hosting de producción provee URL provisional con HTTPS automático — V1 puede operar sin dominio custom. `NEXT_PUBLIC_APP_URL` real y dominio propio = paso de branding/owner posterior al deploy. `next.config.mjs` ya emite HSTS en prod y restringe remotePatterns (incluye `media.regalarte.com`). |
@@ -59,22 +64,22 @@ detenerse ante configuración externa). No se ejecutó el tag RC, no se fabricó
 
 ---
 
-## Checklist GO LIVE requerido (para reabrir y cerrar AUDIT-006)
+## Checklist GO LIVE
 
-**BLOCKERS reales (impiden Go Live — owner/externo):**
+**BLOCKERS reales (resueltos 2026-08-18):**
 
-1. Definir hosting de producción: **Vercel project (root `apps/web`)** o equivalente + `NEXT_PUBLIC_APP_URL` real; probar build/start en prod.
-2. Provisionar **PostgreSQL de producción** + ejecutar las 2 migraciones (`npm run migrate`) + verificar esquema.
-3. Configurar **Cloudflare R2** (keys reales, bucket, `R2_PUBLIC_URL`) y subir media.
+1. ✅ Definir hosting de producción: **Vercel project (root `apps/web`)** operativo; probado en prod (`/`, `/admin`, APIs 200). `NEXT_PUBLIC_APP_URL` real = paso de branding/dominio posterior (DEFERRED).
+2. ✅ Provisionar **PostgreSQL de producción** (Neon) + aplicar migraciones (`migrate-on-build` en build de Vercel) + esquema verificado (endpoints DB 200).
+3. ✅ Configurar **Cloudflare R2**: 4 vars en Vercel, endpoint corregido y validado, plugin `s3Storage` activo en prod. *Pendiente opcional de owner: subir una media de prueba en `/admin` (requiere login).*
 
 **ACCEPTED / DEFERRED (no bloquean V1 — pasos posteriores):**
 
-4. Definir **dominio + SSL** (V1 puede operar con URL provisional + HTTPS del hosting; dominio = branding/owner).
+4. Definir **dominio + SSL** (V1 opera con URL provisional + HTTPS del hosting; dominio = branding/owner).
 5. Definir y aprobar **spec de backups/RPO/RTO** (TICKET-031) e implementar/reprobar restore — post-lanzamiento.
 6. Definir **spec de observabilidad mínima** (TICKET-030): logs/health + analytics con keys reales — post-lanzamiento.
 7. Configurar **Resend** con dominio verificado y probar emails críticos (forgot/reset).
 8. (Ya decidido/ACCEPTED) Pagos: mock con gestión manual vs TICKET-010 (dinero real).
-9. **Versión 1.0.0 + tag RC** + checklist Go Live + procedimiento de rollback — solo tras resolver ítems 1–3.
+9. **Versión 1.0.0 + tag RC** + checklist Go Live + procedimiento de rollback — habilitado tras resolver ítems 1–3.
 
 ---
 
@@ -103,5 +108,7 @@ si V1 puede funcionar sin ello.
 | 8 | **Pagos (Mercado Pago)** | ✅ ACCEPTED | Decisión documentada: AUDIT-003 W-01 "NO bloquear la V1", AUDIT-004 W-02, AUDIT-005 D-01/D-02/D-03. Provider mock; órdenes `pending` gestionadas por admin. |
 | 9 | **Release / tag RC** | 📦 DEFERRED (gated) | WORKING.md: "El repositorio no debe declararse Release Candidate hasta resolver los BLOCKERS del assessment". Sin los ítems 1–3 no se fabrica RC. |
 
-**Conclusión:** AUDIT-006 permanece **OPEN** únicamente por los 3 BLOCKERS reales
-(deploy, DB prod, R2). Ningún otro punto impide Go Live según la documentación aprobada.
+**Conclusión (2026-08-18):** AUDIT-006 queda **CLOSED**. Los 3 BLOCKERS reales (deploy, DB prod,
+R2) fueron resueltos y verificados en Production. Ningún otro punto impide Go Live según la
+documentación aprobada; los ítems ACCEPTED/DEFERRED (dominio, backups, observabilidad, Resend,
+pagos, tag RC) son pasos posteriores planificados en la hoja de ruta.

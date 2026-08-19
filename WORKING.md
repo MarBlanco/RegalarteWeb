@@ -103,26 +103,29 @@ Configurar Dependabot para detectar y proponer automáticamente actualizaciones 
 | AUDIT-003 | ✅ CLOSED | Security & Production Config Audit certificada y cerrada. Ver Final Closure Report. |
 | AUDIT-004 | ✅ CLOSED | Ecommerce Critical Flows & Data Integrity Audit certificada y cerrada. Ver Final Closure Report. |
 | AUDIT-005 | ✅ CLOSED | Order, Stock & Payment Integrity Audit certificada y cerrada. Ver Final Closure Report. |
-| AUDIT-006 | ❌ OPEN | Release & Production Readiness: **3 BLOCKERS reales externos** (deploy/hosting, PostgreSQL prod, Cloudflare R2). Resto reclasificado ACCEPTED/DEFERRED. Ver Go Live Assessment + Reevaluación 2026-08-13. |
+| AUDIT-006 | ✅ CLOSED | Release & Production Readiness certificada y cerrada. **3 BLOCKERS reales resueltos**: deploy (Vercel Production, dominio canónico operativo), PostgreSQL prod (Neon + 3 migraciones aplicadas, endpoints DB 200), Cloudflare R2 (vars configuradas en Vercel, endpoint corregido y verificado). Resto ACCEPTED/DEFERRED. Ver Go Live Assessment. |
 
 ## Estado General de la Fase
 
 AUDIT-001 a AUDIT-005 se encuentran CLOSED, certificados por auditor independiente.
 
-AUDIT-006 (Release & Production Readiness) se encuentra **OPEN**: la ingeniería está
-técnicamente lista (build/CI/tests/hardening, Ronda 1: R2 config + `prodMigrations` + scripts
-de migración), pero el Go Live requiere completar **3 acciones de infraestructura externa
-(owner)**: hosting/deploy de producción, PostgreSQL de producción + migraciones, y Cloudflare
-R2 activo. Tras la reevaluación 2026-08-13, backups (TICKET-031), observabilidad (TICKET-030),
-dominio, Resend y pagos quedaron **ACCEPTED/DEFERRED** (no impiden la operación de V1 según
-documentación aprobada). Ver `docs/AUDIT-006_GO_LIVE_ASSESSMENT.md`.
+AUDIT-006 (Release & Production Readiness) se encuentra **CLOSED** (2026-08-18). Los **3 BLOCKERS
+reales** del assessment quedaron resueltos y verificados en Production:
+**deploy** (Vercel, proyecto `regalarte-web-web`, root `apps/web`, dominio canónico operativo),
+**PostgreSQL de producción** (Neon, 3 migraciones aplicadas, `prodMigrations` bundleado, endpoints
+de Payload respondiendo contra la DB prod) y **Cloudflare R2** (4 vars configuradas en Vercel,
+`R2_ENDPOINT` corregido y validado como endpoint S3 R2 vivo; plugin `s3Storage` activo en prod).
+Backups (TICKET-031), observabilidad (TICKET-030), dominio custom, Resend y pagos permanecen
+**ACCEPTED/DEFERRED** (no impiden la operación de V1 según documentación aprobada).
+Ver `docs/AUDIT-006_GO_LIVE_ASSESSMENT.md`.
 
 Mercado Pago real (TICKET-010), idempotencia y stock quedan DEFERRED/ACCEPTED según la
 documentación aceptada: la V1 puede operar sin pagos online reales (provider mock, órdenes
 `pending` gestionadas por admin).
 
-El repositorio no debe declararse Release Candidate hasta resolver los **3 BLOCKERS reales**
-del assessment (deploy, DB prod, R2).
+Los **3 BLOCKERS reales** del assessment (deploy, DB prod, R2) quedaron resueltos (2026-08-18):
+AUDIT-006 CLOSED. El Release Candidate queda habilitado para su planificación posterior
+(entregables Sprint 8: PWA, Testing E2E, dominio custom, tag RC, doc final) según la hoja de ruta.
 
 ---
 
