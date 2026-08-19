@@ -14,6 +14,7 @@ import {
   useCartStore,
 } from '@/lib/cart'
 import { formatPrice } from '@/lib/format'
+import { useShallow } from 'zustand/react/shallow'
 
 export default function CartPage() {
   const items = useCartStore((s) => s.items)
@@ -21,8 +22,8 @@ export default function CartPage() {
   const hydrated = useCartStore((s) => s.hydrated)
   const clearCart = useCartStore((s) => s.clearCart)
   const itemCount = useCartStore(selectItemCount)
-  const totals = useCartStore((s) =>
-    selectTotals({ items: s.items, mode: s.mode }),
+  const totals = useCartStore(
+    useShallow((s) => selectTotals({ items: s.items, mode: s.mode })),
   )
 
   return (

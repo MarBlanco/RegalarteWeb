@@ -13,6 +13,7 @@ import {
 import { useCartUIStore } from '@/lib/cart/ui-store'
 import { formatPrice } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { useShallow } from 'zustand/react/shallow'
 
 export interface CartDrawerProps {
   className?: string
@@ -30,7 +31,9 @@ export function CartDrawer({ className }: CartDrawerProps) {
   const hydrated = useCartStore((s) => s.hydrated)
 
   const itemCount = useCartStore(selectItemCount)
-  const totals = useCartStore((s) => selectTotals({ items: s.items, mode: s.mode }))
+  const totals = useCartStore(
+    useShallow((s) => selectTotals({ items: s.items, mode: s.mode })),
+  )
 
   useEffect(() => {
     if (!isOpen) return

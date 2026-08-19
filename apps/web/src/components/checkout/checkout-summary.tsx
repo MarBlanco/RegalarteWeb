@@ -3,12 +3,13 @@
 import { useCartStore, selectTotals } from '@/lib/cart'
 import { formatPrice } from '@/lib/format'
 import { Card, CardContent } from '@/components/ui/card'
+import { useShallow } from 'zustand/react/shallow'
 
 export function CheckoutSummary() {
   const mode = useCartStore((s) => s.mode)
   const hydrated = useCartStore((s) => s.hydrated)
-  const totals = useCartStore((s) =>
-    selectTotals({ items: s.items, mode: s.mode }),
+  const totals = useCartStore(
+    useShallow((s) => selectTotals({ items: s.items, mode: s.mode })),
   )
 
   return (
