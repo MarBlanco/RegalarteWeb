@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
 
@@ -13,47 +14,35 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col">
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary/5 via-background to-background">
-        <div className="container flex flex-col items-center justify-center min-h-[80vh] text-center space-y-8">
-          <div className="space-y-4 max-w-2xl">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-balance">
-              Encontrá el{' '}
-              <span className="text-primary">regalo perfecto</span>
+    <section className="relative h-[560px] w-full overflow-hidden sm:h-[600px] lg:h-[650px]">
+      <Image
+        src="/assets/hero-solistica.webp"
+        alt="Velas y aromas de Solística para transformar tu casa"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover"
+      />
+      <div className="absolute inset-0 z-10 flex items-center">
+        <div className="w-full px-6 sm:px-10 lg:pl-[6.8vw] lg:pr-0">
+          <div className="max-w-[500px]">
+            <span aria-hidden className="mb-6 block h-[2px] w-[48px] bg-primary" />
+            <h1 className="font-serif text-[44px] font-normal leading-[1.05] tracking-tight text-white sm:text-[48px] lg:text-[54px]">
+              Aromas que transforman tu casa en tu lugar feliz.
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-lg mx-auto">
-              No sabés qué regalar? Descubrí ideas únicas para cada persona, ocasión y
-              presupuesto.
+            <p className="mt-6 max-w-[500px] text-[17px] leading-[1.5] text-white sm:text-[18px]">
+              Velas, home sprays, difusores y wax melts para rituales
+              cotidianos, perfumar tus espacios y regalar bienestar.
             </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button asChild size="xl">
-              <Link href="/gift-finder">Descubrir regalos</Link>
+            <Button
+              asChild
+              className="mt-8 h-[52px] w-[190px] uppercase tracking-wider"
+            >
+              <Link href="/solistica">Ver colección</Link>
             </Button>
-            <Button asChild variant="outline" size="xl">
-              <Link href="/catalogo">Ver catálogo</Link>
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl mt-12">
-            {[
-              { label: 'Por personalidad', href: '/personalidad' },
-              { label: 'Por ocasión', href: '/ocasion' },
-              { label: 'Armá tu regalo', href: '/armatu-regalo' },
-              { label: 'Caja sorpresa', href: '/caja-sorpresa' },
-            ].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center justify-center rounded-xl border bg-card p-4 text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   )
 }

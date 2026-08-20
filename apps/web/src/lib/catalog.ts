@@ -30,6 +30,7 @@ export interface CatalogFilters {
   minPrice?: number
   maxPrice?: number
   featured?: boolean
+  isSolistica?: boolean
   sort?: SortOption
 }
 
@@ -127,6 +128,10 @@ async function buildWhere(
 
   if (filters.featured) {
     and.push({ featured: { equals: true } })
+  }
+
+  if (filters.isSolistica) {
+    and.push({ isSolistica: { equals: true } })
   }
 
   if (filters.minPrice !== undefined) {
