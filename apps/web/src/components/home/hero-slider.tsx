@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -34,13 +34,43 @@ const slides = [
 
 export function HeroSlider() {
   const [current, setCurrent] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  useEffect(() => {
-    const timer = setInterval(() => {
+  const startAutoSlide = useCallback(() => {
+    if (intervalRef.current) return
+    intervalRef.current = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length)
     }, 5000)
-    return () => clearInterval(timer)
   }, [])
+
+  const stopAutoSlide = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isPlaying) {
+      startAutoSlide()
+    } else {
+      stopAutoSlide()
+    }
+    return () => stopAutoSlide()
+  }, [isPlaying, startAutoSlide, stopAutoSlide])
+
+  const handleIndicatorClick = (index: number) => {
+    setCurrent(index)
+  }
+
+  const handlePrev = () => {
+    setCurrent((prev) => (prev - 1 + slides.length) % slides.length)
+  }
+
+  const handleNext = () => {
+    setCurrent((prev) => (prev + 1) % slides.length)
+  }
 
   return (
     <section className="relative h-[560px] w-full overflow-hidden sm:h-[600px] lg:h-[650px] bg-[#2C221E]">
@@ -90,18 +120,58 @@ export function HeroSlider() {
         </div>
       </div>
 
-      {/* Slider indicators */}
-      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-3">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrent(index)}
-            className={`h-2.5 rounded-full transition-all duration-300 ${
-              current === index ? 'w-8 bg-white' : 'w-2.5 bg-white/50'
-            }`}
-            aria-label={`Ir a diapositiva ${index + 1}`}
-          />
-        ))}
+      {/* Navigation arrows */}
+      <div className="absolute inset-0 z-20 flex items-center justify-between px-4 sm:px-10 pointer-events-none">
+        <button
+          onClick={handlePrev}
+          className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          aria-label="Diapositiva anterior"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          onClick={handleNext}
+          className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          aria-label="Diapositiva siguiente"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Slider indicators and play/pause control */}
+      <div className="absolute bottom-6 left-1/2 z-20 flex flex-col items-center gap-4 -translate-x-1/2">
+        <div className="flex gap-3">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => handleIndicatorClick(index)}
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                current === index ? 'w-8 bg-white' : 'w-2.5 bg-white/50'
+              }`}
+              aria-label={`Ir a diapositiva ${index + 1}`}
+            />
+          ))}
+        </div>
+        <button
+          onClick={() => setIsPlaying((prev) => !prev)}
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          aria-label={isPlaying ? 'Pausar auto-desplazamiento' : 'Reanudar auto-desplazamiento'}
+          aria-pressed={!isPlaying}
+        >
+          {isPlaying ? (
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
+        </button>
       </div>
     </section>
   )
