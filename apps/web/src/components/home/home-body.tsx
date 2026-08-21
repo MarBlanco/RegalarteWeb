@@ -85,7 +85,7 @@ export function HomeCategorySection({ data }: { data: HomeCategoryData }) {
             {data.description}
           </p>
           <Link
-            href={`/catalogo?categoria=${data.categorySlug}`}
+            href={`/catalogo?category=${data.categorySlug}`}
             className="inline-flex items-center text-xs sm:text-sm font-medium tracking-wider text-[#C45A37] hover:text-[#9E4024] uppercase mt-4 sm:mt-6 gap-1 transition-colors"
           >
             VER COLECCIÓN <span aria-hidden="true">&rarr;</span>
