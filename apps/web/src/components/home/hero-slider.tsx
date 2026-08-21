@@ -35,7 +35,9 @@ const slides = [
 export function HeroSlider() {
   const [current, setCurrent] = useState(0)
   const [isPlaying, setIsPlaying] = useState(true)
+  const [wasPlayingBeforeFocus, setWasPlayingBeforeFocus] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const carouselRef = useRef<HTMLSectionElement>(null)
 
   const startAutoSlide = useCallback(() => {
     if (intervalRef.current) return
@@ -51,14 +53,30 @@ export function HeroSlider() {
     }
   }, [])
 
-  useEffect(() => {
+  const handleFocusIn = useCallback(() => {
     if (isPlaying) {
+      setWasPlayingBeforeFocus(true)
+      stopAutoSlide()
+    }
+  }, [isPlaying, stopAutoSlide])
+
+  const handleFocusOut = useCallback(() => {
+    if (wasPlayingBeforeFocus && isPlaying) {
+      setWasPlayingBeforeFocus(false)
+      startAutoSlide()
+    } else {
+      setWasPlayingBeforeFocus(false)
+    }
+  }, [wasPlayingBeforeFocus, isPlaying, startAutoSlide])
+
+  useEffect(() => {
+    if (isPlaying && !wasPlayingBeforeFocus) {
       startAutoSlide()
     } else {
       stopAutoSlide()
     }
     return () => stopAutoSlide()
-  }, [isPlaying, startAutoSlide, stopAutoSlide])
+  }, [isPlaying, wasPlayingBeforeFocus, startAutoSlide, stopAutoSlide])
 
   const handleIndicatorClick = (index: number) => {
     setCurrent(index)
@@ -73,7 +91,12 @@ export function HeroSlider() {
   }
 
   return (
-    <section className="relative h-[560px] w-full overflow-hidden sm:h-[600px] lg:h-[650px] bg-[#2C221E]">
+    <section
+      ref={carouselRef}
+      onFocusIn={handleFocusIn}
+      onFocusOut={handleFocusOut}
+      className="relative h-[560px] w-full overflow-hidden sm:h-[600px] lg:h-[650px] bg-[#2C221E]"
+    >
       <AnimatePresence>
         <motion.div
           key={current}
