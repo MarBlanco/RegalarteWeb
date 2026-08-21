@@ -81,7 +81,7 @@ export default async function SolisticaPage() {
           {categories.map((category) => (
             <Link
               key={category.title}
-              href={`/catalogo?q=${encodeURIComponent(category.title)}`}
+              href={`/catalogo?category=${encodeURIComponent(category.title)}`}
               className="group flex flex-col justify-between rounded-xl border bg-card p-6 transition-colors hover:border-primary/40"
             >
               <h3 className="font-serif text-lg font-semibold">
