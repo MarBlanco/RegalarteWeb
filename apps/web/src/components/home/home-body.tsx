@@ -421,19 +421,6 @@ export function HomeBody() {
 
       {/* Category 6: REGALARTE */}
       <HomeCategorySection data={CATEGORIES_DATA[5]} />
-
-      {/* Closing Ritual Banner */}
-      <section className="py-16 sm:py-20 px-4 text-center bg-[#F4EDE4] border-t border-[#E5DDD1]">
-        <div className="flex justify-center mb-3">
-          <SunEmblem className="w-8 h-8 text-[#C45A37]" />
-        </div>
-        <h2 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#38271D] tracking-tight">
-          Hacé de lo cotidiano un ritual.
-        </h2>
-        <p className="text-sm sm:text-base text-[#7A6A5D] mt-2 font-normal">
-          Solística · aromas, hogar y momentos para disfrutar.
-        </p>
-      </section>
     </div>
   )
 }
