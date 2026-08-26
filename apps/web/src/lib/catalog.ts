@@ -22,6 +22,7 @@ type SortOption =
   | 'title'
   | '-title'
   | 'sortOrder'
+  | '-featured,sortOrder,-createdAt'
 
 export interface CatalogFilters {
   categorySlug?: string

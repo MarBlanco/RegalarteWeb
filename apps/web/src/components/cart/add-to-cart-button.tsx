@@ -25,6 +25,8 @@ export interface AddToCartButtonProps {
   /** Cantidad inicial (default 1). */
   defaultQuantity?: number
   className?: string
+  /** Variante compacta para cards: solo boton, sin selector de cantidad. */
+  compact?: boolean
 }
 
 export function AddToCartButton({
@@ -32,6 +34,7 @@ export function AddToCartButton({
   stock = null,
   defaultQuantity = 1,
   className,
+  compact = false,
 }: AddToCartButtonProps) {
   const addItem = useCartStore((s) => s.addItem)
   const hydrated = useCartStore((s) => s.hydrated)
@@ -69,6 +72,25 @@ export function AddToCartButton({
     setJustAdded(true)
     openCart()
     window.setTimeout(() => setJustAdded(false), 1600)
+  }
+
+  if (compact) {
+    return (
+      <div className={className}>
+        <Button
+          type="button"
+          onClick={handleAdd}
+          disabled={!hydrated || isOutOfStock}
+          className="h-8 w-full rounded-md text-[11px] font-semibold uppercase tracking-wider"
+        >
+          {isOutOfStock
+            ? 'Sin stock'
+            : justAdded
+              ? 'Agregado ✓'
+              : 'Agregar al carrito'}
+        </Button>
+      </div>
+    )
   }
 
   return (

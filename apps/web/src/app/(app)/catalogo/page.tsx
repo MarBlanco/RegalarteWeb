@@ -9,6 +9,11 @@ import {
 import { CatalogFilters as FiltersPanel } from '@/components/catalog/catalog-filters'
 import { CatalogPagination } from '@/components/catalog/catalog-pagination'
 import { ProductGrid } from '@/components/catalog/product-grid'
+import { CategoryHero } from '@/components/catalog/category-hero'
+import { SubcategoryBar } from '@/components/catalog/subcategory-bar'
+import { EditorialBlock } from '@/components/catalog/editorial-block'
+import { BenefitsBlock } from '@/components/catalog/benefits-block'
+import type { Media } from '@/payload-types'
 
 export const metadata: Metadata = {
   title: 'Catálogo',
@@ -66,6 +71,19 @@ function parsePrice(value: string | undefined): number | undefined {
   return Number.isFinite(n) && n >= 0 ? n : undefined
 }
 
+/**
+ * Descripciones editoriales de fallback por categoría.
+ * Si el CMS define `description`, esa toma precedencia.
+ */
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  velas: 'Luz cálida para transformar tus espacios y acompañar cada momento.',
+  aromas: 'Fragancias que acompañan tu día y renuevan tus espacios.',
+  'wax-melts': 'Esencias pequeñas que duran mucho más.',
+  quemadores: 'Belleza y calidez en cada detalle.',
+  packs: 'Regalos listos para emocionar.',
+  regalarte: 'Detalles que dicen todo.',
+}
+
 export default async function CatalogPage({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {}
   const page = parsePage(params.page)
@@ -75,7 +93,7 @@ export default async function CatalogPage({ searchParams }: PageProps) {
     tagSlug: params.tag,
     minPrice: parsePrice(params.minPrice),
     maxPrice: parsePrice(params.maxPrice),
-    sort: (params.sort as CatalogFilters['sort']) ?? '-createdAt',
+    sort: (params.sort as CatalogFilters['sort']) ?? '-featured,sortOrder,-createdAt',
   }
 
   const [products, categories, tags] = await Promise.all([
@@ -84,32 +102,45 @@ export default async function CatalogPage({ searchParams }: PageProps) {
     fetchProductTags(),
   ])
 
-  return (
-    <div className="bg-background">
-      <div className="container py-8 lg:py-12">
-        <header className="mb-8 lg:mb-12">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Catálogo
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            {products.totalDocs === 0
-              ? 'Explorá todas nuestras propuestas para encontrar el regalo ideal.'
-              : `${products.totalDocs} ${
-                  products.totalDocs === 1 ? 'producto encontrado' : 'productos encontrados'
-                }`}
-          </p>
-        </header>
+  const category = params.category
+    ? categories.find((c) => c.slug === params.category)
+    : undefined
+  const categoryImage =
+    category?.image && typeof category.image === 'object'
+      ? (category.image as Media)
+      : null
+  const heroTitle = category?.title ?? 'Catálogo'
+  const heroDescription =
+    category?.description ??
+    (params.category ? CATEGORY_DESCRIPTIONS[params.category] : undefined) ??
+    'Explorá todas nuestras propuestas para encontrar el regalo ideal.'
 
-        <div className="flex flex-col gap-8 lg:flex-row">
-          <aside className="lg:w-64 lg:flex-shrink-0">
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* HERO DE CATEGORÍA */}
+      <CategoryHero
+        title={heroTitle}
+        description={heroDescription}
+        imageUrl={categoryImage?.url ?? null}
+      />
+
+      {/* BARRA DE SUBCATEGORÍAS */}
+      <Suspense fallback={null}>
+        <SubcategoryBar tags={tags} totalDocs={products.totalDocs} currentCategory={params.category} />
+      </Suspense>
+
+      {/* CATÁLOGO: FILTROS + GRID */}
+      <div className="flex-1 px-7 py-4">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-4 lg:flex-row">
+          <aside className="lg:w-[20%] lg:flex-shrink-0">
             <Suspense fallback={null}>
               <FiltersPanel categories={categories} tags={tags} />
             </Suspense>
           </aside>
 
-          <section className="flex-1">
+          <section className="min-w-0 flex-1">
             {products.docs.length === 0 ? (
-              <div className="rounded-xl border bg-card p-12 text-center">
+              <div className="rounded-md border border-[#E5DDD1] bg-card p-12 text-center">
                 <h2 className="text-lg font-semibold">
                   No encontramos productos
                 </h2>
@@ -130,6 +161,12 @@ export default async function CatalogPage({ searchParams }: PageProps) {
           </section>
         </div>
       </div>
+
+      {/* BLOQUE EDITORIAL */}
+      <EditorialBlock />
+
+      {/* BLOQUE DE BENEFICIOS */}
+      <BenefitsBlock />
     </div>
   )
 }
