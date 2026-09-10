@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 30
+export const dynamic = 'force-dynamic'
 
 const categories = [
   { title: 'Velas', description: 'Luz, calma y ritual para cada momento.' },
