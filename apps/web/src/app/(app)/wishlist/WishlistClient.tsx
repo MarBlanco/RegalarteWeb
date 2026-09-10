@@ -21,7 +21,7 @@ interface WishlistProductCardProps {
 }
 
 function WishlistProductCard({ item }: { item: WishlistProductCardProps }) {
-  const { removeItem } = useWishlistStore()
+  const removeItem = useWishlistStore((state) => state.removeItem)
 
   function handleRemove(e: React.MouseEvent) {
     e.preventDefault()

@@ -17,12 +17,11 @@ export function ProductCard({ product }: ProductCardProps) {
     typeof product.wholesalePrice === 'number' ? product.wholesalePrice : null
   const showWholesale = product.isWholesaleAvailable && wholesalePrice !== null
 
-  const { items, toggleItem } = useWishlistStore((state) => ({
-    items: state.items,
-    toggleItem: state.toggleItem,
-  }))
-
-  const inWishlist = items.some((i) => i.id === String(product.id))
+  const productId = String(product.id)
+  const toggleItem = useWishlistStore((state) => state.toggleItem)
+  const inWishlist = useWishlistStore((state) =>
+    state.items.some((i) => i.id === productId),
+  )
 
   const wishlistItem = {
     id: String(product.id),
