@@ -118,10 +118,10 @@ export function HeroSlider() {
             <AnimatePresence>
               <motion.div
                 key={current}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8, ease: 'easeInOut' }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
                 className="absolute inset-0 flex flex-col justify-center"
               >
                 <span aria-hidden className="mb-6 block h-[2px] w-[48px] bg-primary" />

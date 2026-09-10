@@ -42,7 +42,7 @@ export function ProductPlaceholder({
           {/* Label */}
           <rect x="68" y="98" width="64" height="42" rx="4" fill="#FAF6F0" stroke="#D8C8B4" strokeWidth="1" />
           <line x1="76" y1="108" x2="124" y2="108" stroke="#38271D" strokeWidth="1" strokeDasharray="2 2" />
-          <text x="100" y="122" textAnchor="middle" fontSize="7" fontFamily="Georgia, serif" fill="#38271D" fontWeight="bold">SOLÍSTICA</text>
+          <text x="100" y="122" textAnchor="middle" fontSize="7" fontFamily="Georgia, serif" fill="#38271D" fontWeight="bold">VELA</text>
           <text x="100" y="132" textAnchor="middle" fontSize="5" fontFamily="sans-serif" fill="#7A6A5D" letterSpacing="0.5">CERA VEGETAL</text>
         </svg>
       )}
@@ -69,7 +69,7 @@ export function ProductPlaceholder({
           <rect x="72" y="122" width="56" height="38" rx="6" fill="#E8D2B8" opacity="0.7" />
           {/* Label */}
           <rect x="76" y="116" width="48" height="32" rx="3" fill="#FAF6F0" stroke="#D8C8B4" strokeWidth="1" />
-          <text x="100" y="130" textAnchor="middle" fontSize="6" fontFamily="Georgia, serif" fill="#38271D" fontWeight="bold">SOLÍSTICA</text>
+          <text x="100" y="130" textAnchor="middle" fontSize="6" fontFamily="Georgia, serif" fill="#38271D" fontWeight="bold">AROMA</text>
           <text x="100" y="140" textAnchor="middle" fontSize="5" fontFamily="sans-serif" fill="#7A6A5D">DIFFUSER</text>
         </svg>
       )}
