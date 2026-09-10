@@ -37,7 +37,7 @@ export function HeroSlider() {
   const [isPlaying, setIsPlaying] = useState(true)
   const [wasPlayingBeforeFocus, setWasPlayingBeforeFocus] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const carouselRef = useRef<HTMLSectionElement>(null)
+  const carouselRef = useRef<HTMLElement>(null)
 
   const startAutoSlide = useCallback(() => {
     if (intervalRef.current) return
@@ -93,8 +93,8 @@ export function HeroSlider() {
   return (
     <section
       ref={carouselRef}
-      onFocusIn={handleFocusIn}
-      onFocusOut={handleFocusOut}
+      onFocus={handleFocusIn}
+      onBlur={handleFocusOut}
       className="relative h-[560px] w-full overflow-hidden sm:h-[600px] lg:h-[650px] bg-[#2C221E]"
     >
       <AnimatePresence>
