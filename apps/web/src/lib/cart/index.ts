@@ -14,3 +14,4 @@ export {
   selectHasItems,
 } from './store'
 export { useCartUIStore } from './ui-store'
+export { FREE_SHIPPING_THRESHOLD, freeShippingProgress } from './shipping'

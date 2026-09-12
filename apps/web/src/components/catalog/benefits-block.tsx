@@ -1,13 +1,3 @@
-'use client'
-
-import Link from 'next/link'
-
-interface Benefit {
-  icon: React.ReactNode
-  title: string
-  description: string
-}
-
 const ShippingIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -16,13 +6,13 @@ const ShippingIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6"
+    className="h-7 w-7"
     aria-hidden="true"
   >
-    <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-    <circle cx="6" cy="8" r="2" />
-    <path d="M18 16v-2a2 2 0 0 0-2-2h-4a2 2 0 0 1-2-2V6" />
+    <path d="M1 8h13v9H1z" />
+    <path d="M14 11h4l3 3v3h-7z" />
+    <circle cx="5.5" cy="17.5" r="1.8" />
+    <circle cx="17.5" cy="17.5" r="1.8" />
   </svg>
 )
 
@@ -34,15 +24,14 @@ const PackagingIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6"
+    className="h-7 w-7"
     aria-hidden="true"
   >
-    <path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3" />
-    <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3" />
-    <path d="M4 20l1.12 1.12" />
-    <path d="M18 8v9" />
-    <path d="M20 20H4" />
-    <circle cx="16" cy="16" r="2" />
+    <rect x="3" y="8" width="18" height="4" />
+    <path d="M5 12v9h14v-9" />
+    <path d="M12 8v13" />
+    <path d="M12 8c-4 0-5.5-1.5-5.5-3.5C6.5 3 8 2.5 9 3.5 10.5 5 12 8 12 8z" />
+    <path d="M12 8c4 0 5.5-1.5 5.5-3.5 0-1.5-1.5-2-2.5-1C13.5 5 12 8 12 8z" />
   </svg>
 )
 
@@ -54,11 +43,12 @@ const PaymentIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6"
+    className="h-7 w-7"
     aria-hidden="true"
   >
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3 7 3" />
-    <path d="M9 12l2 2 4-4" />
+    <rect x="4" y="10" width="16" height="10" rx="1.5" />
+    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+    <path d="M12 14v3" />
   </svg>
 )
 
@@ -70,10 +60,10 @@ const SupportIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6"
+    className="h-7 w-7"
     aria-hidden="true"
   >
-    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-3.4L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-3.4L21 3l-1.9 5.7a8.38 8.38 0 0 1 .9 3.8z" />
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
   </svg>
 )
 
@@ -81,43 +71,54 @@ const benefits = [
   {
     icon: <ShippingIcon />,
     title: 'Envíos a todo el país',
-    description: 'Envío gratis en compras mayores a $50.000',
+    description: 'A donde estés.',
   },
   {
     icon: <PackagingIcon />,
-    title: 'Packaging Premium',
-    description: 'Empaques cuidadosos para que todo llegue intacto.',
+    title: 'Packaging premium',
+    description: 'Cada detalle importa.',
   },
   {
     icon: <PaymentIcon />,
-    title: 'Pagos Seguros',
-    description: 'Tus datos protegidos con encriptación bancaria.',
+    title: 'Pagos seguros',
+    description: 'Protegemos tu compra.',
   },
   {
     icon: <SupportIcon />,
-    title: 'Atención Personalizada',
-    description: 'Te acompañamos en cada paso de tu compra.',
+    title: 'Atención personalizada',
+    description: 'Estamos para ayudarte.',
   },
 ] as const
 
-export function BenefitsBlock() {
+export interface BenefitsBlockProps {
+  items?: { title: string; description: string }[]
+}
+
+export function BenefitsBlock({ items }: BenefitsBlockProps) {
+  const list = items
+    ? benefits.map((b, i) => ({ ...b, ...(items[i] ?? {}) }))
+    : benefits
   return (
-    <section className="px-7 py-10 sm:py-14">
+    <section className="border-y border-[#EBDFD1] bg-[#FBF7F1] px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-[1400px]">
         <h2 className="sr-only">Beneficios</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          {benefits.map((benefit) => (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-[#E5DDD1]">
+          {list.map((benefit) => (
             <article
               key={benefit.title}
-              className="flex flex-col items-center text-center gap-3 p-4 sm:px-6 rounded-xl border border-[#E5DDD1] bg-[#F4EDE4]/60 transition-colors hover:border-[#C45A37]/50"
+              className="flex items-center gap-4 lg:justify-center lg:px-8"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F4EDE4] text-[#C45A37]">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center text-[#B85C33]">
                 {benefit.icon}
               </div>
-              <h3 className="text-sm font-semibold text-[#38271D]">{benefit.title}</h3>
-              <p className="text-xs text-[#7A6A5D] max-w-[180px]">
-                {benefit.description}
-              </p>
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-[#38271D]">
+                  {benefit.title}
+                </h3>
+                <p className="mt-0.5 text-xs text-[#7A6A5D]">
+                  {benefit.description}
+                </p>
+              </div>
             </article>
           ))}
         </div>

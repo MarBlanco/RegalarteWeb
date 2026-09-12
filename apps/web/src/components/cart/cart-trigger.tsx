@@ -29,7 +29,7 @@ export function CartTrigger({ className, badgeClassName }: CartTriggerProps) {
       } productos)`}
       className={cn('relative inline-flex', className)}
     >
-      <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+      <span className="flex h-8 w-8 items-center justify-center text-[#38271D] transition-colors hover:text-[#C45A37] sm:h-9 sm:w-9">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -37,9 +37,10 @@ export function CartTrigger({ className, badgeClassName }: CartTriggerProps) {
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.6"
           strokeLinecap="round"
           strokeLinejoin="round"
+          className="h-[18px] w-[18px] sm:h-5 sm:w-5"
           aria-hidden
         >
           <circle cx="8" cy="21" r="1" />
@@ -47,17 +48,15 @@ export function CartTrigger({ className, badgeClassName }: CartTriggerProps) {
           <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
         </svg>
       </span>
-      {hydrated && itemCount > 0 ? (
-        <span
-          aria-hidden
-          className={cn(
-            'absolute right-1 top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-4 text-primary-foreground',
-            badgeClassName,
-          )}
-        >
-          {itemCount > 99 ? '99+' : itemCount}
-        </span>
-      ) : null}
+      <span
+        aria-hidden
+        className={cn(
+          'absolute right-0 top-0 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#A15C38] px-1 text-[10px] font-semibold leading-4 text-white',
+          badgeClassName,
+        )}
+      >
+        {!hydrated ? 0 : itemCount > 99 ? '99+' : itemCount}
+      </span>
     </button>
   )
 }

@@ -41,12 +41,25 @@ const FacebookIcon = ({ className = 'w-6 h-6' }: { className?: string }) => (
   </svg>
 )
 
-// Título de columna serif editorial (sin ornamentos)
+const WhatsAppIcon = ({ className = 'w-6 h-6' }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+  </svg>
+)
+
+// Título de columna serif editorial con ornamento dorado (mock)
 function FooterColumnTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="font-serif text-lg sm:text-xl font-normal uppercase tracking-[0.18em] text-white">
-      {children}
-    </h3>
+    <div>
+      <h3 className="font-serif text-base sm:text-lg font-normal uppercase tracking-[0.22em] text-white">
+        {children}
+      </h3>
+      <span aria-hidden="true" className="mt-2 flex items-center gap-1.5">
+        <span className="block h-px w-8 bg-[#C9A24B]/70" />
+        <span className="block h-1 w-1 rotate-45 bg-[#C9A24B]" />
+        <span className="block h-px w-8 bg-[#C9A24B]/70" />
+      </span>
+    </div>
   )
 }
 
@@ -60,18 +73,19 @@ function SocialLink({
   label: string
   children: React.ReactNode
 }) {
+  const external = href.startsWith('http')
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
       aria-label={label}
       className="group flex flex-col items-center gap-2.5"
     >
-      <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#C45A37]/50 text-[#F4EDE4] transition-colors duration-200 group-hover:border-[#C45A37] group-hover:text-[#C45A37]">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#C9A24B]/60 text-[#F4EDE4] transition-colors duration-200 group-hover:border-[#C9A24B] group-hover:text-[#C9A24B] sm:h-14 sm:w-14">
         {children}
       </span>
-      <span className="text-sm text-[#C4B8A8] transition-colors duration-200 group-hover:text-white">
+      <span className="text-xs sm:text-sm text-[#C4B8A8] transition-colors duration-200 group-hover:text-white">
         {label}
       </span>
     </a>
@@ -82,7 +96,7 @@ export function Footer() {
   return (
     <>
       {/* NEWSLETTER — compacto */}
-      <section className="bg-[#F4EDE4] border-b border-[#E5DDD1] py-8 sm:py-10">
+      <section className="bg-[#FAF5EC] border-b border-[#E5DDD1] py-10 sm:py-14">
         <div className="container">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="font-serif text-2xl sm:text-3xl font-normal text-[#38271D] tracking-tight">
@@ -109,7 +123,7 @@ export function Footer() {
               <Button
                 type="submit"
                 aria-label="Suscribirse"
-                className="h-11 px-7 bg-primary text-primary-foreground font-medium text-sm whitespace-nowrap"
+                className="h-11 px-7 bg-[#B85C33] text-white font-medium text-sm whitespace-nowrap hover:bg-[#9E4E2B]"
               >
                 <ArrowRightIcon className="w-4 h-4" />
               </Button>
@@ -118,33 +132,40 @@ export function Footer() {
         </div>
       </section>
 
-      {/* FOOTER OSCURO — compacto */}
+      {/* FOOTER OSCURO — mock aprobado, compacto */}
       <footer className="bg-[#2C221E] text-[#F4EDE4]">
-        <div className="container py-8 sm:py-10 lg:py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-[#4A3D31]">
-            {/* COLUMN 1: MARCA */}
-            <div className="flex flex-col items-center text-center lg:pr-10">
-              <Link
-                href="/"
-                aria-label="Solística - Inicio"
-                className="font-serif text-2xl sm:text-[26px] font-normal uppercase tracking-[0.2em] text-white"
-              >
-                SOLÍSTICA
-              </Link>
-              <p className="mt-3 text-sm sm:text-base text-[#C4B8A8] leading-relaxed max-w-[250px]">
-                Aromas que transforman tu casa en tu lugar feliz.
-              </p>
-              <span aria-hidden="true" className="mt-4 block h-px w-40 bg-[#F4EDE4]/15" />
-              <div className="mt-3 flex items-center gap-2 text-sm text-[#C4B8A8]">
-                <LocationPinIcon className="w-4 h-4 flex-shrink-0" />
-                <span>Colón, Entre Ríos · Argentina</span>
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-6 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:grid-cols-[1.2fr_0.8fr_1fr_1.2fr] lg:gap-0 lg:divide-x lg:divide-[#4A3D31]">
+            {/* BLOQUE DE MARCA */}
+            <div className="flex flex-col items-center text-center lg:pr-8">
+              <div className="w-full max-w-[280px] rounded-xl border border-[#C9A24B]/50 px-6 py-5">
+                <span
+                  aria-hidden="true"
+                  className="block font-serif text-5xl font-semibold leading-none text-[#C9A24B]"
+                >
+                  S
+                </span>
+                <Link
+                  href="/"
+                  aria-label="Solística - Inicio"
+                  className="mt-1 block font-serif text-xl font-normal uppercase tracking-[0.28em] text-white"
+                >
+                  SOLÍSTICA
+                </Link>
+                <p className="mx-auto mt-3 max-w-[220px] text-[13px] leading-relaxed text-[#C4B8A8]">
+                  Aromas que transforman tu casa en tu lugar feliz.
+                </p>
+                <div className="mt-3 flex items-center justify-center gap-2 text-[13px] text-[#C4B8A8]">
+                  <LocationPinIcon className="w-4 h-4 flex-shrink-0 text-[#C9A24B]" />
+                  <span>Colón, Entre Ríos · Argentina</span>
+                </div>
               </div>
             </div>
 
             {/* COLUMN 2: COMPRAR */}
-            <div className="lg:px-10">
+            <div className="lg:px-8">
               <FooterColumnTitle>COMPRAR</FooterColumnTitle>
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-3 space-y-2">
                 {[
                   { href: '/catalogo?category=velas', label: 'Velas' },
                   { href: '/catalogo?category=aromas', label: 'Aromas' },
@@ -156,7 +177,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm sm:text-base text-[#C4B8A8] hover:text-white transition-colors duration-200"
+                      className="text-[13px] sm:text-sm text-[#C4B8A8] hover:text-white transition-colors duration-200"
                     >
                       {link.label}
                     </Link>
@@ -166,20 +187,20 @@ export function Footer() {
             </div>
 
             {/* COLUMN 3: AYUDA */}
-            <div className="lg:px-10">
+            <div className="lg:px-8">
               <FooterColumnTitle>AYUDA</FooterColumnTitle>
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-3 space-y-2">
                 {[
-                  { href: '/como-comprar', label: 'Cómo comprar' },
-                  { href: '/envios', label: 'Envíos' },
-                  { href: '/devoluciones', label: 'Cambios y devoluciones' },
-                  { href: '/preguntas-frecuentes', label: 'Preguntas frecuentes' },
-                  { href: '/contacto', label: 'Contacto' },
+                  { href: '/ayuda#como-comprar', label: 'Cómo comprar' },
+                  { href: '/ayuda#envios', label: 'Envíos' },
+                  { href: '/ayuda#cambios-devoluciones', label: 'Cambios y devoluciones' },
+                  { href: '/ayuda#preguntas-frecuentes', label: 'Preguntas frecuentes' },
+                  { href: '/ayuda#contacto', label: 'Contacto' },
                 ].map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm sm:text-base text-[#C4B8A8] hover:text-white transition-colors duration-200"
+                      className="text-[13px] sm:text-sm text-[#C4B8A8] hover:text-white transition-colors duration-200"
                     >
                       {link.label}
                     </Link>
@@ -189,34 +210,40 @@ export function Footer() {
             </div>
 
             {/* COLUMN 4: SEGUINOS */}
-            <div className="lg:pl-10">
+            <div className="lg:pl-8">
               <FooterColumnTitle>SEGUINOS</FooterColumnTitle>
-              <div className="mt-4 flex items-start gap-6 sm:gap-8">
+              <p className="mt-3 text-[13px] leading-relaxed text-[#C4B8A8]">
+                Formá parte de nuestra comunidad y descubrí más inspiración.
+              </p>
+              <div className="mt-4 grid grid-cols-4 gap-2 sm:gap-3">
                 <SocialLink href="https://instagram.com" label="Instagram">
-                  <InstagramIcon />
+                  <InstagramIcon className="w-5 h-5" />
                 </SocialLink>
                 <SocialLink href="https://tiktok.com" label="TikTok">
                   <TikTokIcon className="w-5 h-5" />
                 </SocialLink>
                 <SocialLink href="https://facebook.com" label="Facebook">
-                  <FacebookIcon />
+                  <FacebookIcon className="w-5 h-5" />
+                </SocialLink>
+                <SocialLink href="/ayuda#contacto" label="WhatsApp">
+                  <WhatsAppIcon className="w-5 h-5" />
                 </SocialLink>
               </div>
             </div>
           </div>
 
           {/* COPYRIGHT */}
-          <div className="mt-8 border-t border-[#3D3228] pt-5">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="mt-6 border-t border-[#C9A24B]/25 pt-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
               <p className="text-xs text-[#9A8A7A] text-center sm:text-left">
                 &copy; 2026 Solística · Todos los derechos reservados
               </p>
-              <div className="text-center sm:text-right">
-                <p className="text-xs text-[#9A8A7A]">Diseño y desarrollo web</p>
-                <p className="mt-0.5 text-sm font-bold uppercase tracking-wide text-[#F4EDE4]">
+              <p className="text-xs text-[#9A8A7A] text-center sm:text-right">
+                Diseño y desarrollo web{' '}
+                <span className="font-bold uppercase tracking-wide text-[#F4EDE4]">
                   MARTIN BLANCO
-                </p>
-              </div>
+                </span>
+              </p>
             </div>
           </div>
         </div>

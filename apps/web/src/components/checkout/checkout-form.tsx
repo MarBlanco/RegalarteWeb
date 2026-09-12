@@ -269,7 +269,7 @@ export function CheckoutForm() {
         ) : status === 'success' ? (
           'Pedido enviado'
         ) : (
-          'Continuar al pago'
+          'Continuar'
         )}
       </Button>
       <p className="text-center text-xs text-muted-foreground">

@@ -2,7 +2,21 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { ImageGallery } from '@/components/catalog/image-gallery'
+import { ProductDetailActions } from '@/components/catalog/product-detail-actions'
+import { ProductNotesCard } from '@/components/catalog/product-notes-card'
+import { ProductTabs } from '@/components/catalog/product-tabs'
+import { RelatedSlider } from '@/components/catalog/related-slider'
+import { BenefitsBlock } from '@/components/catalog/benefits-block'
 import { fetchProductBySlugRaw } from '@/lib/product-by-slug'
+import { fetchProducts } from '@/lib/catalog'
+import {
+  MOCK_BADGES,
+  MOCK_CATEGORY,
+  MOCK_PRODUCTS,
+  mockDetailImages,
+  type MockBadge,
+} from '@/components/catalog/catalog-mock'
+import { mockBadgeForSlug, resolveMockDetail } from '@/components/catalog/catalog-tipos'
 import type {
   Category,
   Product,
@@ -11,9 +25,6 @@ import type {
   ProductTag,
 } from '@/payload-types'
 import { formatPrice } from '@/lib/format'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { AddToCartButton } from '@/components/cart/add-to-cart-button'
 import { ViewItemTracker } from '@/components/analytics/view-item-tracker'
 
 interface PageProps {
@@ -97,10 +108,49 @@ function buildDetail(product: Product): ProductDetail | null {
   }
 }
 
+/**
+ * Detalle para slugs MOCK: misma estructura que el real, construida desde
+ * catalog-mock.ts sin tocar el CMS. La categoría representativa es Velas y
+ * las notas/tabs usan los fallbacks mock existentes.
+ */
+function buildMockDetail(slug: string): (ProductDetail & { mockBadge: string | null }) | null {
+  const resolved = resolveMockDetail(slug)
+  if (!resolved) return null
+  const mock = resolved.product
+  const tagNames = (mock.seoDescription ?? '')
+    .split('·')
+    .map((t) => t.trim())
+    .filter(Boolean)
+  return {
+    ...mock,
+    mockBadge: resolved.badge,
+    imagesDetail: mockDetailImages(mock.title),
+    categoryDetail: { ...MOCK_CATEGORY, parent: null },
+    tagsDetail: tagNames.map((name, i) => ({
+      id: 92000 + i,
+      name,
+      slug: name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-'),
+    })),
+    attributesDetail: [],
+  }
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = (await params) ?? { slug: '' }
+  const mockDetail = buildMockDetail(slug)
+  if (mockDetail) {
+    const title = `${mockDetail.title} · Regalarte`
+    const description =
+      mockDetail.seoDescription ??
+      `Descubrí ${mockDetail.title} en el catálogo de Regalarte.`
+    return { title, description }
+  }
   const result = await fetchProductBySlugRaw(slug)
   const product = result.docs.length > 0 ? buildDetail(result.docs[0]) : null
   if (!product) {
@@ -159,36 +209,30 @@ export async function generateMetadata({
   }
 }
 
-function stockLabel(stock: number | null | undefined) {
-  if (stock === null || stock === undefined) return 'Sin stock'
-  if (stock <= 0) return 'Sin stock'
-  if (stock <= 3) return `Casi sin stock (${stock} disponibles)`
-  if (stock <= 10) return `Stock limitado (${stock} disponibles)`
-  return `Disponible (${stock} disponibles)`
-}
-
-function stockTone(stock: number | null | undefined) {
-  if (!stock || stock <= 0) return 'destructive'
-  if (stock <= 3) return 'destructive'
-  if (stock <= 10) return 'wholesale'
-  return 'secondary'
-}
+const PDP_BENEFITS = [
+  { title: 'Listo para regalar', description: 'Packaging premium con papel de seda.' },
+  { title: 'Envíos a todo el país', description: 'Rápidos, seguros y con seguimiento.' },
+  { title: 'Compra 100% segura', description: 'Tus datos y pagos están protegidos.' },
+  { title: 'Atención personalizada', description: 'Estamos para ayudarte siempre.' },
+]
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = (await params) ?? { slug: '' }
-  const result = await fetchProductBySlugRaw(slug)
-  if (result.docs.length === 0) {
-    notFound()
-  }
-  const product = buildDetail(result.docs[0])
+  // Los slugs mock se resuelven en local sin consultar el CMS.
+  let product: ProductDetail | null = buildMockDetail(slug)
   if (!product) {
-    notFound()
+    const result = await fetchProductBySlugRaw(slug)
+    if (result.docs.length === 0) {
+      notFound()
+    }
+    product = buildDetail(result.docs[0])
+    if (!product) {
+      notFound()
+    }
   }
 
   const wholesalePrice =
     typeof product.wholesalePrice === 'number' ? product.wholesalePrice : null
-  const showWholesale =
-    product.isWholesaleAvailable === true && wholesalePrice !== null
 
   const galleryImages = product.imagesDetail.map((image) => ({
     id: image.id,
@@ -197,38 +241,82 @@ export default async function ProductDetailPage({ params }: PageProps) {
     caption: image.caption,
   }))
 
+  const badge =
+    product.featured === true
+      ? 'MÁS VENDIDA'
+      : product.isSolistica === true
+        ? 'SOLÍSTICA'
+        : (product.categoryDetail?.title ?? 'Producto').toUpperCase()
+
+  const fee = product.price / 3
+  const outOfStock =
+    typeof product.stock === 'number' && Number.isFinite(product.stock) && product.stock <= 0
+
+  const tagChips = product.tagsDetail.slice(0, 2)
+  const characteristics = product.attributesDetail.map((a) => ({
+    name: a.name,
+    values: a.values
+      .map((v) => v.value)
+      .filter(Boolean)
+      .join(', '),
+  }))
+  const noteAttributes = product.attributesDetail.map((a) => ({
+    name: a.name,
+    values: a.values.map((v) => v.value).filter(Boolean),
+  }))
+
+  // Relacionados: reales de la misma categoría con imagen primero,
+  // mock para completar hasta 8 (sin placeholders "Sin imagen").
+  const relatedCategorySlug = product.categoryDetail?.slug
+  const relatedResult = relatedCategorySlug
+    ? await fetchProducts({ categorySlug: relatedCategorySlug }, 1, 9).catch(() => null)
+    : null
+  const relatedReal = (relatedResult?.docs ?? [])
+    .filter((d) => d.slug !== product.slug && d.featuredImage?.url)
+    .slice(0, 8)
+  const relatedRealSlugs = new Set(relatedReal.map((d) => d.slug))
+  const related =
+    relatedReal.length >= 8
+      ? relatedReal
+      : [
+          ...relatedReal,
+          ...MOCK_PRODUCTS.filter((m) => !relatedRealSlugs.has(m.slug)).slice(
+            0,
+            8 - relatedReal.length,
+          ),
+        ]
+  const relatedBadges: Record<number | string, MockBadge> = {}
+  for (const rel of related) {
+    const badge =
+      mockBadgeForSlug(rel.slug, MOCK_BADGES, rel.id) ??
+      (rel.featured ? ('FAVORITO' as const) : null)
+    if (badge) relatedBadges[rel.id] = badge
+  }
+
   return (
-    <article className="bg-background">
-      <div className="container py-8 lg:py-12">
-        <nav aria-label="Breadcrumb" className="mb-6 text-sm">
-          <ol className="flex flex-wrap items-center gap-1 text-muted-foreground">
-            <li>
-              <Link href="/" className="hover:text-foreground">
-                Inicio
+    <article className="bg-[#FDFBF7]">
+      <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8">
+        <nav aria-label="Breadcrumb" className="text-xs text-[#9A8A7A]">
+          <Link href="/" className="transition-colors hover:text-[#C45A37]">
+            Inicio
+          </Link>
+          {product.categoryDetail ? (
+            <>
+              <span aria-hidden="true" className="mx-1.5">
+                &gt;
+              </span>
+              <Link
+                href={`/catalogo?category=${product.categoryDetail.slug}`}
+                className="transition-colors hover:text-[#C45A37]"
+              >
+                {product.categoryDetail.title}
               </Link>
-            </li>
-            <li aria-hidden>/</li>
-            <li>
-              <Link href="/catalogo" className="hover:text-foreground">
-                Catálogo
-              </Link>
-            </li>
-            {product.categoryDetail ? (
-              <>
-                <li aria-hidden>/</li>
-                <li>
-                  <Link
-                    href={`/catalogo?category=${product.categoryDetail.slug}`}
-                    className="hover:text-foreground"
-                  >
-                    {product.categoryDetail.title}
-                  </Link>
-                </li>
-              </>
-            ) : null}
-            <li aria-hidden>/</li>
-            <li className="font-medium text-foreground">{product.title}</li>
-          </ol>
+            </>
+          ) : null}
+          <span aria-hidden="true" className="mx-1.5">
+            &gt;
+          </span>
+          <span className="text-[#38271D]">{product.title}</span>
         </nav>
 
         <ViewItemTracker
@@ -239,148 +327,125 @@ export default async function ProductDetailPage({ params }: PageProps) {
           categoryTitle={product.categoryDetail?.title ?? null}
         />
 
-        <div className="flex flex-col gap-10 lg:flex-row">
-          <div className="flex-1">
-            <ImageGallery
-              images={galleryImages}
-              fallbackAlt={product.title}
-            />
+        {/* Principal: galería | info | notas */}
+        <div className="mt-5 grid gap-8 lg:grid-cols-12 lg:gap-6 xl:gap-8">
+          <div className="lg:col-span-5">
+            <ImageGallery images={galleryImages} fallbackAlt={product.title} />
           </div>
 
-          <div className="flex-1 space-y-6">
-            <header className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                {product.featured === true ? (
-                  <Badge variant="default">Destacado</Badge>
-                ) : null}
-                {product.isSolistica === true ? (
-                  <Badge variant="accent">Solística</Badge>
-                ) : null}
-                {showWholesale ? (
-                  <Badge variant="wholesale">Mayorista disponible</Badge>
+          <div className="lg:col-span-4">
+            <span className="inline-block rounded-full bg-[#F3EADB] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8A6A2F]">
+              {badge}
+            </span>
+            <h1 className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#38271D] sm:text-4xl">
+              {product.title}
+            </h1>
+            {product.seoDescription ? (
+              <p className="mt-3 text-sm leading-relaxed text-[#5C4A3D]">
+                {product.seoDescription}
+              </p>
+            ) : null}
+
+            {tagChips.length > 0 ? (
+              <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                {tagChips.map((tag, i) => (
+                  <li
+                    key={tag.id}
+                    className="flex items-center gap-1.5 text-xs text-[#7A6A5D]"
+                  >
+                    {i === 0 ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 text-[#B85C33]" aria-hidden="true">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 text-[#B85C33]" aria-hidden="true">
+                        <path d="M11 20A7 7 0 0 1 4 13c0-4 3-8 8-10 5-2 8-1 8-1s1 3-1 8c-2 5-6 8-8 10z" />
+                        <path d="M4 21c4-4 7-7 12-12" />
+                      </svg>
+                    )}
+                    {tag.name}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
+            <div className="mt-5 border-t border-[#EBDFD1] pt-4">
+              <div className="flex flex-wrap items-baseline gap-2.5">
+                <span className="text-[28px] font-bold text-[#38271D]">
+                  {formatPrice(product.price)}
+                </span>
+                {typeof product.compareAtPrice === 'number' &&
+                product.compareAtPrice > product.price ? (
+                  <span className="text-sm text-[#9A8A7A] line-through">
+                    {formatPrice(product.compareAtPrice)}
+                  </span>
                 ) : null}
               </div>
-              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                {product.title}
-              </h1>
-              {product.sku ? (
-                <p className="text-xs text-muted-foreground">
-                  SKU: {product.sku}
-                </p>
-              ) : null}
-            </header>
+              <p className="mt-1 text-xs text-[#7A6A5D]">
+                3 cuotas sin interés de {formatPrice(fee)}
+              </p>
+              <Link
+                href="#detalles"
+                className="mt-0.5 inline-block text-xs text-[#B85C33] underline-offset-2 hover:underline"
+              >
+                Ver medios de pago
+              </Link>
 
-            <Card>
-              <CardContent className="space-y-2 p-6">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-semibold">
-                    {formatPrice(product.price)}
-                  </span>
-                  {typeof product.compareAtPrice === 'number' &&
-                  product.compareAtPrice > product.price ? (
-                    <span className="text-base text-muted-foreground line-through">
-                      {formatPrice(product.compareAtPrice)}
-                    </span>
-                  ) : null}
-                </div>
-
-                {showWholesale ? (
-                  <p className="text-sm text-muted-foreground">
-                    Precio mayorista:{' '}
-                    <span className="font-medium text-foreground">
-                      {formatPrice(wholesalePrice!)}
-                    </span>
-                  </p>
-                ) : null}
-
-                <div className="pt-2">
-                  <Badge variant={stockTone(product.stock) as never}>
-                    {stockLabel(product.stock)}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <AddToCartButton
+              <div className="mt-4">
+                <ProductDetailActions
                   product={{
                     id: product.id,
                     slug: product.slug,
                     title: product.title,
                     price: product.price,
                     compareAtPrice: product.compareAtPrice ?? null,
-                    wholesalePrice: wholesalePrice,
-                    isWholesaleAvailable:
-                      product.isWholesaleAvailable === true,
+                    wholesalePrice,
+                    isWholesaleAvailable: product.isWholesaleAvailable === true,
                     featuredImage: galleryImages[0]
                       ? {
                           url: galleryImages[0].url ?? null,
-                          alt:
-                            galleryImages[0].alt ?? product.title,
+                          alt: galleryImages[0].alt ?? product.title,
                         }
                       : null,
                   }}
                   stock={product.stock ?? null}
                 />
-              </CardContent>
-            </Card>
+              </div>
+              {outOfStock ? (
+                <p className="mt-2 text-xs font-medium text-red-700">
+                  Sin stock por el momento.
+                </p>
+              ) : null}
+            </div>
+          </div>
 
-            {product.description ? (
-              <Card>
-                <CardContent className="p-6">
-                  <ProductDescription content={product.description} />
-                </CardContent>
-              </Card>
-            ) : null}
-
-            {product.tagsDetail.length > 0 ? (
-              <section aria-label="Tags">
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                  Tags
-                </h2>
-                <ul className="flex flex-wrap gap-2">
-                  {product.tagsDetail.map((tag) => (
-                    <li key={tag.id}>
-                      <Link
-                        href={`/catalogo?tag=${tag.slug}`}
-                        className="inline-flex items-center rounded-md border bg-card px-2 py-1 text-xs hover:border-primary/50"
-                      >
-                        {tag.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
-            {product.attributesDetail.length > 0 ? (
-              <section aria-label="Atributos">
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                  Atributos
-                </h2>
-                <ul className="space-y-2">
-                  {product.attributesDetail.map((attribute) => (
-                    <li
-                      key={attribute.id}
-                      className="flex items-center justify-between gap-3 rounded-md border bg-card px-3 py-2"
-                    >
-                      <span className="text-sm font-medium">
-                        {attribute.name}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {attribute.values
-                          .map((v) => v.value)
-                          .filter(Boolean)
-                          .join(', ')}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
+          <div className="lg:col-span-3">
+            <ProductNotesCard attributes={noteAttributes} />
           </div>
         </div>
+
+        {/* Tabs */}
+        <div className="mt-10 max-w-3xl rounded-lg border border-[#EBDFD1] bg-[#FFFDF9] p-5 sm:p-6">
+          <ProductTabs
+            description={
+              product.description ? (
+                <ProductDescription content={product.description} />
+              ) : (
+                <p className="text-sm text-[#7A6A5D]">Producto sin descripción.</p>
+              )
+            }
+            characteristics={characteristics}
+          />
+        </div>
+
+        {/* También te puede gustar */}
+        <div className="mt-10">
+          <RelatedSlider products={related} badges={relatedBadges} />
+        </div>
+      </div>
+
+      <div className="mt-10">
+        <BenefitsBlock items={PDP_BENEFITS} />
       </div>
     </article>
   )
@@ -464,4 +529,3 @@ function ProductDescription({ content }: { content: unknown }) {
   }
   return <div className="space-y-3">{rendered}</div>
 }
-

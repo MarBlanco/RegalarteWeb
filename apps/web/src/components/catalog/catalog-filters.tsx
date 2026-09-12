@@ -41,9 +41,9 @@ function FilterSection({
   return (
     <details
       open={defaultOpen}
-      className="group rounded-md border border-[#E5DDD1] bg-background/60"
+      className="group border-b border-[#EBDFD1] pb-3 last:border-b-0 last:pb-0"
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-[#38271D] [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center justify-between py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#38271D] [&::-webkit-details-marker]:hidden">
         {title}
         <svg
           aria-hidden="true"
@@ -53,12 +53,12 @@ function FilterSection({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="h-3.5 w-3.5 text-[#9A8A7A] transition-transform duration-200 group-open:rotate-180"
+          className="h-3 w-3 text-[#9A8A7A] transition-transform duration-200 group-open:rotate-180"
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </summary>
-      <div className="border-t border-[#E5DDD1] px-3 py-3">{children}</div>
+      <div className="pt-2">{children}</div>
     </details>
   )
 }
@@ -86,6 +86,9 @@ export function CatalogFilters({
     searchParams.get('maxPrice') ?? '',
   )
   const [sort, setSort] = useState(searchParams.get('sort') ?? '-createdAt')
+  const [showAllTags, setShowAllTags] = useState(false)
+
+  const visibleTags = showAllTags ? tags : tags.slice(0, 5)
 
   useEffect(() => {
     setQ(searchParams.get('q') ?? initialQ)
@@ -135,11 +138,11 @@ export function CatalogFilters({
   return (
     <form
       onSubmit={applyFilters}
-      className="space-y-2.5 rounded-md border border-[#E5DDD1] bg-[#F4EDE4]/70 p-3"
+      className="space-y-3 rounded-lg border border-[#EBDFD1] bg-[#FCF8F1] p-4"
     >
       {/* Búsqueda */}
       <div className="space-y-1.5">
-        <Label htmlFor="q" className="text-xs text-[#38271D]">
+        <Label htmlFor="q" className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#38271D]">
           Buscar
         </Label>
         <Input
@@ -154,22 +157,38 @@ export function CatalogFilters({
       {/* Etiquetas (checkboxes, selección única) */}
       {tags.length > 0 ? (
         <FilterSection title="Tipo" defaultOpen>
-          <div className="space-y-1.5">
-            {tags.map((t) => (
+          <div className="space-y-2">
+            {visibleTags.map((t) => (
               <label
                 key={t.id}
-                className="flex cursor-pointer items-center gap-2 text-xs text-[#7A6A5D] transition-colors hover:text-[#38271D]"
+                className="flex cursor-pointer items-center gap-2 text-xs text-[#5C4A3D] transition-colors hover:text-[#38271D]"
               >
                 <input
                   type="checkbox"
                   checked={tagSlug === t.slug}
                   onChange={() => toggleTag(t.slug)}
-                  className="h-3.5 w-3.5 rounded-sm accent-[#C45A37]"
+                  className="h-3.5 w-3.5 shrink-0 rounded-sm accent-[#B85C33]"
                 />
-                {t.name}
+                {t.color ? (
+                  <span
+                    aria-hidden="true"
+                    className="h-2.5 w-2.5 shrink-0 rounded-full border border-black/10"
+                    style={{ backgroundColor: t.color }}
+                  />
+                ) : null}
+                <span className="truncate">{t.name}</span>
               </label>
             ))}
           </div>
+          {tags.length > 5 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllTags((v) => !v)}
+              className="mt-2 text-[11px] font-medium text-[#7A6A5D] transition-colors hover:text-[#C45A37]"
+            >
+              {showAllTags ? 'Ver menos' : 'Ver más'}
+            </button>
+          ) : null}
         </FilterSection>
       ) : null}
 
@@ -179,7 +198,7 @@ export function CatalogFilters({
           id="category"
           value={categorySlug}
           onChange={(e) => setCategorySlug(e.target.value)}
-          className="flex h-8 w-full rounded-md border border-[#E5DDD1] bg-background px-2 text-xs"
+          className="flex h-8 w-full rounded-md border border-[#E5DDD1] bg-background px-2 text-xs text-[#5C4A3D]"
           aria-label="Categoría"
         >
           <option value="">Todas</option>
@@ -192,10 +211,10 @@ export function CatalogFilters({
       </FilterSection>
 
       {/* Precio */}
-      <FilterSection title="Precio">
+      <FilterSection title="Rango de precio">
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <Label htmlFor="minPrice" className="text-xs text-[#7A6A5D]">
+            <Label htmlFor="minPrice" className="text-[11px] text-[#7A6A5D]">
               Mín
             </Label>
             <Input
@@ -210,7 +229,7 @@ export function CatalogFilters({
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="maxPrice" className="text-xs text-[#7A6A5D]">
+            <Label htmlFor="maxPrice" className="text-[11px] text-[#7A6A5D]">
               Máx
             </Label>
             <Input
@@ -250,19 +269,31 @@ export function CatalogFilters({
         <Button
           type="submit"
           disabled={isPending}
-          className="h-8 rounded-md text-xs font-semibold uppercase tracking-wider"
+          className="h-9 w-full rounded-md bg-[#B85C33] text-xs font-semibold uppercase tracking-wider text-white hover:bg-[#9E4E2B]"
         >
           {isPending ? 'Aplicando...' : 'Aplicar filtros'}
         </Button>
-        <Button
+        <button
           type="button"
-          variant="outline"
           onClick={clearFilters}
           disabled={isPending}
-          className="h-8 rounded-md text-xs"
+          className="flex w-full items-center justify-center gap-1.5 py-1 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-[#7A6A5D] transition-colors hover:text-[#C45A37] disabled:opacity-50"
         >
-          Limpiar
-        </Button>
+          Limpiar filtros
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-3 w-3"
+            aria-hidden="true"
+          >
+            <path d="M3 12a9 9 0 1 0 3-6.7" />
+            <polyline points="3 4 3 9 8 9" />
+          </svg>
+        </button>
       </div>
     </form>
   )

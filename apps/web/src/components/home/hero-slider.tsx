@@ -4,33 +4,68 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
+import { navLinks } from '@/components/layout/header'
 
-const slides = [
+interface HeroSlide {
+  id: number
+  image: string
+  title: string
+  description: string
+  /** Slug de categoría del Nav (source of truth para CTA + destino). */
+  category: string
+}
+
+const slides: HeroSlide[] = [
   {
     id: 1,
     image: '/assets/hero/hero-solistica-1.jpeg',
     title: 'Aromas que transforman tu casa en tu lugar feliz.',
     description: 'Velas, home sprays, difusores y wax melts para rituales cotidianos, perfumar tus espacios y regalar bienestar.',
-    ctaText: 'Ver colección',
-    ctaHref: '/solistica',
+    category: 'velas',
   },
   {
     id: 2,
     image: '/assets/hero/hero-solistica-2.jpeg',
     title: 'Diseño y calidez para cada rincón del hogar.',
     description: 'Descubrí nuestra selección artesanal creada con ceras vegetales y fragancias de alta duración.',
-    ctaText: 'Explorar catálogo',
-    ctaHref: '/catalogo',
+    category: 'aromas',
   },
   {
     id: 3,
     image: '/assets/hero/hero-solistica-3.jpeg',
+    title: 'Esencias que perfuman tu hogar.',
+    description: 'Wax melts de cera vegetal en aromas intensos para hornillos y difusores.',
+    category: 'wax-melts',
+  },
+  {
+    id: 4,
+    image: '/assets/hero/hero-solistica-1.jpeg',
+    title: 'Calidez que se enciende.',
+    description: 'Quemadores de cerámica, vidrio y metal para disfrutar tus wax melts favoritos.',
+    category: 'quemadores',
+  },
+  {
+    id: 5,
+    image: '/assets/hero/hero-solistica-3.jpeg',
     title: 'El regalo perfecto para momentos especiales.',
     description: 'Packs de regalaría únicos pensados para sorprender y emocionar a quienes más querés.',
-    ctaText: 'Ver packs',
-    ctaHref: '/catalogo?category=packs',
+    category: 'packs',
+  },
+  {
+    id: 6,
+    image: '/assets/hero/hero-solistica-2.jpeg',
+    title: 'Regalar también es un ritual.',
+    description: 'Cajas, packs y detalles listos para emocionar a quienes más querés.',
+    category: 'regalarte',
   },
 ]
+
+/** CTA derivado del slide activo + Nav (sin lógica por índice). */
+function slideCta(slide: HeroSlide): { text: string; href: string } {
+  const nav = navLinks.find((link) => link.category === slide.category)
+  if (!nav) return { text: 'Explorar catálogo', href: '/catalogo' }
+  return { text: `EXPLORAR ${nav.label.toUpperCase()}`, href: nav.href }
+}
 
 export function HeroSlider() {
   const [current, setCurrent] = useState(0)
@@ -90,6 +125,8 @@ export function HeroSlider() {
     setCurrent((prev) => (prev + 1) % slides.length)
   }
 
+  const cta = slideCta(slides[current])
+
   return (
     <section
       ref={carouselRef}
@@ -135,7 +172,7 @@ export function HeroSlider() {
                   asChild
                   className="mt-8 h-[52px] w-[190px] uppercase tracking-wider"
                 >
-                  <Link href={slides[current].ctaHref}>{slides[current].ctaText}</Link>
+                  <Link href={cta.href}>{cta.text}</Link>
                 </Button>
               </motion.div>
             </AnimatePresence>

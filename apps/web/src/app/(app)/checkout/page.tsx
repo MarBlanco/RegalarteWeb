@@ -2,8 +2,6 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CheckoutForm } from '@/components/checkout/checkout-form'
@@ -24,8 +22,6 @@ export default function CheckoutPage() {
   }, [hydrated, items])
 
   return (
-    <>
-      <Header />
       <main className="flex-1 bg-background">
         <div className="container py-8 lg:py-12">
           <nav aria-label="Breadcrumb" className="mb-6 text-sm">
@@ -75,8 +71,6 @@ export default function CheckoutPage() {
           )}
         </div>
       </main>
-      <Footer />
-    </>
   )
 }
 

@@ -86,7 +86,7 @@ export const ADDRESS_FIELDS: FieldDef[] = [
 export const NOTES_FIELDS: FieldDef[] = [
   {
     id: 'notes.message',
-    label: 'Observaciones',
+    label: 'Mensaje',
     type: 'textarea',
     placeholder: 'Indicaciones especiales, dedicatoria, horario de entrega preferido…',
     required: false,

@@ -25,7 +25,7 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
   const [isPending, startTransition] = useTransition()
 
   const activeTag = searchParams.get('tag') ?? ''
-  const sort = searchParams.get('sort') ?? '-createdAt'
+  const sort = searchParams.get('sort') ?? '-featured,sortOrder,-createdAt'
 
   function setParam(key: string, value: string | null) {
     const next = new URLSearchParams(searchParams.toString())
@@ -53,7 +53,7 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
     : tags
 
   const pillBase =
-    'inline-flex h-7 flex-shrink-0 items-center whitespace-nowrap rounded-full border px-3 text-xs transition-colors duration-150'
+    'inline-flex h-[30px] flex-shrink-0 items-center whitespace-nowrap rounded-full border px-3.5 text-[12px] transition-colors duration-150'
   const countNode = (
     <span className="whitespace-nowrap text-xs text-[#7A6A5D]">
       {totalDocs} {totalDocs === 1 ? 'producto' : 'productos'}
@@ -65,10 +65,13 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
       <select
         value={sort}
         onChange={(e) =>
-          setParam('sort', e.target.value === '-createdAt' ? null : e.target.value)
+          setParam(
+            'sort',
+            e.target.value === '-featured,sortOrder,-createdAt' ? null : e.target.value,
+          )
         }
         disabled={isPending}
-        className="h-7 rounded-md border border-[#E5DDD1] bg-background px-1.5 text-xs text-[#38271D] outline-none"
+        className="h-[30px] rounded-full border border-[#E5DDD1] bg-background pl-2.5 pr-1.5 text-xs text-[#38271D] outline-none"
       >
         {SORT_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -80,11 +83,11 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
   )
 
   return (
-    <div className="border-b border-[#E5DDD1] bg-background">
-      <div className="flex flex-col gap-2 px-7 py-2 lg:h-[42px] lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-0">
+    <div className="border-b border-[#EBDFD1] bg-[#FBF7F1]">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-4 py-2 sm:px-6 lg:h-[48px] lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:py-0">
         <nav
           aria-label="Subcategorías"
-          className="-mx-1 flex flex-1 items-center gap-2 overflow-x-auto px-1 py-0.5 lg:overflow-visible"
+          className="-mx-1 flex flex-1 items-center gap-2 overflow-x-auto px-1 py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:overflow-visible [&::-webkit-scrollbar]:hidden"
         >
           <button
             type="button"
@@ -92,8 +95,8 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
             aria-pressed={!activeTag}
             className={`${pillBase} ${
               !activeTag
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-[#E5DDD1] bg-[#F4EDE4] text-[#7A6A5D] hover:border-[#C45A37]/50 hover:text-[#38271D]'
+                ? 'border-[#B85C33] bg-[#B85C33] font-semibold text-white'
+                : 'border-[#E5DDD1] bg-transparent text-[#7A6A5D] hover:border-[#C45A37]/50 hover:text-[#38271D]'
             }`}
           >
             Todos
@@ -109,10 +112,10 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
                 aria-pressed={active}
                 className={`${pillBase} ${
                   active
-                    ? 'border-primary bg-primary text-primary-foreground'
+                    ? 'border-[#B85C33] bg-[#B85C33] font-semibold text-white'
                     : isVisual
-                      ? 'border-[#E5DDD1] bg-[#F4EDE4] text-[#7A6A5D] opacity-60 cursor-default'
-                      : 'border-[#E5DDD1] bg-[#F4EDE4] text-[#7A6A5D] hover:border-[#C45A37]/50 hover:text-[#38271D]'
+                      ? 'cursor-default border-[#E5DDD1] bg-transparent text-[#7A6A5D] opacity-70'
+                      : 'border-[#E5DDD1] bg-transparent text-[#7A6A5D] hover:border-[#C45A37]/50 hover:text-[#38271D]'
                 }`}
                 disabled={isVisual}
               >
@@ -128,7 +131,7 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-7 pb-2 lg:hidden">
+      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 pb-2.5 sm:px-6 lg:hidden">
         {countNode}
         {sortNode}
       </div>
