@@ -2,8 +2,13 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { RitualCard } from '@/components/cart/ritual-card'
+import {
+  RemoveItemDialog,
+  type ConfirmRemoveItem,
+} from '@/components/cart/remove-item-dialog'
 import { BenefitsBlock } from '@/components/catalog/benefits-block'
 import {
   freeShippingProgress,
@@ -39,6 +44,11 @@ export default function CartPage() {
   const totals = useCartStore(
     useShallow((s) => selectTotals({ items: s.items, mode: s.mode })),
   )
+  const [confirmItem, setConfirmItem] = useState<ConfirmRemoveItem | null>(null)
+
+  function askRemove(item: { id: string; name: string; image?: ConfirmRemoveItem['image'] }) {
+    setConfirmItem({ id: item.id, name: item.name, image: item.image ?? null })
+  }
 
   const ship = freeShippingProgress(totals.subtotal)
   const ritualProducts = MOCK_PRODUCTS.slice(0, 5).map((p) => ({
@@ -134,13 +144,13 @@ export default function CartPage() {
                 <div className="mt-4 overflow-hidden rounded-lg border border-[#EBDFD1] bg-[#FFFDF9]">
                   <div
                     aria-hidden="true"
-                    className="hidden grid-cols-[1fr_120px_140px_100px_40px] items-center gap-3 border-b border-[#EBDFD1] px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9A8A7A] md:grid"
+                    className="hidden grid-cols-[minmax(0,1fr)_110px_140px_120px_56px] items-center gap-x-3 border-b border-[#EBDFD1] px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9A8A7A] md:grid"
                   >
                     <span>Producto</span>
                     <span className="text-center">Precio unitario</span>
                     <span className="text-center">Cantidad</span>
                     <span className="text-right">Subtotal</span>
-                    <span />
+                    <span className="text-center">Eliminar</span>
                   </div>
                   <ul className="divide-y divide-[#EBDFD1]/70">
                     {items.map((item) => {
@@ -149,9 +159,9 @@ export default function CartPage() {
                       return (
                         <li
                           key={item.id}
-                          className="grid grid-cols-[72px_1fr] gap-3 px-4 py-4 sm:grid-cols-[88px_1fr_auto] md:grid-cols-[1fr_120px_140px_100px_40px] md:items-center"
+                          className="px-4 py-4 md:grid md:grid-cols-[minmax(0,1fr)_110px_140px_120px_56px] md:items-center md:gap-x-3"
                         >
-                          <div className="flex gap-3 md:contents">
+                          <div className="flex min-w-0 gap-3">
                             <Link
                               href={`/catalogo/${item.slug}`}
                               className="relative block h-[72px] w-[72px] shrink-0 overflow-hidden rounded-md bg-[#F4EDE4] sm:h-[88px] sm:w-[88px]"
@@ -171,7 +181,7 @@ export default function CartPage() {
                                 </span>
                               )}
                             </Link>
-                            <div className="min-w-0">
+                            <div className="min-w-0 flex-1">
                               <Link
                                 href={`/catalogo/${item.slug}`}
                                 className="block text-sm font-medium leading-snug text-[#38271D] hover:text-[#C45A37]"
@@ -179,18 +189,26 @@ export default function CartPage() {
                                 {item.name}
                               </Link>
                               {item.wholesalePrice != null && item.isWholesaleAvailable ? (
-                                <p className="mt-0.5 text-xs tabular-nums text-[#7A6A5D]">
+                                <p className="mt-0.5 whitespace-nowrap text-xs tabular-nums text-[#7A6A5D]">
                                   Mayorista: {formatPrice(item.wholesalePrice)}
                                 </p>
                               ) : null}
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => askRemove(item)}
+                              aria-label={`Eliminar ${item.name} del carrito`}
+                              className="flex h-9 w-9 shrink-0 items-center justify-center self-start text-[#B85C33] transition-colors hover:text-[#9E4E2B] md:hidden"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
                           </div>
 
                           <p className="hidden whitespace-nowrap text-center text-sm tabular-nums text-[#38271D] md:block">
                             {formatPrice(unit)}
                           </p>
 
-                          <div className="col-span-2 flex items-center gap-3 sm:col-span-1 md:col-auto md:justify-center">
+                          <div className="mt-3 flex items-center justify-between gap-3 md:mt-0 md:justify-center">
                             <div className="inline-flex items-center rounded-md border border-[#E5DDD1] bg-background">
                               <button
                                 type="button"
@@ -224,14 +242,16 @@ export default function CartPage() {
                             {formatPrice(lineTotal)}
                           </p>
 
-                          <button
-                            type="button"
-                            onClick={() => removeItem(item.id)}
-                            aria-label={`Eliminar ${item.name} del carrito`}
-                            className="col-start-2 row-start-1 self-start justify-self-end text-[#B85C33] transition-colors hover:text-[#9E4E2B] md:col-auto md:row-auto md:self-center md:justify-self-end"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
+                          <div className="hidden md:flex md:justify-center">
+                            <button
+                              type="button"
+                              onClick={() => askRemove(item)}
+                              aria-label={`Eliminar ${item.name} del carrito`}
+                              className="flex h-9 w-9 items-center justify-center text-[#B85C33] transition-colors hover:text-[#9E4E2B]"
+                            >
+                              <TrashIcon className="h-[18px] w-[18px]" />
+                            </button>
+                          </div>
                         </li>
                       )
                     })}
@@ -337,6 +357,15 @@ export default function CartPage() {
       <div className="mt-12">
         <BenefitsBlock />
       </div>
+
+      <RemoveItemDialog
+        item={confirmItem}
+        onClose={() => setConfirmItem(null)}
+        onConfirm={(id) => {
+          removeItem(id)
+          setConfirmItem(null)
+        }}
+      />
     </main>
   )
 }

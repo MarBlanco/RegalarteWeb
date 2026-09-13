@@ -59,14 +59,31 @@ describe('CartPage', () => {
     expect(cta.closest('a')).toHaveAttribute('href', '/checkout')
   })
 
-  it('incrementa cantidad y elimina líneas', () => {
+  it('incrementa cantidad y pide confirmación antes de eliminar', () => {
     seed()
     render(<CartPage />)
     const plusButtons = screen.getAllByLabelText('Aumentar cantidad')
     fireEvent.click(plusButtons[0])
     expect(useCartStore.getState().items[0].quantity).toBe(2)
+
+    // El tachito NO elimina de inmediato: abre el diálogo.
     const deleteButtons = screen.getAllByLabelText(/Eliminar Vela B/)
     fireEvent.click(deleteButtons[0])
+    expect(
+      useCartStore.getState().items.find((i) => i.id === 'b2'),
+    ).toBeDefined()
+    expect(screen.getByText('¿Eliminar producto?')).toBeInTheDocument()
+
+    // Cancelar conserva el producto.
+    fireEvent.click(screen.getByText('Cancelar'))
+    expect(
+      useCartStore.getState().items.find((i) => i.id === 'b2'),
+    ).toBeDefined()
+    expect(screen.queryByText('¿Eliminar producto?')).not.toBeInTheDocument()
+
+    // Eliminar lo quita definitivamente.
+    fireEvent.click(screen.getAllByLabelText(/Eliminar Vela B/)[0])
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar' }))
     expect(
       useCartStore.getState().items.find((i) => i.id === 'b2'),
     ).toBeUndefined()

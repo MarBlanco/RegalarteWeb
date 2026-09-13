@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { CartTrigger } from '@/components/cart/cart-trigger'
@@ -117,13 +118,20 @@ export function Header() {
         <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-4 px-4 md:h-[76px] md:px-6">
           <Link
             href="/"
-            className="flex flex-shrink-0 items-center gap-2"
+            className="flex flex-shrink-0 flex-col items-center gap-0.5"
             aria-label="Solística - Inicio"
           >
-            <span className="font-serif text-[28px] font-semibold leading-none text-[#A15C38] md:text-[32px]">
-              S
+            <span className="relative block h-10 w-10 md:h-11 md:w-11">
+              <Image
+                src="/assets/branding/solistica-logo.webp"
+                alt=""
+                fill
+                sizes="44px"
+                draggable={false}
+                className="object-contain mix-blend-multiply contrast-[1.25] saturate-[1.5] select-none"
+              />
             </span>
-            <span className="font-serif text-[15px] font-medium uppercase leading-none tracking-[0.22em] text-[#38271D] md:text-[17px]">
+            <span className="font-serif text-[11px] font-medium uppercase leading-none tracking-[0.24em] text-[#38271D] md:text-xs">
               Solística
             </span>
           </Link>
