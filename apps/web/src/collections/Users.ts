@@ -14,11 +14,15 @@ import type { CollectionConfig } from 'payload'
  *    públicamente vía POST /api/users (self-registration).
  *
  * AUDIT-003 (seguridad):
- *   - `admin`:    solo admin/staff pueden acceder al panel de administración.
+ *   - `admin`:    solo admin puede acceder al panel de administración.
+ *                 staff (Guale) opera exclusivamente desde el storefront
+ *                 (MODO EDICIÓN) y no entra al /admin técnico.
  *   - `read`:     self-registration mediante POST /api/users devuelve solo el
- *                 documento propio; el resto solo es visible para admin/staff.
- *   - `update`:   cada usuario actualiza su propio documento; admin/staff el resto.
- *   - `role`:     el valor de role es asignado únicamente por admin/staff; el
+ *                 documento propio; cada usuario lee su propio documento;
+ *                 el resto solo es visible para admin.
+ *   - `update`:   cada usuario actualiza su propio documento; solo admin
+ *                 edita otros usuarios.
+ *   - `role`:     el valor de role es asignado únicamente por admin; el
  *                 registro público queda con defaultValue 'retail' (evita
  *                 escalada de privilegios enviando role: 'admin' en el POST).
  *
@@ -66,21 +70,21 @@ export const Users: CollectionConfig = {
     admin: ({ req: { user } }) => {
       const u = user as { role?: string } | null
       if (!u) return false
-      return u.role === 'admin' || u.role === 'staff'
+      return u.role === 'admin'
     },
     read: ({ req: { user }, id }) => {
       const u = user as { role?: string; id?: string | number } | null
       if (!u || !id) return false
       // Cada usuario puede leer su propio documento (perfil / me).
       if (String(u.id) === String(id)) return true
-      return u.role === 'admin' || u.role === 'staff'
+      return u.role === 'admin'
     },
     update: ({ req: { user }, id }) => {
       const u = user as { role?: string; id?: string | number } | null
       if (!u || !id) return false
       // Cada usuario actualiza su propio documento (perfil / me).
       if (String(u.id) === String(id)) return true
-      return u.role === 'admin' || u.role === 'staff'
+      return u.role === 'admin'
     },
     delete: ({ req: { user } }) => {
       const u = user as { role?: string } | null
@@ -105,13 +109,13 @@ export const Users: CollectionConfig = {
         create: ({ req: { user } }) => {
           const u = user as { role?: string } | null
           if (!u) return false
-          return u.role === 'admin' || u.role === 'staff'
+          return u.role === 'admin'
         },
         read: () => true,
         update: ({ req: { user } }) => {
           const u = user as { role?: string } | null
           if (!u) return false
-          return u.role === 'admin' || u.role === 'staff'
+          return u.role === 'admin'
         },
       },
     },
@@ -138,6 +142,14 @@ export const Users: CollectionConfig = {
       name: 'phone',
       type: 'text',
       label: 'Teléfono',
+    },
+    {
+      name: 'phoneAlt',
+      type: 'text',
+      label: 'Teléfono alternativo',
+      admin: {
+        description: 'Teléfono alternativo opcional del cliente (Mi cuenta).',
+      },
     },
     {
       name: 'business_name',
@@ -168,7 +180,51 @@ export const Users: CollectionConfig = {
     {
       name: 'whatsapp',
       type: 'text',
-      label: 'WhatsApp',
+      label: 'WhatsApp (en desuso: Mi cuenta ya no lo utiliza)',
+    },
+    {
+      name: 'address',
+      type: 'group',
+      label: 'Dirección principal',
+      admin: {
+        description:
+          'Dirección principal de entrega (Mi cuenta). Se usa por defecto para futuros envíos.',
+      },
+      fields: [
+        { name: 'street', type: 'text', label: 'Calle' },
+        { name: 'number', type: 'text', label: 'Número' },
+        { name: 'apartment', type: 'text', label: 'Piso / Departamento' },
+        { name: 'postalCode', type: 'text', label: 'Código postal' },
+        { name: 'locality', type: 'text', label: 'Localidad' },
+        { name: 'province', type: 'text', label: 'Provincia' },
+        {
+          name: 'references',
+          type: 'textarea',
+          label: 'Referencias para la entrega',
+        },
+      ],
+    },
+    {
+      name: 'addresses',
+      type: 'array',
+      label: 'Otras direcciones',
+      admin: {
+        description: 'Direcciones adicionales de entrega (Mi cuenta).',
+      },
+      fields: [
+        { name: 'label', type: 'text', required: true, label: 'Etiqueta' },
+        { name: 'street', type: 'text', label: 'Calle' },
+        { name: 'number', type: 'text', label: 'Número' },
+        { name: 'apartment', type: 'text', label: 'Piso / Departamento' },
+        { name: 'postalCode', type: 'text', label: 'Código postal' },
+        { name: 'locality', type: 'text', label: 'Localidad' },
+        { name: 'province', type: 'text', label: 'Provincia' },
+        {
+          name: 'references',
+          type: 'textarea',
+          label: 'Referencias para la entrega',
+        },
+      ],
     },
   ],
   timestamps: true,

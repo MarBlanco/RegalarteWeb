@@ -15,6 +15,8 @@ import { ProductAttributes } from '@/collections/ProductAttributes'
 import { ProductImages } from '@/collections/ProductImages'
 import { Orders } from '@/collections/Orders'
 import { CommerceSettings } from '@/globals/CommerceSettings'
+import { HomeContent } from '@/globals/HomeContent'
+import { PdpContent } from '@/globals/PdpContent'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -27,7 +29,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Categories, ProductTags, Products, ProductAttributes, ProductImages, Orders],
-  globals: [CommerceSettings],
+  globals: [CommerceSettings, HomeContent, PdpContent],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({

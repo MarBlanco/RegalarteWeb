@@ -26,6 +26,8 @@ import type {
 } from '@/payload-types'
 import { formatPrice } from '@/lib/format'
 import { ViewItemTracker } from '@/components/analytics/view-item-tracker'
+import { PdpEditButton } from '@/components/edit-mode/pdp-edit-drawer'
+import { getPdpContent } from '@/lib/pdp-content'
 
 interface PageProps {
   params?: Promise<{ slug: string }>
@@ -229,6 +231,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
     if (!product) {
       notFound()
     }
+    // Un producto oculto (active=false) no existe para el storefront
+    // (se gestiona desde /admin).
+    if (product.active === false) {
+      notFound()
+    }
   }
 
   const wholesalePrice =
@@ -249,8 +256,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
         : (product.categoryDetail?.title ?? 'Producto').toUpperCase()
 
   const fee = product.price / 3
-  const outOfStock =
-    typeof product.stock === 'number' && Number.isFinite(product.stock) && product.stock <= 0
+  const agotado =
+    product.soldOut === true ||
+    (typeof product.stock === 'number' &&
+      Number.isFinite(product.stock) &&
+      product.stock <= 0)
 
   const tagChips = product.tagsDetail.slice(0, 2)
   const characteristics = product.attributesDetail.map((a) => ({
@@ -264,6 +274,31 @@ export default async function ProductDetailPage({ params }: PageProps) {
     name: a.name,
     values: a.values.map((v) => v.value).filter(Boolean),
   }))
+
+  // Snapshot serializable para el editor del PDP (solo producto piloto).
+  const pdpContent = await getPdpContent()
+  const pdpEditSnapshot = {
+    id: product.id,
+    slug: product.slug,
+    title: product.title,
+    price: product.price,
+    active: product.active !== false,
+    seoDescription: product.seoDescription ?? null,
+    tagsDetail: product.tagsDetail.map((t) => ({ id: t.id, name: t.name })),
+    imagesDetail: galleryImages.map((g) => ({ id: g.id, url: g.url })),
+    description: (product.description ?? null) as unknown,
+    attributesDetail: product.attributesDetail.map((a) => ({
+      id: a.id,
+      name: a.name,
+      values: a.values.map((v) => v.value).filter(Boolean),
+    })),
+    editorial: {
+      'como-usar': pdpContent['como-usar'],
+      detalles: pdpContent.detalles,
+      gifting: pdpContent.gifting,
+      faq: pdpContent.faq,
+    },
+  }
 
   // Relacionados: reales de la misma categoría con imagen primero,
   // mock para completar hasta 8 (sin placeholders "Sin imagen").
@@ -337,9 +372,17 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <span className="inline-block rounded-full bg-[#F3EADB] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8A6A2F]">
               {badge}
             </span>
-            <h1 className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#38271D] sm:text-4xl">
-              {product.title}
-            </h1>
+            {agotado ? (
+              <span className="ml-2 inline-block rounded-full bg-white/95 px-3.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7A6A5D] shadow-sm ring-1 ring-[#E5DDD1]">
+                Agotado
+              </span>
+            ) : null}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <h1 className="font-serif text-3xl font-normal tracking-tight text-[#38271D] sm:text-4xl">
+                {product.title}
+              </h1>
+              <PdpEditButton product={pdpEditSnapshot} mode="principal" />
+            </div>
             {product.seoDescription ? (
               <p className="mt-3 text-sm leading-relaxed text-[#5C4A3D]">
                 {product.seoDescription}
@@ -409,11 +452,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
                       : null,
                   }}
                   stock={product.stock ?? null}
+                  soldOut={product.soldOut ?? null}
                 />
               </div>
-              {outOfStock ? (
-                <p className="mt-2 text-xs font-medium text-red-700">
-                  Sin stock por el momento.
+              {agotado ? (
+                <p className="mt-2 text-xs font-medium text-[#7A6A5D]">
+                  Agotado por el momento.
                 </p>
               ) : null}
             </div>
@@ -426,7 +470,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
         {/* Tabs */}
         <div className="mt-10 max-w-3xl rounded-lg border border-[#EBDFD1] bg-[#FFFDF9] p-5 sm:p-6">
+          <div className="flex justify-end">
+            <PdpEditButton product={pdpEditSnapshot} mode="contenido" />
+          </div>
           <ProductTabs
+            editorial={{
+              'como-usar': pdpContent['como-usar'],
+              detalles: pdpContent.detalles,
+              gifting: pdpContent.gifting,
+              faq: pdpContent.faq,
+            }}
             description={
               product.description ? (
                 <ProductDescription content={product.description} />

@@ -2,20 +2,38 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
 import { navLinks } from '@/components/layout/header'
+import { useAuth } from '@/hooks/use-auth'
+import { EditButton } from '@/components/edit-mode/edit-button'
+import { EditModal, type EditField } from '@/components/edit-mode/edit-modal'
+import { saveHomeContentPatch } from '@/components/edit-mode/api'
+import { CATEGORY_OPTIONS } from '@/components/edit-mode/home-edit-controls'
 
-interface HeroSlide {
+export interface HeroSlide {
   id: number
   image: string
   title: string
   description: string
+  /** Texto del botón. Vacío/ausente = derivado de la categoría ("EXPLORAR ..."). */
+  ctaText?: string
   /** Slug de categoría del Nav (source of truth para CTA + destino). */
   category: string
 }
 
-const slides: HeroSlide[] = [
+export interface HeroSlideInput {
+  image: string
+  title: string
+  description: string
+  /** Texto del botón. Vacío/ausente = derivado de la categoría ("EXPLORAR ..."). */
+  ctaText?: string
+  /** Slug de categoría del Nav (source of truth para CTA + destino). */
+  category: string
+}
+
+const DEFAULT_SLIDES: HeroSlide[] = [
   {
     id: 1,
     image: '/assets/hero/hero-solistica-1.jpeg',
@@ -60,15 +78,38 @@ const slides: HeroSlide[] = [
   },
 ]
 
-/** CTA derivado del slide activo + Nav (sin lógica por índice). */
+/** CTA del slide activo: texto editable o derivado del Nav (sin lógica por índice). */
 function slideCta(slide: HeroSlide): { text: string; href: string } {
   const nav = navLinks.find((link) => link.category === slide.category)
+  const href = nav ? nav.href : '/catalogo'
+  const custom = (slide.ctaText ?? '').trim()
+  if (custom) return { text: custom, href }
   if (!nav) return { text: 'Explorar catálogo', href: '/catalogo' }
   return { text: `EXPLORAR ${nav.label.toUpperCase()}`, href: nav.href }
 }
 
-export function HeroSlider() {
+const HERO_EDIT_FIELDS: EditField[] = [
+  { name: 'title', label: 'Título', type: 'text', maxLength: 200 },
+  { name: 'description', label: 'Descripción', type: 'textarea', maxLength: 600 },
+  { name: 'ctaText', label: 'Texto del botón (vacío = automático)', type: 'text', maxLength: 60 },
+  { name: 'image', label: 'Imagen (URL o ruta)', type: 'text', maxLength: 500 },
+  { name: 'category', label: 'Categoría destino', type: 'select', options: CATEGORY_OPTIONS },
+]
+
+export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInput[] }) {
+  const base = slides.length > 0 ? slides : DEFAULT_SLIDES
+  const list: HeroSlide[] = base.map((s, i) => ({
+    id: i,
+    image: s.image,
+    title: s.title,
+    description: s.description,
+    ctaText: s.ctaText ?? '',
+    category: s.category,
+  }))
   const [current, setCurrent] = useState(0)
+  const [editing, setEditing] = useState(false)
+  const router = useRouter()
+  const token = useAuth((s) => s.token)
   const [isPlaying, setIsPlaying] = useState(true)
   const [wasPlayingBeforeFocus, setWasPlayingBeforeFocus] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -77,7 +118,7 @@ export function HeroSlider() {
   const startAutoSlide = useCallback(() => {
     if (intervalRef.current) return
     intervalRef.current = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length)
+      setCurrent((prev) => (prev + 1) % list.length)
     }, 5000)
   }, [])
 
@@ -118,14 +159,15 @@ export function HeroSlider() {
   }
 
   const handlePrev = () => {
-    setCurrent((prev) => (prev - 1 + slides.length) % slides.length)
+    setCurrent((prev) => (prev - 1 + list.length) % list.length)
   }
 
   const handleNext = () => {
-    setCurrent((prev) => (prev + 1) % slides.length)
+    setCurrent((prev) => (prev + 1) % list.length)
   }
 
-  const cta = slideCta(slides[current])
+  const activeSlide = list[Math.min(current, list.length - 1)]
+  const cta = slideCta(activeSlide)
 
   return (
     <section
@@ -142,7 +184,7 @@ export function HeroSlider() {
           exit={{ opacity: 0 }}
           transition={{ duration: 1, ease: 'easeInOut' }}
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${slides[current].image})` }}
+          style={{ backgroundImage: `url(${activeSlide.image})` }}
         >
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black/30" />
@@ -163,10 +205,10 @@ export function HeroSlider() {
               >
                 <span aria-hidden className="mb-6 block h-[2px] w-[48px] bg-primary" />
                 <h1 className="font-serif text-[44px] font-normal leading-[1.05] tracking-tight text-white sm:text-[48px] lg:text-[54px]">
-                  {slides[current].title}
+                  {activeSlide.title}
                 </h1>
                 <p className="mt-6 max-w-[500px] text-[17px] leading-[1.5] text-white sm:text-[18px]">
-                  {slides[current].description}
+                  {activeSlide.description}
                 </p>
                 <Button
                   asChild
@@ -205,7 +247,7 @@ export function HeroSlider() {
       {/* Slider indicators and play/pause control */}
       <div className="absolute bottom-6 left-1/2 z-20 flex flex-col items-center gap-4 -translate-x-1/2">
         <div className="flex gap-3">
-          {slides.map((_, index) => (
+          {list.map((_, index) => (
             <button
               key={index}
               onClick={() => handleIndicatorClick(index)}
@@ -233,6 +275,50 @@ export function HeroSlider() {
           )}
         </button>
       </div>
+      {/* Modo Edición: editar el slide visible (solo staff/admin) */}
+      <div className="absolute right-4 top-4 z-30">
+        <EditButton onClick={() => setEditing(true)} label="Editar slide" />
+      </div>
+      {editing ? (
+        <EditModal
+          title={`Editar slide ${current + 1}`}
+          fields={HERO_EDIT_FIELDS}
+          initialValues={{
+            title: activeSlide.title,
+            description: activeSlide.description,
+            ctaText: activeSlide.ctaText ?? '',
+            image: activeSlide.image,
+            category: activeSlide.category,
+          }}
+          onClose={() => setEditing(false)}
+          onSave={async (values) => {
+            if (!token) throw new Error('Sesión vencida. Volvé a iniciar sesión.')
+            await saveHomeContentPatch(
+              {
+                heroSlides: list.map((s, i) =>
+                  i === Math.min(current, list.length - 1)
+                    ? {
+                        image: values.image,
+                        title: values.title,
+                        description: values.description,
+                        ctaText: values.ctaText,
+                        category: values.category,
+                      }
+                    : {
+                        image: s.image,
+                        title: s.title,
+                        description: s.description,
+                        ctaText: s.ctaText ?? '',
+                        category: s.category,
+                      },
+                ),
+              },
+              token,
+            )
+            router.refresh()
+          }}
+        />
+      ) : null}
     </section>
   )
 }

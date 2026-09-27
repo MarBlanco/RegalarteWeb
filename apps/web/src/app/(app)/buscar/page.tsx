@@ -98,10 +98,12 @@ export default async function SearchPage({ searchParams }: PageProps) {
             ) : (
               <>
                 <ProductGrid products={products.docs} />
-                <CatalogPagination
-                  page={products.page}
-                  totalPages={products.totalPages}
-                />
+                <Suspense fallback={null}>
+                  <CatalogPagination
+                    page={products.page}
+                    totalPages={products.totalPages}
+                  />
+                </Suspense>
               </>
             )}
           </section>

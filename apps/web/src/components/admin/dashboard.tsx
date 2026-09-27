@@ -2,7 +2,7 @@
  * Admin Dashboard: vista resumen para el panel de Payload.
  *
  * Server component renderizado por Payload cuando un usuario admin
- * (o staff) ingresa a /admin. Muestra KPIs basicos del negocio:
+ * ingresa a /admin. Muestra KPIs basicos del negocio:
  *
  *  - Total de Orders persistidas.
  *  - Orders pendientes de pago (status=pending).

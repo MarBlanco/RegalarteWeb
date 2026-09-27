@@ -33,13 +33,13 @@ export function TipoSortSelect() {
   }
 
   return (
-    <label className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs text-[#7A6A5D]">
-      Ordenar por:
+    <label className="flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-2 text-xs text-[#7A6A5D]">
+      <span className="shrink-0 whitespace-nowrap">Ordenar por:</span>
       <select
         value={sort}
         onChange={(e) => onChange(e.target.value)}
         disabled={isPending}
-        className="h-[30px] rounded-full border border-[#E5DDD1] bg-background pl-2.5 pr-1.5 text-xs text-[#38271D] outline-none"
+        className="h-[30px] w-auto max-w-full rounded-full border border-[#E5DDD1] bg-background pl-2.5 pr-1.5 text-xs text-[#38271D] outline-none"
         aria-label="Ordenar por"
       >
         {SORT_OPTIONS.map((opt) => (

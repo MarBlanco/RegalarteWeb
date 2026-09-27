@@ -5,6 +5,7 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Providers } from '@/providers'
+import { EditModeBar } from '@/components/edit-mode/edit-mode-bar'
 import { PostHog } from '@/components/analytics/posthog'
 import { Clarity } from '@/components/analytics/clarity'
 import { GoogleAnalytics } from '@/components/analytics/google-analytics'
@@ -64,6 +65,7 @@ export default function RootLayout({
         <Clarity />
         <GoogleAnalytics />
         <Providers>
+          <EditModeBar />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

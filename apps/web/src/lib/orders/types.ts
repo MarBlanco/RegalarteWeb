@@ -26,6 +26,8 @@ export type CreateOrderInput = {
   }
   mode: CartMode
   items: ReadonlyArray<CartItem>
+  /** Código de cupón aplicado en el checkout (opcional, lo valida el servidor). */
+  couponCode?: string
 }
 
 export type OrderItemLine = {
@@ -40,6 +42,8 @@ export type OrderItemLine = {
 export type OrderTotals = {
   subtotal: number
   shipping: number
+  /** Descuento por cupón en pesos (0 sin cupón). */
+  discount: number
   total: number
 }
 

@@ -76,8 +76,15 @@ export function CheckoutForm() {
         // sincronizacion Cart <-> Orders.
         syncCartWithOrder(submitResult.orderId)
 
-        const decision = await continueCheckout(submitResult)
+        const decision = await continueCheckout(submitResult, undefined, {
+          payerEmail: values.customer.email,
+        })
         setFlow(decision)
+        // Pago externo (p. ej. Mercado Pago): redirección real fuera de la
+        // app. router.push no sale del sitio; location.assign sí.
+        if (decision.kind === 'redirect') {
+          window.location.assign(decision.url)
+        }
       }
     } catch {
       setStatus('error')
@@ -120,7 +127,7 @@ export function CheckoutForm() {
             <p className="font-medium">Pedido enviado correctamente</p>
             <p className="text-xs opacity-90">
               {flow?.kind === 'redirect'
-                ? 'Redirigiendo al operador de pago… (mock — ver TICKET-010).'
+                ? 'Redirigiendo al operador de pago…'
                 : flow?.kind === 'error'
                   ? 'No se pudo iniciar el pago. Podés volver a editar y reintentar.'
                   : 'Preparando el siguiente paso…'}

@@ -84,6 +84,27 @@ const inactiveProduct: ProductPricingSource = {
   active: false,
 }
 
+const soldOutProduct: ProductPricingSource = {
+  id: 4,
+  title: 'Vela Agotada',
+  slug: 'vela-agotada',
+  price: 100,
+  isWholesaleAvailable: false,
+  active: true,
+  soldOut: true,
+  stock: 10,
+}
+
+const zeroStockProduct: ProductPricingSource = {
+  id: 5,
+  title: 'Vela Sin Stock',
+  slug: 'vela-sin-stock',
+  price: 100,
+  isWholesaleAvailable: false,
+  active: true,
+  stock: 0,
+}
+
 describe('buildLinesFromProducts (AUDIT-004)', () => {
   it('usa el precio minorista de la DB, ignorando el precio del cliente', () => {
     const products = new Map<number, ProductPricingSource>([
@@ -140,6 +161,28 @@ describe('buildLinesFromProducts (AUDIT-004)', () => {
     )
   })
 
+  it('rechaza la orden si el producto esta agotado (manual)', () => {
+    const products = new Map<number, ProductPricingSource>([
+      [4, soldOutProduct],
+    ])
+    const input = makeInput([makeItem({ productId: '4' })])
+
+    expect(() => buildLinesFromProducts(input, products)).toThrow(
+      OrderRejectedError,
+    )
+  })
+
+  it('rechaza la orden si el producto no tiene stock', () => {
+    const products = new Map<number, ProductPricingSource>([
+      [5, zeroStockProduct],
+    ])
+    const input = makeInput([makeItem({ productId: '5' })])
+
+    expect(() => buildLinesFromProducts(input, products)).toThrow(
+      OrderRejectedError,
+    )
+  })
+
   it('rechaza la orden si el producto no existe en la DB', () => {
     const products = new Map<number, ProductPricingSource>()
     const input = makeInput([makeItem({ productId: '9999' })])
@@ -169,6 +212,32 @@ describe('buildLinesFromProducts (AUDIT-004)', () => {
     ])
 
     expect(totals.subtotal).toBe(11)
+    expect(totals.discount).toBe(0)
     expect(totals.total).toBe(11)
+  })
+
+  it('aplica descuento sin negativizar el total', () => {
+    const totals = buildTotals(
+      [
+        { productId: '1', slug: 'a', name: 'A', quantity: 1, unitPrice: 100, lineTotal: 100 },
+      ],
+      10,
+    )
+
+    expect(totals.subtotal).toBe(100)
+    expect(totals.discount).toBe(10)
+    expect(totals.total).toBe(90)
+  })
+
+  it('tope: el descuento nunca supera el subtotal', () => {
+    const totals = buildTotals(
+      [
+        { productId: '1', slug: 'a', name: 'A', quantity: 1, unitPrice: 50, lineTotal: 50 },
+      ],
+      999,
+    )
+
+    expect(totals.discount).toBe(50)
+    expect(totals.total).toBe(0)
   })
 })

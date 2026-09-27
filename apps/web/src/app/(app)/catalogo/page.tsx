@@ -2,12 +2,14 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import {
   fetchCategories,
+  fetchFilterFacets,
   fetchProductTags,
   fetchProducts,
   type CatalogFilters,
+  type FilterFacets,
   type ProductWithImage,
 } from '@/lib/catalog'
-import { CatalogSidebar } from '@/components/catalog/catalog-sidebar'
+import { CatalogAsideFilters } from '@/components/catalog/catalog-aside'
 import { CatalogPagination } from '@/components/catalog/catalog-pagination'
 import { ProductGrid } from '@/components/catalog/product-grid'
 import { CategoryHero } from '@/components/catalog/category-hero'
@@ -15,19 +17,12 @@ import { SubcategoryBar } from '@/components/catalog/subcategory-bar'
 import { BenefitsBlock } from '@/components/catalog/benefits-block'
 import { TipoSelector } from '@/components/catalog/tipo-selector'
 import { TipoSortSelect } from '@/components/catalog/tipo-sort-select'
-import { TipoCta } from '@/components/catalog/tipo-cta'
-import {
-  MOCK_BADGES,
-  MOCK_GRID_SIZE,
-  MOCK_PRODUCTS,
-} from '@/components/catalog/catalog-mock'
+import { ProductAddButton } from '@/components/edit-mode/product-edit-modal'
 import {
   getCategoryTipos,
   mockCategoryName,
   mockTipoName,
-  mockTipoProducts,
 } from '@/components/catalog/catalog-tipos'
-import type { MockBadge } from '@/components/catalog/catalog-mock'
 import type { Media } from '@/payload-types'
 
 export const metadata: Metadata = {
@@ -68,6 +63,8 @@ interface PageProps {
     q?: string
     category?: string
     tag?: string
+    aroma?: string
+    ritual?: string
     tipo?: string
     completa?: string
     minPrice?: string
@@ -125,48 +122,39 @@ export default async function CatalogPage({ searchParams }: PageProps) {
     ? categories.find((c) => c.slug === categorySlug)
     : undefined
 
+  // Facetas reales del sidebar (opciones + contadores + rango de precios).
+  const facets: FilterFacets = await fetchFilterFacets(categorySlug)
+
   // Tipos administrables: hijas del CMS o mock (nunca hardcodeados).
   const tipos = categorySlug ? getCategoryTipos(categorySlug, categories) : []
   const activeTipo =
     tipos.find((t) => t.slug === params.tipo) ?? tipos[0] ?? null
 
   const hasActiveFilters = Boolean(
-    params.q?.trim() || params.tag || params.minPrice || params.maxPrice,
+    params.q?.trim() ||
+      params.tag ||
+      params.aroma ||
+      params.ritual ||
+      params.minPrice ||
+      params.maxPrice,
   )
   const isFullListing = params.completa === '1' || hasActiveFilters
 
-  // ---- Modo A: showcase por tipo (mock) ----
+  // ---- Modo A: showcase por tipo (100% real, sin límite ni relleno) ----
   let showcaseDocs: ProductWithImage[] = []
-  let showcaseBadges: Record<number, MockBadge> = {}
   let showcaseTotal = 0
   if (categorySlug && activeTipo && !isFullListing) {
-    // Reales primero: del tipo si es real del CMS, si no de la categoría.
+    // Reales del tipo si es real del CMS, si no de la categoría.
     const real = await fetchProducts(
       { categorySlug: activeTipo.real ? activeTipo.slug : categorySlug, sort },
       1,
-      MOCK_GRID_SIZE,
+      100,
     )
     showcaseDocs = real.docs
     showcaseTotal = real.totalDocs
-    if (showcaseDocs.length < MOCK_GRID_SIZE) {
-      const mock = mockTipoProducts(
-        categorySlug,
-        activeTipo.slug,
-        activeTipo.name,
-        MOCK_GRID_SIZE,
-      )
-      const realSlugs = new Set(showcaseDocs.map((d) => d.slug))
-      const fill = mock.products.filter((m) => !realSlugs.has(m.slug)).slice(
-        0,
-        MOCK_GRID_SIZE - showcaseDocs.length,
-      )
-      showcaseDocs = [...showcaseDocs, ...fill]
-      showcaseBadges = { ...MOCK_BADGES, ...mock.badges }
-      if (fill.length > 0) showcaseTotal = Math.max(showcaseTotal, activeTipo.count)
-    }
   }
 
-  // ---- Modo B: listado completo / filtrado ----
+  // ---- Modo B: listado completo / filtrado (100% real, sin límite ni relleno) ----
   let listing: Awaited<ReturnType<typeof fetchProducts>> | null = null
   let listingDocs: ProductWithImage[] = []
   if (!categorySlug || isFullListing) {
@@ -176,46 +164,14 @@ export default async function CatalogPage({ searchParams }: PageProps) {
       q: params.q,
       categorySlug: tipoSlugForListing ?? categorySlug,
       tagSlug: params.tag,
+      aromaSlug: params.aroma,
+      ritualSlug: params.ritual,
       minPrice: parsePrice(params.minPrice),
       maxPrice: parsePrice(params.maxPrice),
       sort,
     }
-    listing = await fetchProducts(filters, page)
+    listing = await fetchProducts(filters, page, 100)
     listingDocs = listing.docs
-    const onlyTipoFilter =
-      isFullListing && !params.q?.trim() && !params.tag && !params.minPrice && !params.maxPrice
-    if (onlyTipoFilter && activeTipo && listingDocs.length < MOCK_GRID_SIZE) {
-      const mock = mockTipoProducts(
-        categorySlug ?? '',
-        activeTipo.slug,
-        activeTipo.name,
-        MOCK_GRID_SIZE,
-      )
-      const realSlugs = new Set(listingDocs.map((d) => d.slug))
-      listingDocs = [
-        ...listingDocs,
-        ...mock.products.filter((m) => !realSlugs.has(m.slug)).slice(
-          0,
-          MOCK_GRID_SIZE - listingDocs.length,
-        ),
-      ]
-      showcaseBadges = { ...MOCK_BADGES, ...mock.badges }
-    } else if (
-      !hasActiveFilters &&
-      !params.tipo &&
-      listingDocs.length < MOCK_GRID_SIZE
-    ) {
-      // Vista general sin filtros: relleno visual legacy.
-      const realSlugs = new Set(listingDocs.map((d) => d.slug))
-      listingDocs = [
-        ...listingDocs,
-        ...MOCK_PRODUCTS.filter((m) => !realSlugs.has(m.slug)).slice(
-          0,
-          MOCK_GRID_SIZE - listingDocs.length,
-        ),
-      ]
-      showcaseBadges = MOCK_BADGES
-    }
   }
 
   const heroTitle =
@@ -233,6 +189,12 @@ export default async function CatalogPage({ searchParams }: PageProps) {
     'Explorá todas nuestras propuestas para encontrar el regalo ideal.'
 
   const showShowcase = categorySlug !== undefined && activeTipo !== null && !isFullListing
+
+  // Alta de producto en MODO EDICIÓN: al tipo real si existe, si no a la categoría.
+  const addProductCategoryId =
+    showShowcase && activeTipo?.real && activeTipo.categoryId !== undefined
+      ? activeTipo.categoryId
+      : category?.id
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FBF7F1]">
@@ -252,39 +214,35 @@ export default async function CatalogPage({ searchParams }: PageProps) {
                 categorySlug={categorySlug}
                 tipos={tipos}
                 activeSlug={activeTipo.slug}
+                editCategoryId={category?.id}
               />
             </Suspense>
           </div>
 
           <div className="flex-1 px-4 py-6 sm:px-6">
             <div className="mx-auto flex max-w-[1400px] flex-col gap-5 lg:flex-row lg:gap-6">
-              <aside className="lg:w-[220px] lg:flex-shrink-0 xl:w-[230px]">
-                <div className="lg:sticky lg:top-32">
-                  <Suspense fallback={null}>
-                    <CatalogSidebar />
-                  </Suspense>
-                </div>
-              </aside>
+              <CatalogAsideFilters facets={facets} />
 
               <section className="min-w-0 flex-1" aria-label={activeTipo.name}>
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div className="min-w-0">
-                    <h2 className="font-serif text-2xl font-normal tracking-tight text-[#38271D] sm:text-[28px]">
-                      {activeTipo.name}
-                    </h2>
-                    {activeTipo.description ? (
-                      <p className="mt-1 max-w-xl text-[13px] text-[#7A6A5D]">
-                        {activeTipo.description}
-                      </p>
-                    ) : null}
-                  </div>
-                  <div className="flex shrink-0 items-center gap-4">
-                    <span className="whitespace-nowrap text-xs text-[#7A6A5D]">
-                      Mostrando {showcaseDocs.length} de {showcaseTotal} productos
-                    </span>
+                <div className="min-w-0">
+                  <h2 className="font-serif text-2xl font-normal tracking-tight text-[#38271D] sm:text-[28px]">
+                    {activeTipo.name}
+                  </h2>
+                  {activeTipo.description ? (
+                    <p className="mt-1 max-w-xl text-[13px] text-[#7A6A5D]">
+                      {activeTipo.description}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="mt-3 flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                  <span className="shrink-0 whitespace-nowrap text-xs text-[#7A6A5D]">
+                    Mostrando {showcaseDocs.length} de {showcaseTotal} productos
+                  </span>
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2">
                     <Suspense fallback={null}>
                       <TipoSortSelect />
                     </Suspense>
+                    <ProductAddButton categoryId={addProductCategoryId} />
                   </div>
                 </div>
 
@@ -299,18 +257,11 @@ export default async function CatalogPage({ searchParams }: PageProps) {
                   <div className="mt-5">
                     <ProductGrid
                       products={showcaseDocs}
-                      badges={showcaseBadges}
                       fallbackImage={activeTipo.image}
                       fallbackSubtitle={activeTipo.tagline}
                     />
                   </div>
                 )}
-
-                <TipoCta
-                  categorySlug={categorySlug}
-                  tipoSlug={activeTipo.slug}
-                  tipoName={activeTipo.name}
-                />
               </section>
             </div>
           </div>
@@ -325,15 +276,10 @@ export default async function CatalogPage({ searchParams }: PageProps) {
           {/* CATÁLOGO: FILTROS + GRID */}
           <div className="flex-1 px-4 py-6 sm:px-6">
             <div className="mx-auto flex max-w-[1400px] flex-col gap-5 lg:flex-row lg:gap-6">
-              <aside className="lg:w-[220px] lg:flex-shrink-0 xl:w-[230px]">
-                <div className="lg:sticky lg:top-32">
-                  <Suspense fallback={null}>
-                    <CatalogSidebar />
-                  </Suspense>
-                </div>
-              </aside>
+              <CatalogAsideFilters facets={facets} />
 
               <section className="min-w-0 flex-1">
+                <ProductAddButton categoryId={category?.id} />
                 {listingDocs.length === 0 ? (
                   <div className="rounded-md border border-[#E5DDD1] bg-card p-12 text-center">
                     <h2 className="text-lg font-semibold">
@@ -346,11 +292,13 @@ export default async function CatalogPage({ searchParams }: PageProps) {
                   </div>
                 ) : (
                   <>
-                    <ProductGrid products={listingDocs} badges={showcaseBadges} />
-                    <CatalogPagination
-                      page={listing?.page ?? 1}
-                      totalPages={listing?.totalPages ?? 1}
-                    />
+                    <ProductGrid products={listingDocs} />
+                    <Suspense fallback={null}>
+                      <CatalogPagination
+                        page={listing?.page ?? 1}
+                        totalPages={listing?.totalPages ?? 1}
+                      />
+                    </Suspense>
                   </>
                 )}
               </section>

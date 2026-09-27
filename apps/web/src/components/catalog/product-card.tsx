@@ -4,9 +4,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { ProductTag } from '@/payload-types'
 import type { ProductWithImage } from '@/lib/catalog'
+import { isAgotado } from '@/lib/catalog'
 import { formatPrice } from '@/lib/format'
 import { useWishlistStore } from '@/lib/wishlist/store'
 import { AddToCartButton } from '@/components/cart/add-to-cart-button'
+import { CatalogProductControls } from '@/components/edit-mode/product-edit-modal'
 
 export interface ProductCardProps {
   product: ProductWithImage
@@ -45,6 +47,9 @@ export function ProductCard({ product, badge, fallbackImage, fallbackSubtitle }:
 
   const aromas = tagNames(product.tags).slice(0, 3).join(' · ')
   const subtitle = aromas || product.seoDescription || fallbackSubtitle || ''
+
+  // Agotado manual (staff) o sin stock: visible con compra bloqueada.
+  const agotado = isAgotado(product)
 
   const wishlistItem = {
     id: productId,
@@ -91,6 +96,13 @@ export function ProductCard({ product, badge, fallbackImage, fallbackSubtitle }:
           </span>
         ) : null}
 
+        {/* Controles de MODO EDICIÓN (solo staff/admin, nulo para clientes) */}
+        <CatalogProductControls
+          productId={product.id}
+          slug={product.slug}
+          soldOut={product.soldOut === true}
+        />
+
         {/* Favorito arriba a la derecha */}
         <button
           type="button"
@@ -133,21 +145,31 @@ export function ProductCard({ product, badge, fallbackImage, fallbackSubtitle }:
           ) : null}
         </div>
         <div className="mt-auto pt-2">
-          <AddToCartButton
-            compact
-            product={{
-              id: product.id,
-              slug: product.slug,
-              title: product.title,
-              price: product.price,
-              compareAtPrice: product.compareAtPrice ?? null,
-              wholesalePrice: product.wholesalePrice ?? null,
-              isWholesaleAvailable: Boolean(product.isWholesaleAvailable),
-              featuredImage: imageUrl
-                ? { url: imageUrl, alt: imageAlt }
-                : null,
-            }}
-          />
+          {agotado ? (
+            <button
+              type="button"
+              disabled
+              className="h-9 w-full cursor-not-allowed rounded-md bg-[#E3E0DB] text-[11px] font-semibold uppercase tracking-wider text-[#8A867F]"
+            >
+              Agotado
+            </button>
+          ) : (
+            <AddToCartButton
+              compact
+              product={{
+                id: product.id,
+                slug: product.slug,
+                title: product.title,
+                price: product.price,
+                compareAtPrice: product.compareAtPrice ?? null,
+                wholesalePrice: product.wholesalePrice ?? null,
+                isWholesaleAvailable: Boolean(product.isWholesaleAvailable),
+                featuredImage: imageUrl
+                  ? { url: imageUrl, alt: imageAlt }
+                  : null,
+              }}
+            />
+          )}
         </div>
       </div>
     </div>

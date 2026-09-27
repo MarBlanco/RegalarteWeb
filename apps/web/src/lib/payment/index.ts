@@ -9,9 +9,10 @@
  *   - mock (default)
  *   - mercadopago
  *
- * TODO(TICKET-009): Cuando TICKET-009 este listo, bastara con cambiar
- * la configuracion a `NEXT_PUBLIC_PAYMENT_PROVIDER=mercadopago` para
- * utilizar `MercadoPagoProvider`.
+ * TODO(TICKET-009): cuando el backend de MP esté configurado
+ * (Access Token + webhook), bastará con cambiar la configuración a
+ * `NEXT_PUBLIC_PAYMENT_PROVIDER=mercadopago` para utilizar
+ * `MercadoPagoProvider` (Checkout Pro real vía backend propio).
  *
  * Restricciones actuales:
  *   - Sin fetch.

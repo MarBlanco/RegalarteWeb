@@ -42,6 +42,23 @@ export const ProductTags: CollectionConfig = {
       },
     },
     {
+      name: 'kind',
+      type: 'select',
+      required: true,
+      defaultValue: 'general',
+      label: 'Grupo de filtro',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Aroma y Ritual aparecen como opciones de filtro en el catálogo; General solo como Tipo.',
+      },
+      options: [
+        { label: 'Aroma', value: 'aroma' },
+        { label: 'Ritual / Momento', value: 'ritual' },
+        { label: 'General (Tipo)', value: 'general' },
+      ],
+    },
+    {
       name: 'description',
       type: 'textarea',
       label: 'Descripción',

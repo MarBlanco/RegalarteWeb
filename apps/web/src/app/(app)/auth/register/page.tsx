@@ -15,10 +15,12 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { useAuth } from '@/hooks/use-auth'
+import { useEditMode } from '@/hooks/use-edit-mode'
 
 export default function RegisterPage() {
   const router = useRouter()
   const { setUser, setToken } = useAuth()
+  const setViewAsClient = useEditMode((s) => s.setViewAsClient)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -75,20 +77,31 @@ export default function RegisterPage() {
         throw new Error(loginData.errors?.[0]?.message || 'Error al iniciar sesión')
       }
 
+      // Payload 3 responde al login con `{ token, user, exp }` (sin `doc`).
+      const loggedUser = loginData.user
+      if (!loggedUser || !loginData.token) {
+        throw new Error('Error al iniciar sesión')
+      }
+
       setUser({
-        id: loginData.doc.id,
-        email: loginData.doc.email,
-        name: loginData.doc.name,
-        role: loginData.doc.role,
-        customer_type: loginData.doc.customer_type,
-        business_name: loginData.doc.business_name,
-        cuit: loginData.doc.cuit,
-        phone: loginData.doc.phone,
-        province: loginData.doc.province,
-        city: loginData.doc.city,
-        whatsapp: loginData.doc.whatsapp,
+        id: loggedUser.id,
+        email: loggedUser.email,
+        name: loggedUser.name,
+        role: loggedUser.role,
+        customer_type: loggedUser.customer_type,
+        business_name: loggedUser.business_name,
+        cuit: loggedUser.cuit,
+        phone: loggedUser.phone,
+        phoneAlt: loggedUser.phoneAlt,
+        address: loggedUser.address ?? null,
+        addresses: loggedUser.addresses ?? [],
+        province: loggedUser.province,
+        city: loggedUser.city,
+        whatsapp: loggedUser.whatsapp,
       })
       setToken(loginData.token)
+      // Al ingresar, siempre arrancar en el modo correspondiente al rol.
+      setViewAsClient(false)
 
       router.push('/')
     } catch (err) {

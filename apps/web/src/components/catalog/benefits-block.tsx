@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 const ShippingIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -67,6 +69,32 @@ const SupportIcon = () => (
   </svg>
 )
 
+const LeafIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-7 w-7"
+    aria-hidden="true"
+  >
+    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+  </svg>
+)
+
+const BENEFIT_ICONS = {
+  shipping: <ShippingIcon />,
+  packaging: <PackagingIcon />,
+  payment: <PaymentIcon />,
+  support: <SupportIcon />,
+  leaf: <LeafIcon />,
+} as const
+
+export type BenefitIconKey = keyof typeof BENEFIT_ICONS
+
 const benefits = [
   {
     icon: <ShippingIcon />,
@@ -91,23 +119,31 @@ const benefits = [
 ] as const
 
 export interface BenefitsBlockProps {
-  items?: { title: string; description: string }[]
+  items?: { title?: string; description?: string; icon?: BenefitIconKey }[]
+  /** Slot del Modo Edición (ej. botón Editar por tarjeta). Solo Home lo usa. */
+  renderEdit?: (index: number) => ReactNode
 }
 
-export function BenefitsBlock({ items }: BenefitsBlockProps) {
+export function BenefitsBlock({ items, renderEdit }: BenefitsBlockProps) {
   const list = items
-    ? benefits.map((b, i) => ({ ...b, ...(items[i] ?? {}) }))
+    ? benefits.map((b, i) => ({
+        ...b,
+        title: items[i]?.title ?? b.title,
+        description: items[i]?.description ?? b.description,
+        icon: items[i]?.icon ? BENEFIT_ICONS[items[i].icon] : b.icon,
+      }))
     : benefits
   return (
     <section className="border-y border-[#EBDFD1] bg-[#FBF7F1] px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-[1400px]">
         <h2 className="sr-only">Beneficios</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-[#E5DDD1]">
-          {list.map((benefit) => (
+          {list.map((benefit, index) => (
             <article
               key={benefit.title}
-              className="flex items-center gap-4 lg:justify-center lg:px-8"
+              className="relative flex items-center gap-4 lg:justify-center lg:px-8"
             >
+              {renderEdit ? renderEdit(index) : null}
               <div className="flex h-11 w-11 shrink-0 items-center justify-center text-[#B85C33]">
                 {benefit.icon}
               </div>

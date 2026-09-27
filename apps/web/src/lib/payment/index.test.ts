@@ -97,29 +97,78 @@ describe('Payment Provider Factory', () => {
     beforeEach(() => {
       process.env.NEXT_PUBLIC_PAYMENT_PROVIDER = 'mercadopago'
       provider = getPaymentProvider()
+      vi.unstubAllGlobals()
     })
 
-    it('implements initiate with redirectUrl', async () => {
-      const result = await provider.initiate({ orderId: 'order-1', redirectUrl: 'https://example.com/success' })
+    it('initiate delega en el backend y devuelve el checkout_url', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            checkoutUrl: 'https://mp.test/checkout/1',
+            externalId: 'ORDMP1',
+          }),
+      })
+      vi.stubGlobal('fetch', fetchMock)
+      const result = await provider.initiate({
+        orderId: '10',
+        redirectUrl: 'https://tienda.test/x',
+        payerEmail: 'a@b.com',
+      })
       expect(result).toEqual({
         status: 'ready',
-        externalId: expect.stringMatching(/^mp_order-1_\d+$/),
-        redirectUrl: 'https://example.com/success',
+        externalId: 'ORDMP1',
+        redirectUrl: 'https://mp.test/checkout/1',
       })
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/payments/mercadopago/orders',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ orderId: '10', email: 'a@b.com' }),
+        }),
+      )
     })
 
-    it('throws if redirectUrl missing', async () => {
-      await expect(provider.initiate({ orderId: 'order-1', redirectUrl: '' })).rejects.toThrow('redirectUrl is required')
+    it('initiate exige orderId y payerEmail (nada silencioso)', async () => {
+      await expect(
+        provider.initiate({ redirectUrl: 'https://x.test', payerEmail: 'a@b.com' }),
+      ).rejects.toThrow('orderId es requerido')
+      await expect(
+        provider.initiate({ orderId: '10', redirectUrl: 'https://x.test' }),
+      ).rejects.toThrow('payerEmail es requerido')
     })
 
-    it('implements getStatus returning pending', async () => {
-      const result = await provider.getStatus('mp_123')
-      expect(result).toEqual({ status: 'pending', externalId: 'mp_123' })
+    it('initiate propaga el error del backend', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          json: () => Promise.resolve({ error: 'Sin permiso' }),
+        }),
+      )
+      await expect(
+        provider.initiate({
+          orderId: '10',
+          redirectUrl: 'https://x.test',
+          payerEmail: 'a@b.com',
+        }),
+      ).rejects.toThrow('Sin permiso')
     })
 
-    it('implements cancel returning cancelled', async () => {
-      const result = await provider.cancel('mp_123')
-      expect(result).toEqual({ status: 'cancelled', externalId: 'mp_123' })
+    it('getStatus normaliza vía backend', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: () => Promise.resolve({ status: 'processed' }),
+        }),
+      )
+      const result = await provider.getStatus('ORDMP1')
+      expect(result).toEqual({ status: 'approved', externalId: 'ORDMP1' })
+    })
+
+    it('cancel no se simula: lanza explícito', async () => {
+      await expect(provider.cancel('ORDMP1')).rejects.toThrow()
     })
   })
 })

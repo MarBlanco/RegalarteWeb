@@ -16,7 +16,8 @@
     "migrate:create": "payload migrate:create",
     "migrate": "payload migrate",
     "migrate:down": "payload migrate:down",
-    "migrate:status": "payload migrate:status"
+    "migrate:status": "payload migrate:status",
+    "sync:content": "tsx scripts/sync-content.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.87.1",
@@ -27,11 +28,10 @@
     "@payloadcms/ui": "3.87.1",
     "@radix-ui/react-label": "^2.1.11",
     "@radix-ui/react-slot": "^1.3.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^3.6.0",
     "@tanstack/react-query": "^5.64.2",
     "@tanstack/react-query-devtools": "^5.64.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "framer-motion": "^11.18.0",
     "graphql": "^16.9.0",
     "next": "16.2.12",
@@ -39,6 +39,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "sharp": "^0.33.5",
+    "tailwind-merge": "^3.6.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
@@ -52,6 +53,7 @@
     "eslint-config-next": "16.2.12",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.22.4",
     "typescript": "^5.7.3"
   }
 }

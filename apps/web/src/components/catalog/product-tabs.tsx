@@ -7,13 +7,18 @@ import { cn } from '@/lib/utils'
 interface ProductTabsProps {
   description: React.ReactNode
   characteristics: { name: string; values: string }[]
+  /**
+   * Contenido editorial administrable (MODO EDICIÓN). Si se omite, se usan
+   * los valores MOCK visuales. Misma fuente para todos los productos.
+   */
+  editorial?: Partial<Record<string, string[]>>
 }
 
 /**
  * Bloque de información del PDP estilo mock: tabs + iconos de features.
  * Descripción y características con datos reales; resto MOCK visual.
  */
-export function ProductTabs({ description, characteristics }: ProductTabsProps) {
+export function ProductTabs({ description, characteristics, editorial }: ProductTabsProps) {
   const tabs = [
     { id: 'descripcion', label: 'Descripción' },
     ...(characteristics.length > 0
@@ -23,6 +28,11 @@ export function ProductTabs({ description, characteristics }: ProductTabsProps) 
   ]
   const [active, setActive] = useState('descripcion')
   const mockTab = MOCK_TABS.find((t) => t.id === active)
+  const mockBody = mockTab
+    ? (editorial?.[mockTab.id] && editorial[mockTab.id]!.length > 0
+        ? editorial[mockTab.id]!
+        : mockTab.body)
+    : null
 
   const featureIcons = [
     <svg key="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>,
@@ -69,9 +79,9 @@ export function ProductTabs({ description, characteristics }: ProductTabsProps) 
               </li>
             ))}
           </ul>
-        ) : mockTab ? (
+        ) : mockTab && mockBody ? (
           <div className="space-y-3">
-            {mockTab.body.map((p, i) => (
+            {mockBody.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
           </div>

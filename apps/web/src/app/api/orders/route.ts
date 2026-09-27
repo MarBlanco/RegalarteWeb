@@ -78,6 +78,22 @@ function validate(input: unknown): {
     errors.push({ path: 'mode', message: 'Modo invalido' })
   }
 
+  // Cupón opcional: se acepta el texto y la validez real la decide el
+  // service (fuente única). Vacío = sin cupón.
+  const rawCoupon = body.couponCode
+  let couponCode: string | undefined
+  if (
+    rawCoupon !== undefined &&
+    rawCoupon !== null &&
+    !(typeof rawCoupon === 'string' && rawCoupon.trim() === '')
+  ) {
+    if (typeof rawCoupon !== 'string') {
+      errors.push({ path: 'couponCode', message: 'Cupón inválido' })
+    } else {
+      couponCode = rawCoupon
+    }
+  }
+
   const rawItems = body.items
   if (!Array.isArray(rawItems) || rawItems.length === 0) {
     errors.push({ path: 'items', message: 'Carrito vacio' })
@@ -137,6 +153,7 @@ function validate(input: unknown): {
             : '',
       },
       mode: mode as 'RETAIL' | 'WHOLESALE',
+      ...(couponCode !== undefined ? { couponCode } : {}),
       items: items.map((item) => ({
         id: String(item.id ?? item.productId ?? ''),
         productId: String(item.productId),
@@ -204,7 +221,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         {
           status: 'error',
           message:
-            'Algunos productos de tu carrito ya no están disponibles. Revisá el catálogo e intentá nuevamente.',
+            err.code === 'INVALID_COUPON'
+              ? 'El cupón ingresado no es válido. Revisalo e intentá de nuevo.'
+              : 'Algunos productos de tu carrito ya no están disponibles. Revisá el catálogo e intentá nuevamente.',
         } satisfies CreateOrderResult,
         { status: 409, headers: NO_STORE },
       )

@@ -11,6 +11,7 @@ export const Products: CollectionConfig = {
       'category',
       'price',
       'stock',
+      'soldOut',
       'isSolistica',
       'isWholesaleAvailable',
       'active',
@@ -180,6 +181,16 @@ export const Products: CollectionConfig = {
       hasMany: false,
       required: true,
       label: 'Categoría',
+    },
+    {
+      name: 'soldOut',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Agotado',
+      admin: {
+        description:
+          'El producto sigue visible en catálogo y PDP pero no se puede comprar.',
+      },
     },
     {
       name: 'tags',
