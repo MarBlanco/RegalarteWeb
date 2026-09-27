@@ -1,0 +1,111 @@
+# CodeRabbit configuration for RegalarteWeb
+# Enables automated code review for OSS repository
+
+# Review settings
+review:
+  # Enable auto-review for all PRs
+  auto_review: true
+  
+  # Review profile
+  profile: "standard"
+  
+  # Language-specific settings
+  language:
+    typescript:
+      enabled: true
+    javascript:
+      enabled: true
+    json:
+      enabled: true
+    yaml:
+      enabled: true
+    markdown:
+      enabled: true
+
+  # Review depth
+  depth: "standard"
+  
+  # Auto-approve minor changes (safe changes)
+  auto_approve:
+    - "docs"
+    - "chore"
+    - "style"
+    - "refactor"
+    - "test"
+
+# Files/paths to ignore
+ignore:
+  - "*.md"
+  - "*.txt"
+  - "*.lock"
+  - "*.log"
+  - "dist/**"
+  - "build/**"
+  - ".next/**"
+  - "node_modules/**"
+  - ".vercel/**"
+  - "*.lock"
+  - "*.min.js"
+  - "*.min.css"
+
+# Custom rules
+rules:
+  # Enforce conventional commits
+  commit_message:
+    enabled: true
+    pattern: "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+"
+  
+  # Check for TODO/FIXME comments
+  todo_comments:
+    enabled: true
+    severity: "info"
+  
+  # Check for console.log/debugger statements
+  debug_statements:
+    enabled: true
+    severity: "warning"
+  
+  # Check for hardcoded secrets
+  secrets:
+    enabled: true
+    severity: "error"
+
+# PR size limits
+limits:
+  max_files: 50
+  max_lines_changed: 5000
+
+# Notifications
+notifications:
+  # Notify on new PR
+  on_pr_open: true
+  # Notify on review completion
+  on_review_complete: true
+  # Notify on approval
+  on_approval: true
+
+# Labels to apply automatically
+labels:
+  # Auto-label based on changed files
+  auto_label: true
+  label_mapping:
+    "frontend": ["apps/web/src/components/**", "apps/web/src/app/**"]
+    "backend": ["apps/web/src/lib/**", "apps/web/src/app/api/**"]
+    "database": ["apps/web/src/migrations/**", "apps/web/src/collections/**"]
+    "testing": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
+    "documentation": ["*.md", "docs/**"]
+    "configuration": ["*.config.*", "*.json", "*.yaml", "*.yml"]
+    "ci/cd": [".github/**", "vercel.json", "Dockerfile*"]
+
+# CodeRabbit specific settings
+coderabbit:
+  # Enable auto-review on PR open
+  auto_review_on_open: true
+  # Enable auto-review on push
+  auto_review_on_push: true
+  # Minimum confidence threshold for suggestions
+  confidence_threshold: 0.7
+  # Maximum comments per file
+  max_comments_per_file: 20
+  # Maximum total comments per PR
+  max_total_comments: 50
