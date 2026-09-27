@@ -51,10 +51,8 @@ export type CheckoutFlowDecision =
  *     tocar el factory global.
  *
  * TODO(TICKET-010): Integrar el proveedor de pago (Mercado Pago).
- *   - No hace falta modificar este archivo: el reemplazo se hace en
- *     `lib/payment/index.ts` cambiando la implementacion por defecto.
- *   - Si Mercado Pago requiere parametros (access token, public key,
- *     etc.), pasarlos al factory del provider; el contrato publico
+ *   - `MercadoPagoProvider` ya delega en el backend propio, que crea la
+ *     Order en MP y devuelve el checkout_url. El contrato público
  *     (`PaymentProvider`, `CheckoutFlowDecision`) se mantiene.
  *
  * Restricciones actuales:
@@ -67,6 +65,7 @@ export type CheckoutFlowDecision =
 export async function continueCheckout(
   result: SubmitResult,
   provider: PaymentProvider = getPaymentProvider(),
+  initExtra?: { payerEmail?: string },
 ): Promise<CheckoutFlowDecision> {
   if (result.status !== 'success') {
     return { kind: 'error', reason: 'invalid_submit_result' }
@@ -80,6 +79,7 @@ export async function continueCheckout(
     const init = await provider.initiate({
       orderId: result.orderId,
       redirectUrl: result.redirectUrl,
+      ...(initExtra?.payerEmail ? { payerEmail: initExtra.payerEmail } : {}),
     })
 
     return {

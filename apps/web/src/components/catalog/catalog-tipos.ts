@@ -32,6 +32,10 @@ export interface Tipo {
   count: number
   /** Verdadero cuando el tipo existe en el CMS. */
   real: boolean
+  /** Id de la categoría hija en el CMS (solo tipos reales). */
+  categoryId?: number
+  /** Orden manual en el CMS (solo tipos reales). */
+  sortOrder?: number
 }
 
 export interface MockTipoSeed {
@@ -139,6 +143,8 @@ export function getCategoryTipos(
             : null,
         count: 0,
         real: true,
+        categoryId: c.id,
+        sortOrder: c.sortOrder ?? 0,
       }))
     }
   }

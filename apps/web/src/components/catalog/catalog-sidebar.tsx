@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/format'
+import type { FacetOption, FilterFacets } from '@/lib/catalog'
 import {
-  MOCK_AROMAS,
-  MOCK_PRICE_BOUNDS,
-  MOCK_RITUALES,
-  type MockFilterOption,
-} from './catalog-mock'
+  FilterTagAddButton,
+  FilterTagRowControls,
+} from '@/components/edit-mode/filter-tag-edit-controls'
 
 function SidebarSection({
   title,
@@ -51,62 +50,77 @@ function CheckRow({
   option,
   checked,
   onChange,
+  kind,
 }: {
-  option: MockFilterOption
+  option: FacetOption
   checked: boolean
   onChange: () => void
+  kind: 'aroma' | 'ritual'
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 text-xs text-[#5C4A3D] transition-colors hover:text-[#38271D]">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="h-3.5 w-3.5 shrink-0 rounded-sm accent-[#B85C33]"
-      />
-      {option.color ? (
-        <span
-          aria-hidden="true"
-          className="h-2.5 w-2.5 shrink-0 rounded-full border border-black/10"
-          style={{ backgroundColor: option.color }}
+    <div className="flex items-center gap-1">
+      <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-xs text-[#5C4A3D] transition-colors hover:text-[#38271D]">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onChange}
+          className="h-3.5 w-3.5 shrink-0 rounded-sm accent-[#B85C33]"
         />
-      ) : null}
-      <span className="min-w-0 flex-1 truncate">{option.name}</span>
-      <span className="shrink-0 tabular-nums text-[#9A8A7A]">({option.count})</span>
-    </label>
+        {option.color ? (
+          <span
+            aria-hidden="true"
+            className="h-2.5 w-2.5 shrink-0 rounded-full border border-black/10"
+            style={{ backgroundColor: option.color }}
+          />
+        ) : null}
+        <span className="min-w-0 flex-1 truncate">{option.name}</span>
+        <span className="shrink-0 tabular-nums text-[#9A8A7A]">({option.count})</span>
+      </label>
+      <FilterTagRowControls
+        tag={{ id: option.id, name: option.name, color: option.color }}
+        kind={kind}
+      />
+    </div>
   )
 }
 
 /**
  * Sidebar del catálogo con la estética del mock.
  * Los tipos viven SOLO en el selector horizontal superior; aquí van
- * Buscar, Aroma, Ritual/Momento y Rango de precio. Los filtros se preparan
- * en local y se aplican con el botón (q/tag/minPrice/maxPrice reales).
+ * Buscar, Aroma, Ritual/Momento y Rango de precio.
+ * - Aroma/Ritual: opciones reales (tags kind) con contadores calculados
+ *   desde los productos vinculados; se combinan con AND (?aroma=&ritual=).
+ * - Precio: límites reales del `price` de productos; el filtro usa el
+ *   precio real del producto (minPrice/maxPrice).
+ * Los filtros se preparan en local y se aplican con el botón.
  */
-export function CatalogSidebar() {
+export function CatalogSidebar({ facets }: { facets: FilterFacets }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
+  const bounds = facets.bounds
   const [q, setQ] = useState(() => searchParams.get('q') ?? '')
-  const [tag, setTag] = useState(() => searchParams.get('tag') ?? '')
+  const [aroma, setAroma] = useState(() => searchParams.get('aroma') ?? '')
+  const [ritual, setRitual] = useState(() => searchParams.get('ritual') ?? '')
   const [showAllAromas, setShowAllAromas] = useState(false)
 
   const [minVal, setMinVal] = useState(() =>
-    Number(searchParams.get('minPrice') ?? MOCK_PRICE_BOUNDS.min),
+    Number(searchParams.get('minPrice') ?? bounds.min),
   )
   const [maxVal, setMaxVal] = useState(() =>
-    Number(searchParams.get('maxPrice') ?? MOCK_PRICE_BOUNDS.max),
+    Number(searchParams.get('maxPrice') ?? bounds.max),
   )
   const [front, setFront] = useState<'min' | 'max'>('max')
 
   useEffect(() => {
     setQ(searchParams.get('q') ?? '')
-    setTag(searchParams.get('tag') ?? '')
-    setMinVal(Number(searchParams.get('minPrice') ?? MOCK_PRICE_BOUNDS.min))
-    setMaxVal(Number(searchParams.get('maxPrice') ?? MOCK_PRICE_BOUNDS.max))
-  }, [searchParams])
+    setAroma(searchParams.get('aroma') ?? '')
+    setRitual(searchParams.get('ritual') ?? '')
+    setMinVal(Number(searchParams.get('minPrice') ?? bounds.min))
+    setMaxVal(Number(searchParams.get('maxPrice') ?? bounds.max))
+  }, [searchParams, bounds.min, bounds.max])
 
   function pushParams(next: URLSearchParams) {
     next.delete('page')
@@ -115,8 +129,12 @@ export function CatalogSidebar() {
     })
   }
 
-  function toggleTag(slug: string) {
-    setTag((current) => (current === slug ? '' : slug))
+  function toggleSingle(
+    value: string,
+    set: (v: string) => void,
+    current: string,
+  ) {
+    set(current === value ? '' : value)
   }
 
   function applyFilters(e?: React.FormEvent) {
@@ -127,19 +145,24 @@ export function CatalogSidebar() {
     } else {
       next.delete('q')
     }
-    if (tag) {
-      next.set('tag', tag)
+    if (aroma) {
+      next.set('aroma', aroma)
     } else {
-      next.delete('tag')
+      next.delete('aroma')
     }
-    const lo = Math.max(MOCK_PRICE_BOUNDS.min, Math.min(minVal, maxVal))
-    const hi = Math.min(MOCK_PRICE_BOUNDS.max, Math.max(minVal, maxVal))
-    if (lo <= MOCK_PRICE_BOUNDS.min) {
+    if (ritual) {
+      next.set('ritual', ritual)
+    } else {
+      next.delete('ritual')
+    }
+    const lo = Math.max(bounds.min, Math.min(minVal, maxVal))
+    const hi = Math.min(bounds.max, Math.max(minVal, maxVal))
+    if (lo <= bounds.min) {
       next.delete('minPrice')
     } else {
       next.set('minPrice', String(lo))
     }
-    if (hi >= MOCK_PRICE_BOUNDS.max) {
+    if (hi >= bounds.max) {
       next.delete('maxPrice')
     } else {
       next.set('maxPrice', String(hi))
@@ -149,21 +172,25 @@ export function CatalogSidebar() {
 
   function clearFilters() {
     setQ('')
-    setTag('')
-    setMinVal(MOCK_PRICE_BOUNDS.min)
-    setMaxVal(MOCK_PRICE_BOUNDS.max)
+    setAroma('')
+    setRitual('')
+    setMinVal(bounds.min)
+    setMaxVal(bounds.max)
     const next = new URLSearchParams(searchParams.toString())
     next.delete('q')
-    next.delete('tag')
+    next.delete('aroma')
+    next.delete('ritual')
     next.delete('minPrice')
     next.delete('maxPrice')
     pushParams(next)
   }
 
-  const visibleAromas = showAllAromas ? MOCK_AROMAS : MOCK_AROMAS.slice(0, 5)
-  const range = MOCK_PRICE_BOUNDS.max - MOCK_PRICE_BOUNDS.min
-  const loPct = ((Math.min(minVal, maxVal) - MOCK_PRICE_BOUNDS.min) / range) * 100
-  const hiPct = ((Math.max(minVal, maxVal) - MOCK_PRICE_BOUNDS.min) / range) * 100
+  const visibleAromas = showAllAromas ? facets.aromas : facets.aromas.slice(0, 5)
+  const range = bounds.max - bounds.min
+  const loPct =
+    range > 0 ? ((Math.min(minVal, maxVal) - bounds.min) / range) * 100 : 0
+  const hiPct =
+    range > 0 ? ((Math.max(minVal, maxVal) - bounds.min) / range) * 100 : 0
 
   const thumbCls =
     'pointer-events-none absolute inset-x-0 top-1/2 w-full -translate-y-1/2 appearance-none bg-transparent [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#B85C33] [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#B85C33] [&::-moz-range-thumb]:bg-white'
@@ -195,12 +222,13 @@ export function CatalogSidebar() {
             <CheckRow
               key={opt.slug}
               option={opt}
-              checked={tag === opt.slug}
-              onChange={() => toggleTag(opt.slug)}
+              kind="aroma"
+              checked={aroma === opt.slug}
+              onChange={() => toggleSingle(opt.slug, setAroma, aroma)}
             />
           ))}
         </div>
-        {MOCK_AROMAS.length > 5 ? (
+        {facets.aromas.length > 5 ? (
           <button
             type="button"
             onClick={() => setShowAllAromas((v) => !v)}
@@ -209,19 +237,22 @@ export function CatalogSidebar() {
             {showAllAromas ? 'Ver menos' : 'Ver más'}
           </button>
         ) : null}
+        <FilterTagAddButton kind="aroma" />
       </SidebarSection>
 
       <SidebarSection title="Ritual / Momento">
         <div className="space-y-2">
-          {MOCK_RITUALES.map((opt) => (
+          {facets.rituales.map((opt) => (
             <CheckRow
               key={opt.slug}
               option={opt}
-              checked={tag === opt.slug}
-              onChange={() => toggleTag(opt.slug)}
+              kind="ritual"
+              checked={ritual === opt.slug}
+              onChange={() => toggleSingle(opt.slug, setRitual, ritual)}
             />
           ))}
         </div>
+        <FilterTagAddButton kind="ritual" />
       </SidebarSection>
 
       <SidebarSection title="Rango de precio">
@@ -238,8 +269,8 @@ export function CatalogSidebar() {
             />
             <input
               type="range"
-              min={MOCK_PRICE_BOUNDS.min}
-              max={MOCK_PRICE_BOUNDS.max}
+              min={bounds.min}
+              max={bounds.max}
               step={100}
               value={minVal}
               aria-label="Precio mínimo"
@@ -250,8 +281,8 @@ export function CatalogSidebar() {
             />
             <input
               type="range"
-              min={MOCK_PRICE_BOUNDS.min}
-              max={MOCK_PRICE_BOUNDS.max}
+              min={bounds.min}
+              max={bounds.max}
               step={100}
               value={maxVal}
               aria-label="Precio máximo"
@@ -262,8 +293,8 @@ export function CatalogSidebar() {
             />
           </div>
           <div className="mt-1 flex items-center justify-between text-[11px] tabular-nums text-[#7A6A5D]">
-            <span>{formatPrice(MOCK_PRICE_BOUNDS.min)}</span>
-            <span>{formatPrice(MOCK_PRICE_BOUNDS.max)}</span>
+            <span>{formatPrice(bounds.min)}</span>
+            <span>{formatPrice(bounds.max)}</span>
           </div>
         </div>
       </SidebarSection>

@@ -6,6 +6,21 @@ import { persist } from 'zustand/middleware'
 export type UserRole = 'visitor' | 'retail' | 'wholesale' | 'staff' | 'admin'
 export type CustomerType = 'RETAIL' | 'WHOLESALE'
 
+export interface UserAddress {
+  street?: string
+  number?: string
+  apartment?: string
+  postalCode?: string
+  locality?: string
+  province?: string
+  references?: string
+}
+
+export interface UserExtraAddress extends UserAddress {
+  id?: string
+  label: string
+}
+
 export interface User {
   id: string
   email: string
@@ -15,6 +30,9 @@ export interface User {
   business_name?: string
   cuit?: string
   phone?: string
+  phoneAlt?: string
+  address?: UserAddress | null
+  addresses?: UserExtraAddress[]
   province?: string
   city?: string
   whatsapp?: string

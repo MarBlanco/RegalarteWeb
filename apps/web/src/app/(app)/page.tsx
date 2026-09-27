@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { HomeBody } from '@/components/home/home-body'
 import { HeroSlider } from '@/components/home/hero-slider'
+import { getHomeContent } from '@/lib/home-content'
 
 export const metadata: Metadata = {
   title: 'Inicio',
@@ -11,11 +12,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const content = await getHomeContent()
   return (
     <>
-      <HeroSlider />
-      <HomeBody />
+      <HeroSlider slides={content.heroSlides} />
+      <HomeBody content={content} />
     </>
   )
 }

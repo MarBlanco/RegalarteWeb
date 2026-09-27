@@ -22,13 +22,19 @@ export interface DetailProductInput {
 interface ProductDetailActionsProps {
   product: DetailProductInput
   stock?: number | null
+  /** Agotado manual (staff). Como sin stock: visible, no comprable. */
+  soldOut?: boolean | null
 }
 
 /**
  * Acciones del PDP: stepper de cantidad, CTA terracota y círculo de
  * wishlist. Usa las acciones reales del carrito/wishlist.
  */
-export function ProductDetailActions({ product, stock = null }: ProductDetailActionsProps) {
+export function ProductDetailActions({
+  product,
+  stock = null,
+  soldOut = null,
+}: ProductDetailActionsProps) {
   const addItem = useCartStore((s) => s.addItem)
   const hydrated = useCartStore((s) => s.hydrated)
   const openCart = useCartUIStore((s) => s.open)
@@ -40,7 +46,8 @@ export function ProductDetailActions({ product, stock = null }: ProductDetailAct
   const [justAdded, setJustAdded] = useState(false)
 
   const isOutOfStock =
-    typeof stock === 'number' && Number.isFinite(stock) && stock <= 0
+    soldOut === true ||
+    (typeof stock === 'number' && Number.isFinite(stock) && stock <= 0)
   const stockCap =
     typeof stock === 'number' && Number.isFinite(stock) && stock > 0
       ? stock
@@ -91,8 +98,9 @@ export function ProductDetailActions({ product, stock = null }: ProductDetailAct
 
   return (
     <div className="space-y-3">
-      <div>
-        <span className="text-xs text-[#7A6A5D]">Cantidad</span>
+      {isOutOfStock ? null : (
+        <div>
+          <span className="text-xs text-[#7A6A5D]">Cantidad</span>
         <div className="mt-1.5 inline-flex items-center rounded-md border border-[#E5DDD1] bg-background">
           <button
             type="button"
@@ -120,16 +128,22 @@ export function ProductDetailActions({ product, stock = null }: ProductDetailAct
           </button>
         </div>
       </div>
+      )}
 
       <div className="flex items-center gap-2">
         <Button
           type="button"
           onClick={handleAdd}
           disabled={!hydrated || isOutOfStock}
-          className="h-11 flex-1 rounded-md bg-[#B85C33] text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-[#9E4E2B]"
+          className={cn(
+            'h-11 flex-1 rounded-md text-xs font-semibold uppercase tracking-[0.12em] text-white',
+            isOutOfStock
+              ? 'cursor-not-allowed bg-[#D8D5D0] text-[#8A867F] hover:bg-[#D8D5D0]'
+              : 'bg-[#B85C33] hover:bg-[#9E4E2B]',
+          )}
         >
           {isOutOfStock
-            ? 'Sin stock'
+            ? 'Agotado'
             : justAdded
               ? 'Agregado ✓'
               : 'Agregar al carrito'}

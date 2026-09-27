@@ -222,6 +222,26 @@ export const Orders: CollectionConfig = {
       },
     },
     {
+      name: 'couponCode',
+      type: 'text',
+      required: false,
+      label: 'Cupón',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'discount',
+      type: 'number',
+      required: true,
+      defaultValue: 0,
+      min: 0,
+      label: 'Descuento',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'total',
       type: 'number',
       required: true,

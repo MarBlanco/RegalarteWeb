@@ -50,12 +50,12 @@ export const CUSTOMER_FIELDS: FieldDef[] = [
 
 export const ADDRESS_FIELDS: FieldDef[] = [
   {
-    id: 'address.province',
-    label: 'Provincia',
+    id: 'address.street',
+    label: 'Dirección',
     type: 'text',
-    placeholder: 'Buenos Aires',
+    placeholder: 'Av. Siempre Viva 742',
     required: true,
-    autoComplete: 'address-level1',
+    autoComplete: 'street-address',
   },
   {
     id: 'address.city',
@@ -66,12 +66,12 @@ export const ADDRESS_FIELDS: FieldDef[] = [
     autoComplete: 'address-level2',
   },
   {
-    id: 'address.street',
-    label: 'Dirección',
+    id: 'address.province',
+    label: 'Provincia',
     type: 'text',
-    placeholder: 'Av. Siempre Viva 742',
+    placeholder: 'Buenos Aires',
     required: true,
-    autoComplete: 'street-address',
+    autoComplete: 'address-level1',
   },
   {
     id: 'address.postalCode',

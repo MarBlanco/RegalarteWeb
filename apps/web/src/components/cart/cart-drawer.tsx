@@ -46,10 +46,22 @@ export function CartDrawer({ className }: CartDrawerProps) {
 
   useEffect(() => {
     if (!isOpen) return
-    const prev = document.body.style.overflow
+    // Congela el scroll de la página y guarda la posición exacta para
+    // restaurarla al cerrar sin saltos. El padding compensa la barra de
+    // scroll que desaparece (evita el salto horizontal del contenido).
+    const y = window.scrollY
+    const prevOverflow = document.body.style.overflow
+    const prevPaddingRight = document.body.style.paddingRight
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth
     document.body.style.overflow = 'hidden'
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`
+    }
     return () => {
-      document.body.style.overflow = prev
+      document.body.style.overflow = prevOverflow
+      document.body.style.paddingRight = prevPaddingRight
+      window.scrollTo(0, y)
     }
   }, [isOpen])
 
@@ -75,7 +87,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
         onClick={close}
         className={cn(
           'absolute inset-0 bg-foreground/40 backdrop-blur-sm transition-opacity duration-200',
-          isOpen ? 'opacity-100' : 'opacity-0',
+          isOpen ? 'pointer-events-auto opacity-100' : 'opacity-0',
         )}
         aria-hidden
       />

@@ -9,7 +9,8 @@
     "dev": "npm run dev --workspace=apps/web",
     "build": "npm run build --workspace=apps/web",
     "lint": "npm run lint --workspace=apps/web",
-    "type-check": "npm run type-check --workspace=apps/web"
+    "type-check": "npm run type-check --workspace=apps/web",
+    "sync:content": "npm run sync:content --workspace=apps/web"
   },
   "engines": {
     "node": ">=20.9.0"

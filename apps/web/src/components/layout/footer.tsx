@@ -1,5 +1,6 @@
 ﻿'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,6 +12,29 @@ const ArrowRightIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
     <polyline points="12 5 19 12 5 19" />
   </svg>
 )
+
+// Link a /ayuda#sección. Si ya estamos en /ayuda, evita la navegación
+// silenciosa del router (pushState no dispara hashchange) y actualiza el
+// hash en forma nativa para que el acordeón reaccione con el mismo
+// mecanismo único. Entre páginas, navega normal y el acordeón lee el hash.
+export function AyudaLink({ href, children }: { href: string; children: React.ReactNode }) {
+  function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (typeof window !== 'undefined' && window.location.pathname === '/ayuda') {
+      e.preventDefault()
+      window.location.hash = href.slice(href.indexOf('#') + 1)
+    }
+  }
+  return (
+    <Link
+      href={href}
+      scroll={false}
+      onClick={handleClick}
+      className="text-[13px] sm:text-sm text-[#C4B8A8] hover:text-white transition-colors duration-200"
+    >
+      {children}
+    </Link>
+  )
+}
 
 // Location Pin Icon
 const LocationPinIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
@@ -138,27 +162,34 @@ export function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:grid-cols-[1.2fr_0.8fr_1fr_1.2fr] lg:gap-0 lg:divide-x lg:divide-[#4A3D31]">
             {/* BLOQUE DE MARCA */}
             <div className="flex flex-col items-center text-center lg:pr-8">
-              <div className="w-full max-w-[280px] rounded-xl border border-[#C9A24B]/50 px-6 py-5">
-                <span
-                  aria-hidden="true"
-                  className="block font-serif text-5xl font-semibold leading-none text-[#C9A24B]"
-                >
-                  S
-                </span>
+              <div className="flex w-full max-w-[280px] flex-1 flex-col items-center justify-center rounded-xl border border-[#C9A24B]/50 px-6 py-5">
                 <Link
                   href="/"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   aria-label="Solística - Inicio"
-                  className="mt-1 block font-serif text-xl font-normal uppercase tracking-[0.28em] text-white"
+                  className="group flex flex-col items-center rounded-lg transition-opacity duration-200 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A24B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#2C221E]"
                 >
-                  SOLÍSTICA
+                  <span className="relative block h-12 w-12">
+                    <Image
+                      src="/assets/branding/solistica-logo.webp"
+                      alt=""
+                      fill
+                      sizes="48px"
+                      draggable={false}
+                      className="object-contain select-none"
+                    />
+                  </span>
+                  <span className="mt-1.5 block font-serif text-xl font-normal uppercase tracking-[0.28em] text-white">
+                    SOLÍSTICA
+                  </span>
                 </Link>
                 <p className="mx-auto mt-3 max-w-[220px] text-[13px] leading-relaxed text-[#C4B8A8]">
                   Aromas que transforman tu casa en tu lugar feliz.
                 </p>
-                <div className="mt-3 flex items-center justify-center gap-2 text-[13px] text-[#C4B8A8]">
+                <span className="mt-3 flex items-center justify-center gap-2 text-[13px] text-[#C4B8A8]">
                   <LocationPinIcon className="w-4 h-4 flex-shrink-0 text-[#C9A24B]" />
                   <span>Colón, Entre Ríos · Argentina</span>
-                </div>
+                </span>
               </div>
             </div>
 
@@ -198,12 +229,7 @@ export function Footer() {
                   { href: '/ayuda#contacto', label: 'Contacto' },
                 ].map((link) => (
                   <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-[13px] sm:text-sm text-[#C4B8A8] hover:text-white transition-colors duration-200"
-                    >
-                      {link.label}
-                    </Link>
+                    <AyudaLink href={link.href}>{link.label}</AyudaLink>
                   </li>
                 ))}
               </ul>

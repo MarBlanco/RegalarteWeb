@@ -18,6 +18,7 @@ import type {
 } from '@/lib/orders/types'
 import type { CartItem, CartMode } from '@/lib/cart/types'
 import { useCartStore } from '@/lib/cart/store'
+import { useCouponStore } from './coupon-store'
 
 export type CheckoutSubmitStatus =
   | 'idle'
@@ -66,6 +67,7 @@ export async function submitCheckout(
   const cart = useCartStore.getState()
   const items: CartItem[] = cart.items
   const mode: CartMode = cart.mode
+  const couponCode = useCouponStore.getState().code
 
   if (items.length === 0) {
     return {
@@ -79,6 +81,7 @@ export async function submitCheckout(
     address: values.address,
     notes: values.notes,
     mode,
+    ...(couponCode ? { couponCode } : {}),
     items: items.map((item) => ({
       id: item.id,
       productId: item.productId,

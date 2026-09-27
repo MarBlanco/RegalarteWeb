@@ -101,9 +101,13 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'commerce-settings': CommerceSetting;
+    'home-content': HomeContent;
+    'pdp-content': PdpContent;
   };
   globalsSelect: {
     'commerce-settings': CommerceSettingsSelect<false> | CommerceSettingsSelect<true>;
+    'home-content': HomeContentSelect<false> | HomeContentSelect<true>;
+    'pdp-content': PdpContentSelect<false> | PdpContentSelect<true>;
   };
   locale: null;
   widgets: {
@@ -145,11 +149,43 @@ export interface User {
   customer_type: 'RETAIL' | 'WHOLESALE';
   name: string;
   phone?: string | null;
+  /**
+   * Teléfono alternativo opcional del cliente (Mi cuenta).
+   */
+  phoneAlt?: string | null;
   business_name?: string | null;
   cuit?: string | null;
   province?: string | null;
   city?: string | null;
   whatsapp?: string | null;
+  /**
+   * Dirección principal de entrega (Mi cuenta). Se usa por defecto para futuros envíos.
+   */
+  address?: {
+    street?: string | null;
+    number?: string | null;
+    apartment?: string | null;
+    postalCode?: string | null;
+    locality?: string | null;
+    province?: string | null;
+    references?: string | null;
+  };
+  /**
+   * Direcciones adicionales de entrega (Mi cuenta).
+   */
+  addresses?:
+    | {
+        label: string;
+        street?: string | null;
+        number?: string | null;
+        apartment?: string | null;
+        postalCode?: string | null;
+        locality?: string | null;
+        province?: string | null;
+        references?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -251,6 +287,10 @@ export interface ProductTag {
   id: number;
   name: string;
   slug: string;
+  /**
+   * Aroma y Ritual aparecen como opciones de filtro en el catálogo; General solo como Tipo.
+   */
+  kind: 'aroma' | 'ritual' | 'general';
   description?: string | null;
   color?: string | null;
   icon?: string | null;
@@ -304,6 +344,10 @@ export interface Product {
   isSolistica?: boolean | null;
   sortOrder?: number | null;
   category: number | Category;
+  /**
+   * El producto sigue visible en catálogo y PDP pero no se puede comprar.
+   */
+  soldOut?: boolean | null;
   tags?: (number | ProductTag)[] | null;
   attributes?: (number | ProductAttribute)[] | null;
   images?: (number | ProductImage)[] | null;
@@ -417,6 +461,8 @@ export interface Order {
   }[];
   subtotal: number;
   shipping: number;
+  couponCode?: string | null;
+  discount: number;
   total: number;
   /**
    * Completado por el provider tras la inicialización del pago.
@@ -536,11 +582,36 @@ export interface UsersSelect<T extends boolean = true> {
   customer_type?: T;
   name?: T;
   phone?: T;
+  phoneAlt?: T;
   business_name?: T;
   cuit?: T;
   province?: T;
   city?: T;
   whatsapp?: T;
+  address?:
+    | T
+    | {
+        street?: T;
+        number?: T;
+        apartment?: T;
+        postalCode?: T;
+        locality?: T;
+        province?: T;
+        references?: T;
+      };
+  addresses?:
+    | T
+    | {
+        label?: T;
+        street?: T;
+        number?: T;
+        apartment?: T;
+        postalCode?: T;
+        locality?: T;
+        province?: T;
+        references?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -645,6 +716,7 @@ export interface CategoriesSelect<T extends boolean = true> {
 export interface ProductTagsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
+  kind?: T;
   description?: T;
   color?: T;
   icon?: T;
@@ -675,6 +747,7 @@ export interface ProductsSelect<T extends boolean = true> {
   isSolistica?: T;
   sortOrder?: T;
   category?: T;
+  soldOut?: T;
   tags?: T;
   attributes?: T;
   images?: T;
@@ -798,6 +871,8 @@ export interface OrdersSelect<T extends boolean = true> {
       };
   subtotal?: T;
   shipping?: T;
+  couponCode?: T;
+  discount?: T;
   total?: T;
   paymentProvider?: T;
   paymentExternalId?: T;
@@ -864,12 +939,134 @@ export interface CommerceSetting {
   createdAt?: string | null;
 }
 /**
+ * Textos e imágenes comerciales de la Home (Modo Edición Guale). Modificable únicamente por admin y staff.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-content".
+ */
+export interface HomeContent {
+  id: number;
+  /**
+   * Imagen, título, descripción y texto del botón de cada slide.
+   */
+  heroSlides?:
+    | {
+        image: string;
+        title: string;
+        description?: string | null;
+        /**
+         * Vacío = texto derivado de la categoría ("EXPLORAR ...").
+         */
+        ctaText?: string | null;
+        category: 'velas' | 'aromas' | 'wax-melts' | 'quemadores' | 'packs' | 'regalarte';
+        id?: string | null;
+      }[]
+    | null;
+  intro?: {
+    title?: string | null;
+    description?: string | null;
+  };
+  /**
+   * Títulos y textos de la tira de beneficios de la Home.
+   */
+  benefits?:
+    | {
+        icon: 'shipping' | 'packaging' | 'payment' | 'leaf' | 'support';
+        title: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Título y texto comercial de cada sección de la Home.
+   */
+  sections?:
+    | {
+        categorySlug: 'velas' | 'aromas' | 'wax-melts' | 'quemadores' | 'packs' | 'regalarte';
+        title: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Textos editoriales de las pestañas del PDP (Modo Edición Guale). Modificable únicamente por admin y staff.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pdp-content".
+ */
+export interface PdpContent {
+  id: number;
+  comoUsar?: string | null;
+  detalles?: string | null;
+  gifting?: string | null;
+  faq?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "commerce-settings_select".
  */
 export interface CommerceSettingsSelect<T extends boolean = true> {
   wholesale_enabled?: T;
   minimum_wholesale_order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-content_select".
+ */
+export interface HomeContentSelect<T extends boolean = true> {
+  heroSlides?:
+    | T
+    | {
+        image?: T;
+        title?: T;
+        description?: T;
+        ctaText?: T;
+        category?: T;
+        id?: T;
+      };
+  intro?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  benefits?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  sections?:
+    | T
+    | {
+        categorySlug?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pdp-content_select".
+ */
+export interface PdpContentSelect<T extends boolean = true> {
+  comoUsar?: T;
+  detalles?: T;
+  gifting?: T;
+  faq?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

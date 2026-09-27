@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { validateCheckoutForm, fieldErrorsToMessage } from '@/lib/checkout/validation'
+import { validateCheckoutForm, fieldErrorsToMessage } from
+'@/lib/checkout/validation'
+import { ADDRESS_FIELDS } from '@/lib/checkout/fields'
 import type { CheckoutFormValues } from '@/lib/checkout/types'
 
 const makeValidForm = (overrides: Partial<CheckoutFormValues> = {}): CheckoutFormValues => ({
@@ -117,5 +119,16 @@ describe('Checkout Validation', () => {
     it('returns default message for empty errors', () => {
       expect(fieldErrorsToMessage({})).toBe('Revisá los datos antes de continuar.')
     })
+  })
+})
+
+describe('Dirección de envío — orden de filas', () => {
+  it('Fila 1: Dirección, Ciudad. Fila 2: Provincia, Código postal', () => {
+    expect(ADDRESS_FIELDS.map((f) => f.id)).toEqual([
+      'address.street',
+      'address.city',
+      'address.province',
+      'address.postalCode',
+    ])
   })
 })

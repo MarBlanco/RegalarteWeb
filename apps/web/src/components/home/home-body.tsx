@@ -13,6 +13,19 @@ import {
 } from '@/components/catalog/catalog-tipos'
 import { formatPrice } from '@/lib/format'
 import type { ProductTag } from '@/payload-types'
+import { BenefitsBlock } from '@/components/catalog/benefits-block'
+import {
+  BenefitEditButton,
+  IntroEditButton,
+  SectionEditButton,
+  type BenefitInput,
+  type SectionMetaInput,
+} from '@/components/edit-mode/home-edit-controls'
+import { ProductEditButton } from '@/components/edit-mode/product-edit-modal'
+import {
+  DEFAULT_HOME_CONTENT,
+  type HomeContentData,
+} from '@/lib/home-content'
 
 export function SunEmblem({ className = 'w-6 h-6' }: { className?: string }) {
   return (
@@ -124,23 +137,30 @@ async function getShowcaseProducts(
 export function CategoryProductCard({ product }: { product: HomeShowcaseProduct }) {
   return (
     <div className="group flex flex-col">
-      <Link href={`/catalogo/${product.slug}`} className="block">
-        <span className="relative block aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#EDE6DC]">
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={product.imageAlt}
-              fill
-              sizes="(min-width: 1024px) 22vw, (min-width: 640px) 35vw, 45vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-            />
-          ) : (
-            <span className="flex h-full w-full items-center justify-center text-xs text-[#9A8A7A]">
-              Sin imagen
-            </span>
-          )}
-        </span>
-      </Link>
+      <div className="relative">
+        <Link href={`/catalogo/${product.slug}`} className="block">
+          <span className="relative block aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#EDE6DC]">
+            {product.imageUrl ? (
+              <Image
+                src={product.imageUrl}
+                alt={product.imageAlt}
+                fill
+                sizes="(min-width: 1024px) 22vw, (min-width: 640px) 35vw, 45vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center text-xs text-[#9A8A7A]">
+                Sin imagen
+              </span>
+            )}
+          </span>
+        </Link>
+        <ProductEditButton
+          productId={product.id}
+          slug={product.slug}
+          className="absolute left-2 top-2"
+        />
+      </div>
       <div className="mt-2 flex flex-col text-left">
         <Link href={`/catalogo/${product.slug}`}>
           <h3 className="font-serif text-[14px] sm:text-[15px] font-normal text-[#38271D] group-hover:text-[#C45A37] transition-colors leading-snug">
@@ -165,18 +185,29 @@ export function CategoryProductCard({ product }: { product: HomeShowcaseProduct 
 export function HomeCategorySection({
   meta,
   products,
+  editSections,
 }: {
   meta: HomeCategoryMeta
   products: HomeShowcaseProduct[]
+  /** Metas editables (Modo Edición). Si se omite, no hay botón Editar. */
+  editSections?: SectionMetaInput[]
 }) {
   return (
     <section className="py-6 sm:py-8 px-4 sm:px-6 lg:px-12 max-w-[1440px] mx-auto">
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {/* Left Column - Category Summary */}
         <div className="w-full lg:w-[180px] xl:w-[200px] flex-shrink-0 flex flex-col items-start text-left lg:pt-1">
-          <h2 className="font-serif text-xl sm:text-2xl font-normal uppercase tracking-wider text-[#38271D]">
-            {meta.title}
-          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-serif text-xl sm:text-2xl font-normal uppercase tracking-wider text-[#38271D]">
+              {meta.title}
+            </h2>
+            {editSections ? (
+              <SectionEditButton
+                sections={editSections}
+                categorySlug={meta.categorySlug}
+              />
+            ) : null}
+          </div>
           <DecorativeDivider className="my-2.5" />
           <p className="text-[13px] sm:text-sm text-[#7A6A5D] leading-relaxed">
             {meta.description}
@@ -227,7 +258,11 @@ export function EditorialSeparator({
   )
 }
 
-export async function HomeBody() {
+export async function HomeBody({
+  content = DEFAULT_HOME_CONTENT,
+}: {
+  content?: HomeContentData
+}) {
   const categories = await fetchCategories().catch(() => [])
   const sections = await Promise.all(
     CATEGORIES_META.map(async (meta) => {
@@ -236,35 +271,64 @@ export async function HomeBody() {
       const products = tipo
         ? await getShowcaseProducts(meta.categorySlug, tipo, 4)
         : []
-      return { meta, products }
+      const override = content.sections.find(
+        (s) => s.categorySlug === meta.categorySlug,
+      )
+      return {
+        meta: override
+          ? { ...meta, title: override.title, description: override.description }
+          : meta,
+        products,
+      }
     }),
   )
 
+  const editSections: SectionMetaInput[] = content.sections.map((s) => ({
+    categorySlug: s.categorySlug,
+    title: s.title,
+    description: s.description,
+  }))
+  const editBenefits: BenefitInput[] = content.benefits.slice(0, 4).map((b) => ({
+    icon: b.icon,
+    title: b.title,
+    description: b.description,
+  }))
+
   return (
     <div className="w-full bg-[#F9F5F0] text-[#38271D]">
+      {/* Beneficios editables (tira comercial de la Home) */}
+      <BenefitsBlock
+        items={editBenefits}
+        renderEdit={(index) => (
+          <BenefitEditButton benefits={editBenefits} index={index} />
+        )}
+      />
+
       {/* Intro Section below Hero */}
       <section className="py-8 sm:py-10 text-center px-4 max-w-4xl mx-auto">
         <div className="flex justify-center mb-2">
           <SunEmblem className="w-6 h-6 text-[#C45A37]" />
         </div>
-        <h2 className="font-serif text-2xl sm:text-3xl font-normal text-[#38271D] leading-snug tracking-tight">
-          Aromas que transforman lo cotidiano.
-        </h2>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <h2 className="font-serif text-2xl sm:text-3xl font-normal text-[#38271D] leading-snug tracking-tight">
+            {content.intro.title}
+          </h2>
+          <IntroEditButton intro={content.intro} />
+        </div>
         <DecorativeDivider className="my-3 justify-center mx-auto" />
         <p className="text-[13px] sm:text-sm text-[#7A6A5D] font-normal max-w-2xl mx-auto">
-          Pequeños rituales para disfrutar, regalar y hacer de tu hogar un
-          lugar especial.
+          {content.intro.description}
         </p>
       </section>
 
       {/* Category 1: VELAS */}
-      <HomeCategorySection meta={sections[0].meta} products={sections[0].products} />
+      <HomeCategorySection meta={sections[0].meta} products={sections[0].products} editSections={editSections} />
 
       {/* Editorial Separator 1 */}
       <EditorialSeparator title="Una luz encendida cambia el momento." />
 
       {/* Category 2: AROMAS */}
-      <HomeCategorySection meta={sections[1].meta} products={sections[1].products} />
+      <HomeCategorySection meta={sections[1].meta} products={sections[1].products} editSections={editSections} />
 
       {/* Editorial Separator 2 */}
       <EditorialSeparator
@@ -273,13 +337,13 @@ export async function HomeBody() {
       />
 
       {/* Category 3: WAX-MELTS */}
-      <HomeCategorySection meta={sections[2].meta} products={sections[2].products} />
+      <HomeCategorySection meta={sections[2].meta} products={sections[2].products} editSections={editSections} />
 
       {/* Editorial Separator 3 */}
       <EditorialSeparator title="El ritual empieza cuando encendés." />
 
       {/* Category 4: QUEMADORES */}
-      <HomeCategorySection meta={sections[3].meta} products={sections[3].products} />
+      <HomeCategorySection meta={sections[3].meta} products={sections[3].products} editSections={editSections} />
 
       {/* Editorial Separator 4 */}
       <EditorialSeparator
@@ -288,13 +352,13 @@ export async function HomeBody() {
       />
 
       {/* Category 5: PACKS */}
-      <HomeCategorySection meta={sections[4].meta} products={sections[4].products} />
+      <HomeCategorySection meta={sections[4].meta} products={sections[4].products} editSections={editSections} />
 
       {/* Editorial Separator 5 */}
       <EditorialSeparator title="Y cuando el aroma se convierte en regalo..." />
 
       {/* Category 6: REGALARTE */}
-      <HomeCategorySection meta={sections[5].meta} products={sections[5].products} />
+      <HomeCategorySection meta={sections[5].meta} products={sections[5].products} editSections={editSections} />
     </div>
   )
 }

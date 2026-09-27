@@ -8,9 +8,9 @@
  * `id` (variante), `productId` y `quantity`; identidad y precios provienen
  * de la DB.
  *
- * Se rechaza la orden (OrderRejectedError) si el producto no existe o no
- * esta activo, evitando crear ordenes de productos inexistentes o
- * despublicados.
+ * Se rechaza la orden (OrderRejectedError) si el producto no existe, no
+ * esta activo o no esta comprable (agotado manual o sin stock), evitando
+ * crear ordenes de productos inexistentes, despublicados o agotados.
  */
 
 import { resolveUnitPrice } from '@/lib/cart/pricing'
@@ -35,10 +35,18 @@ export interface ProductPricingSource {
   wholesalePrice?: number | null
   isWholesaleAvailable?: boolean | null
   active?: boolean | null
+  soldOut?: boolean | null
+  stock?: number | null
 }
 
 /** Error tipado para productos no disponibles. El route handler lo traduce a HTTP. */
-export class OrderRejectedError extends Error {}
+export class OrderRejectedError extends Error {
+  code: string
+  constructor(message: string, code = 'UNAVAILABLE') {
+    super(message)
+    this.code = code
+  }
+}
 
 export function parseProductId(productId: string): number {
   const n = Number.parseInt(productId, 10)
@@ -78,7 +86,14 @@ export function buildLinesFromProducts(
     const productId = parseProductId(item.productId)
     const product = productsById.get(productId)
 
-    if (!product || product.active === false) {
+    if (
+      !product ||
+      product.active === false ||
+      product.soldOut === true ||
+      (typeof product.stock === 'number' &&
+        Number.isFinite(product.stock) &&
+        product.stock <= 0)
+    ) {
       throw new OrderRejectedError(
         `Producto no disponible (id=${item.productId})`,
       )
@@ -99,13 +114,21 @@ export function buildLinesFromProducts(
   })
 }
 
-export function buildTotals(lines: ReadonlyArray<OrderItemLine>): OrderTotals {
+export function buildTotals(
+  lines: ReadonlyArray<OrderItemLine>,
+  discount = 0,
+): OrderTotals {
   const subtotal = roundMoney(
     lines.reduce((acc, line) => acc + line.lineTotal, 0),
+  )
+  const safeDiscount = Math.min(
+    subtotal,
+    Math.max(0, Number.isFinite(discount) ? discount : 0),
   )
   return {
     subtotal,
     shipping: 0,
-    total: subtotal,
+    discount: roundMoney(safeDiscount),
+    total: roundMoney(subtotal - safeDiscount),
   }
 }

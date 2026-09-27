@@ -7,8 +7,8 @@
  *  - calcular totales server-side desde PRECIOS DE LA DB (AUDIT-004):
  *    el payload del cliente solo aporta carrito (productId + quantity);
  *    identidad, precio unitario y totales se resuelven consultando
- *    Products en Payload. Se rechaza la orden si el producto no existe
- *    o no esta activo.
+ *    Products en Payload. Se rechaza la orden si el producto no existe,
+ *    no esta activo o no esta comprable (agotado).
  *  - persistir via `payload.create`.
  *
  * El service NO se llama desde el cliente. Solo desde
@@ -30,6 +30,7 @@ import {
   parseProductId,
   type ProductPricingSource,
 } from './lines'
+import { couponDiscount, getCoupon } from './coupons'
 
 function buildOrderNumber(now: Date): string {
   const year = now.getUTCFullYear()
@@ -66,9 +67,17 @@ export async function createOrder(
     throw new OrderRejectedError('Carrito sin productos validos')
   }
 
+  // El cupón se valida acá (autoridad): el cliente solo sugiere el código.
+  const coupon = input.couponCode ? getCoupon(input.couponCode) : null
+  if (input.couponCode && !coupon) {
+    throw new OrderRejectedError('Cupón inválido', 'INVALID_COUPON')
+  }
+
   const productsById = await loadProducts(ids)
   const lines = buildLinesFromProducts(input, productsById)
-  const totals = buildTotals(lines)
+  const subtotal = buildTotals(lines).subtotal
+  const discount = coupon ? couponDiscount(subtotal, coupon) : 0
+  const totals = buildTotals(lines, discount)
 
   const payload = await getPayload({ config })
 
@@ -91,6 +100,8 @@ export async function createOrder(
       })),
       subtotal: totals.subtotal,
       shipping: totals.shipping,
+      couponCode: coupon ? coupon.code : null,
+      discount: totals.discount,
       total: totals.total,
     },
     depth: 0,

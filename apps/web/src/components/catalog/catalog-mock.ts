@@ -103,42 +103,4 @@ export function mockDetailImages(title: string): {
   }))
 }
 
-/** Grupos de filtros del mock (conteos ilustrativos, no del CMS). */
-export interface MockFilterOption {
-  slug: string
-  name: string
-  count: number
-  color?: string
-}
-
-export const MOCK_TIPO_DE_VELA: MockFilterOption[] = [
-  { slug: 'vela-clasica', name: 'Vela Clásica', count: 48 },
-  { slug: 'vela-bubble', name: 'Vela Bubble', count: 18 },
-  { slug: 'vela-en-lata', name: 'Vela en Lata', count: 26 },
-  { slug: 'vela-de-soja', name: 'Vela de Soja', count: 24 },
-  { slug: 'sets-regalos', name: 'Sets & Regalos', count: 16 },
-]
-
-export const MOCK_AROMAS: MockFilterOption[] = [
-  { slug: 'vainilla', name: 'Vainilla', count: 28, color: '#E9C893' },
-  { slug: 'ambar', name: 'Ámbar', count: 22, color: '#C47A2B' },
-  { slug: 'sandalo', name: 'Sándalo', count: 18, color: '#A5714B' },
-  { slug: 'lavanda', name: 'Lavanda', count: 20, color: '#B49BC7' },
-  { slug: 'citrico', name: 'Cítrico', count: 16, color: '#E3C565' },
-  { slug: 'naranja', name: 'Naranja', count: 12, color: '#D98E3B' },
-  { slug: 'romero', name: 'Romero', count: 9, color: '#7D8F5A' },
-  { slug: 'cuero', name: 'Cuero', count: 7, color: '#6B4A2F' },
-]
-
-export const MOCK_RITUALES: MockFilterOption[] = [
-  { slug: 'relajacion', name: 'Relajación', count: 32 },
-  { slug: 'energia', name: 'Energía', count: 18 },
-  { slug: 'meditacion', name: 'Meditación', count: 16 },
-  { slug: 'descanso', name: 'Descanso', count: 28 },
-  { slug: 'bienestar', name: 'Bienestar', count: 22 },
-]
-
-/** Rango del slider del mock (ilustrativo). */
-export const MOCK_PRICE_BOUNDS = { min: 8900, max: 89900 }
-
 export const MOCK_STOCK_COUNT = 132

@@ -21,6 +21,8 @@
 export interface PaymentInitInput {
   orderId?: string
   redirectUrl?: string
+  /** Email del comprador (lo usa MP para prefill y el backend para validar). */
+  payerEmail?: string
 }
 
 /**

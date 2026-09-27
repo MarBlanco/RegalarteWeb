@@ -1,9 +1,11 @@
 'use client'
 
+import { Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { CartTrigger } from '@/components/cart/cart-trigger'
+import { AccountMenu } from '@/components/layout/account-menu'
 
 export const navLinks: Array<{ href: string; label: string; category: string | null; accent?: boolean }> = [
   { href: '/', label: 'Inicio', category: null },
@@ -77,23 +79,13 @@ function HeaderIcons() {
           <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
         </svg>
       </Link>
-      <Link href="/profile" className={iconBtn} aria-label="Mi cuenta">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px] sm:h-5 sm:w-5">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />
-        </svg>
-      </Link>
+      <AccountMenu />
       <CartTrigger />
     </div>
   )
 }
 
 export function Header() {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const currentCategory = searchParams.get('category') ?? ''
-  const onCatalog = pathname.startsWith('/catalogo')
-
   return (
     <>
       {/* Barra superior */}
@@ -128,7 +120,7 @@ export function Header() {
                 fill
                 sizes="44px"
                 draggable={false}
-                className="object-contain mix-blend-multiply contrast-[1.25] saturate-[1.5] select-none"
+                className="object-contain bg-transparent select-none"
               />
             </span>
             <span className="font-serif text-[11px] font-medium uppercase leading-none tracking-[0.24em] text-[#38271D] md:text-xs">
@@ -136,63 +128,123 @@ export function Header() {
             </span>
           </Link>
 
-          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-5 lg:flex lg:gap-7" aria-label="Navegación principal">
-            {navLinks.map((link) => {
-              const active =
-                link.category === null
-                  ? pathname === '/'
-                  : onCatalog && currentCategory === link.category
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  aria-current={active ? 'page' : undefined}
-                  className={`flex items-center gap-1 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors hover:text-[#C45A37] ${
-                    active
-                      ? 'text-[#A15C38] underline decoration-[#C45A37] decoration-1 underline-offset-[6px]'
-                      : link.accent
-                        ? 'text-[#C45A37]'
-                        : 'text-[#38271D]'
-                  }`}
-                >
-                  {link.accent ? giftIcon : null}
-                  {link.label}
-                </Link>
-              )
-            })}
-          </nav>
+          <Suspense fallback={<HeaderNavDesktopFallback />}>
+            <HeaderNavDesktop />
+          </Suspense>
 
           <HeaderIcons />
         </div>
 
         {/* Navegación mobile: scroll horizontal */}
-        <nav className="flex items-center gap-5 overflow-x-auto border-t border-[#E5DDD1]/60 px-4 py-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden" aria-label="Navegación principal móvil">
-          {navLinks.map((link) => {
-            const active =
-              link.category === null
-                ? pathname === '/'
-                : onCatalog && currentCategory === link.category
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={active ? 'page' : undefined}
-                className={`flex shrink-0 items-center gap-1 whitespace-nowrap py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${
-                  active
-                    ? 'text-[#A15C38] underline decoration-[#C45A37] decoration-1 underline-offset-4'
-                    : link.accent
-                      ? 'text-[#C45A37]'
-                      : 'text-[#38271D]'
-                }`}
-              >
-                {link.accent ? giftIcon : null}
-                {link.label}
-              </Link>
-            )
-          })}
-          <span className="w-px shrink-0" aria-hidden="true" />
-        </nav>
+        <Suspense fallback={<HeaderNavMobileFallback />}>
+          <HeaderNavMobile />
+        </Suspense>
       </header>
     </>
+  )
+}
+
+/**
+ * Enlaces de navegación (desktop + mobile). Recibe pathname/categoría por
+ * props para que el fallback estático del Suspense reutilice el mismo
+ * render sin hooks (el resaltado activo se hidrata en cliente).
+ */
+function NavLinks({
+  pathname,
+  currentCategory,
+  mobile,
+}: {
+  pathname: string
+  currentCategory: string
+  mobile: boolean
+}) {
+  const onCatalog = pathname.startsWith('/catalogo')
+  return (
+    <>
+      {navLinks.map((link) => {
+        const active =
+          link.category === null
+            ? pathname === '/'
+            : onCatalog && currentCategory === link.category
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            aria-current={active ? 'page' : undefined}
+            className={
+              mobile
+                ? `flex shrink-0 items-center gap-1 whitespace-nowrap py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                    active
+                      ? 'text-[#A15C38] underline decoration-[#C45A37] decoration-1 underline-offset-4'
+                      : link.accent
+                        ? 'text-[#C45A37]'
+                        : 'text-[#38271D]'
+                  }`
+                : `flex items-center gap-1 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors hover:text-[#C45A37] ${
+                    active
+                      ? 'text-[#A15C38] underline decoration-[#C45A37] decoration-1 underline-offset-[6px]'
+                      : link.accent
+                        ? 'text-[#C45A37]'
+                        : 'text-[#38271D]'
+                  }`
+            }
+          >
+            {link.accent ? giftIcon : null}
+            {link.label}
+          </Link>
+        )
+      })}
+    </>
+  )
+}
+
+const DESKTOP_NAV_CLS =
+  'hidden min-w-0 flex-1 items-center justify-center gap-5 lg:flex lg:gap-7'
+const MOBILE_NAV_CLS =
+  'flex items-center gap-5 overflow-x-auto border-t border-[#E5DDD1]/60 px-4 py-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden'
+
+function HeaderNavDesktop() {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  return (
+    <nav className={DESKTOP_NAV_CLS} aria-label="Navegación principal">
+      <NavLinks
+        pathname={pathname}
+        currentCategory={searchParams.get('category') ?? ''}
+        mobile={false}
+      />
+    </nav>
+  )
+}
+
+function HeaderNavDesktopFallback() {
+  return (
+    <nav className={DESKTOP_NAV_CLS} aria-label="Navegación principal" aria-hidden="true">
+      <NavLinks pathname="" currentCategory="" mobile={false} />
+    </nav>
+  )
+}
+
+function HeaderNavMobile() {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  return (
+    <nav className={MOBILE_NAV_CLS} aria-label="Navegación principal móvil">
+      <NavLinks
+        pathname={pathname}
+        currentCategory={searchParams.get('category') ?? ''}
+        mobile
+      />
+      <span className="w-px shrink-0" aria-hidden="true" />
+    </nav>
+  )
+}
+
+function HeaderNavMobileFallback() {
+  return (
+    <nav className={MOBILE_NAV_CLS} aria-label="Navegación principal móvil" aria-hidden="true">
+      <NavLinks pathname="" currentCategory="" mobile />
+      <span className="w-px shrink-0" aria-hidden="true" />
+    </nav>
   )
 }

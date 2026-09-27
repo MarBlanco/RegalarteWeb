@@ -1,33 +1,16 @@
 /**
- * Payment: implementacion estructural de MercadoPagoProvider.
+ * Payment: MercadoPagoProvider REAL (Checkout Pro vía Orders API).
  *
- * Esta clase cumple la interfaz `PaymentProvider` y esta lista para ser
- * inyectada en lugar de `MockPaymentProvider`. Su cuerpo sigue siendo
- * un mock temporal: NO usa el SDK oficial, NO hace fetch, NO consume
- * credenciales. Cuando se conecte el proveedor real, solo hay que
- * reescribir el cuerpo de los metodos respetando el contrato publico.
+ * Este provider corre en el BROWSER pero NUNCA toca Mercado Pago
+ * directamente ni maneja secretos: delega en el backend propio
+ * (`/api/payments/mercadopago/*`), que usa el Access Token server-side.
  *
- * TODO(TICKET-010): Reemplazar la simulacion por la integracion real
- * utilizando el endpoint de Orders y el SDK oficial.
- *   1. `initiate`: crear una preference en el backend (TICKET-009) y
- *      devolver `redirectUrl = init_point`, `externalId = preference_id`.
- *      El backend debe orquestar la llamada al SDK de Mercado Pago;
- *      este provider NO debe instanciar el SDK directamente (separacion
- *      de capas: secretos fuera del bundle del cliente).
- *   2. `getStatus`: consultar el estado del pago contra el backend,
- *      que traduce la respuesta del SDK a `PaymentStatus`.
- *   3. `cancel`: cancelar la preference via backend.
- *   4. Mantener la interfaz `PaymentProvider` intacta: ni el flow ni
- *      el UI deben requerir cambios al conectar el provider real.
- *   5. Pasar credenciales / configuracion via el factory del provider,
- *      NO hardcodearlas aqui.
- *
- * Restricciones actuales:
- *   - Sin SDK.
- *   - Sin fetch.
- *   - Sin credenciales / tokens / public keys.
- *   - Sin dependencias adicionales.
- *   - Mismo contrato publico que `MockPaymentProvider`.
+ * - `initiate`: el backend crea la Order en MP y devuelve SOLO el
+ *   checkout_url; el UI redirige ahí (pago 100% fuera de nuestra app).
+ * - `getStatus`: estado normalizado vía backend (sin secretos).
+ * - `cancel`: no soportado desde la app (la orden expira sola en MP o
+ *   se gestiona desde el panel de Mercado Pago). Lanza error explícito:
+ *   jamás simula una cancelación.
  */
 
 import type {
@@ -37,59 +20,85 @@ import type {
   PaymentProvider,
   PaymentStatusResult,
 } from './types'
+import { mapMpStatus } from '@/lib/mercadopago/orders'
 
-const INIT_LATENCY_MS = 800
-const READ_LATENCY_MS = 200
+async function readError(res: Response, fallback: string): Promise<string> {
+  try {
+    const data = (await res.json()) as { error?: unknown }
+    if (typeof data?.error === 'string' && data.error) return data.error
+  } catch {
+    /* cuerpo no-JSON */
+  }
+  return fallback
+}
 
 export class MercadoPagoProvider implements PaymentProvider {
   readonly name = 'mercadopago'
 
-  /**
-   * Inicia un pago contra Mercado Pago.
-   *
-   * Hoy (mock): simula latencia y devuelve una URL dummy.
-   * Real (TICKET-010): el backend crea la preference y devuelve la URL
-   * `init_point` de la wallet / checkout de MP.
-   */
   async initiate(input: PaymentInitInput): Promise<PaymentInitResult> {
-    await new Promise((resolve) => setTimeout(resolve, INIT_LATENCY_MS))
-
-    if (!input.redirectUrl) {
-      throw new Error('MercadoPagoProvider: redirectUrl is required')
+    if (input.orderId === undefined || input.orderId === '') {
+      throw new Error('MercadoPagoProvider: orderId es requerido')
     }
-
-    const externalId = `mp_${input.orderId ?? 'no-order'}_${Date.now()}`
-
+    if (!input.payerEmail) {
+      throw new Error('MercadoPagoProvider: payerEmail es requerido')
+    }
+    let res: Response
+    try {
+      res = await fetch('/api/payments/mercadopago/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: input.orderId, email: input.payerEmail }),
+      })
+    } catch {
+      throw new Error('MercadoPagoProvider: sin conexión con el servidor')
+    }
+    if (!res.ok) {
+      throw new Error(await readError(res, 'No se pudo iniciar el pago'))
+    }
+    const data = (await res.json().catch(() => null)) as {
+      checkoutUrl?: unknown
+      externalId?: unknown
+    } | null
+    if (
+      !data ||
+      typeof data.checkoutUrl !== 'string' ||
+      typeof data.externalId !== 'string'
+    ) {
+      throw new Error('MercadoPagoProvider: respuesta inválida del servidor')
+    }
     return {
       status: 'ready',
-      externalId,
-      redirectUrl: input.redirectUrl,
+      externalId: data.externalId,
+      redirectUrl: data.checkoutUrl,
     }
   }
 
-  /**
-   * Consulta el estado de un pago.
-   *
-   * Hoy (mock): devuelve siempre `pending` despues de una pequena
-   * latencia simulada.
-   * Real (TICKET-010): el backend traduce la respuesta de MP
-   * (`approved`, `pending`, `in_process`, `rejected`, `cancelled`)
-   * a `PaymentStatus`.
-   */
   async getStatus(externalId: string): Promise<PaymentStatusResult> {
-    await new Promise((resolve) => setTimeout(resolve, READ_LATENCY_MS))
-    return { status: 'pending', externalId }
+    let res: Response
+    try {
+      res = await fetch(
+        `/api/payments/mercadopago/orders/${encodeURIComponent(externalId)}`,
+      )
+    } catch {
+      throw new Error('MercadoPagoProvider: sin conexión con el servidor')
+    }
+    if (!res.ok) {
+      throw new Error(await readError(res, 'No se pudo consultar el pago'))
+    }
+    const data = (await res.json().catch(() => null)) as {
+      status?: unknown
+    } | null
+    return {
+      status: mapMpStatus(
+        typeof data?.status === 'string' ? data.status : undefined,
+      ),
+      externalId,
+    }
   }
 
-  /**
-   * Cancela un pago en curso.
-   *
-   * Hoy (mock): devuelve `cancelled` sin tocar nada.
-   * Real (TICKET-010): el backend llama a la API de MP para cancelar
-   * la preference / payment asociado.
-   */
-  async cancel(externalId: string): Promise<PaymentCancelResult> {
-    await new Promise((resolve) => setTimeout(resolve, READ_LATENCY_MS))
-    return { status: 'cancelled', externalId }
+  async cancel(): Promise<PaymentCancelResult> {
+    throw new Error(
+      'MercadoPagoProvider: la cancelación se gestiona desde el panel de Mercado Pago o por expiración de la orden',
+    )
   }
 }

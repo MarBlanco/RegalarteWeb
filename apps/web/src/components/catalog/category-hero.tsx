@@ -16,8 +16,9 @@ export function CategoryHero({ title, description, imageUrl }: CategoryHeroProps
   return (
     <section className="overflow-hidden border-b border-[#EBDFD1] bg-[#FAF5EC]">
       <div className="flex flex-col md:h-[240px] md:flex-row">
-        {/* Contenido izquierdo (~50%) */}
-        <div className="flex w-full flex-col justify-center px-6 py-8 sm:px-10 md:w-1/2 md:py-0 lg:pl-[max(2.5rem,calc((100vw-1400px)/2+2.5rem))] lg:pr-10">
+        {/* Contenido izquierdo (~50%). Eje izquierdo alineado al sistema
+            del sitio: container max-w-[1400px] con gutters px-4 / sm:px-6. */}
+        <div className="flex w-full flex-col justify-center px-4 py-8 sm:px-6 md:w-1/2 md:py-0 lg:pl-[max(1.5rem,calc((100vw-1400px)/2+1.5rem))] lg:pr-10">
           <nav aria-label="Breadcrumb" className="text-xs text-[#9A8A7A]">
             <Link
               href="/"
