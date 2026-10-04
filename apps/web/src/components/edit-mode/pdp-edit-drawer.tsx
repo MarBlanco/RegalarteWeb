@@ -14,6 +14,7 @@ import {
   lexicalToPlainText,
 } from '@/lib/product-edit'
 import type { PdpTabId } from '@/lib/pdp-content'
+import { safeImageSrc } from '@/lib/safe-url'
 
 /**
  * Piloto MODO EDICIÓN en PDP: solo este slug tiene drawer.
@@ -400,7 +401,7 @@ function PdpEditDrawer({
     }
   }
 
-  const mainImage = pending ? pending.url : (images[0]?.url ?? null)
+  const mainImage = safeImageSrc(pending ? pending.url : images[0]?.url) ?? null
 
   return (
     <>
