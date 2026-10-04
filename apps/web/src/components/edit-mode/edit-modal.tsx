@@ -51,7 +51,9 @@ export function ModalShell({
   return (
     <div
       className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-6"
-      onClick={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
       role="presentation"
     >
       <div
@@ -59,7 +61,6 @@ export function ModalShell({
         aria-modal="true"
         aria-label={title}
         className="flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:max-w-lg sm:rounded-2xl"
-        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-[#E5DDD1] px-5 py-4">
           <h2 className="font-serif text-lg font-normal text-[#38271D]">

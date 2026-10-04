@@ -11,6 +11,7 @@ import { ModalShell } from './edit-modal'
 import { PencilIcon } from './edit-button'
 import { notifyProductsChanged } from './api'
 import { isSimpleLexical, lexicalToPlainText } from '@/lib/product-edit'
+import { safeImageSrc } from '@/lib/safe-url'
 
 interface Option {
   id: number
@@ -367,7 +368,7 @@ export function ProductEditModal({
         if (!cancelled) setLoading(false)
       }
     }
-    load()
+    void load()
     return () => {
       cancelled = true
     }
@@ -745,7 +746,7 @@ export function ProductEditModal({
                 <div className="flex items-center gap-3 rounded-md border border-[#E5DDD1] p-2">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={pending.url}
+                    src={safeImageSrc(pending.url)}
                     alt="Vista previa"
                     className="h-16 w-16 rounded-md border border-[#E5DDD1] object-cover"
                   />
