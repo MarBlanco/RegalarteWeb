@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -96,6 +96,8 @@ const HERO_EDIT_FIELDS: EditField[] = [
   { name: 'category', label: 'Categoría destino', type: 'select', options: CATEGORY_OPTIONS },
 ]
 
+const AUTOPLAY_MS = 3000
+
 export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInput[] }) {
   const base = slides.length > 0 ? slides : DEFAULT_SLIDES
   const list: HeroSlide[] = base.map((s, i) => ({
@@ -111,48 +113,19 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
   const router = useRouter()
   const token = useAuth((s) => s.token)
   const [isPlaying, setIsPlaying] = useState(true)
-  const [wasPlayingBeforeFocus, setWasPlayingBeforeFocus] = useState(false)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [hasFocus, setHasFocus] = useState(false)
   const carouselRef = useRef<HTMLElement>(null)
+  const slideCount = list.length
 
-  const startAutoSlide = useCallback(() => {
-    if (intervalRef.current) return
-    intervalRef.current = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % list.length)
-    }, 5000)
-  }, [])
-
-  const stopAutoSlide = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
-    }
-  }, [])
-
-  const handleFocusIn = useCallback(() => {
-    if (isPlaying) {
-      setWasPlayingBeforeFocus(true)
-      stopAutoSlide()
-    }
-  }, [isPlaying, stopAutoSlide])
-
-  const handleFocusOut = useCallback(() => {
-    if (wasPlayingBeforeFocus && isPlaying) {
-      setWasPlayingBeforeFocus(false)
-      startAutoSlide()
-    } else {
-      setWasPlayingBeforeFocus(false)
-    }
-  }, [wasPlayingBeforeFocus, isPlaying, startAutoSlide])
-
+  // Un único timeout por slide: se reprograma al cambiar `current` (auto o manual).
+  // Se pausa con el botón, mientras el foco esté dentro del Hero y durante la edición.
   useEffect(() => {
-    if (isPlaying && !wasPlayingBeforeFocus) {
-      startAutoSlide()
-    } else {
-      stopAutoSlide()
-    }
-    return () => stopAutoSlide()
-  }, [isPlaying, wasPlayingBeforeFocus, startAutoSlide, stopAutoSlide])
+    if (!isPlaying || hasFocus || editing) return
+    const id = setTimeout(() => {
+      setCurrent((prev) => (prev + 1) % slideCount)
+    }, AUTOPLAY_MS)
+    return () => clearTimeout(id)
+  }, [current, isPlaying, hasFocus, editing, slideCount])
 
   const handleIndicatorClick = (index: number) => {
     setCurrent(index)
@@ -172,8 +145,10 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
   return (
     <section
       ref={carouselRef}
-      onFocus={handleFocusIn}
-      onBlur={handleFocusOut}
+      onFocus={() => setHasFocus(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setHasFocus(false)
+      }}
       className="relative h-[560px] w-full overflow-hidden sm:h-[600px] lg:h-[650px] bg-[#2C221E]"
     >
       <AnimatePresence>
@@ -181,8 +156,8 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
           key={current}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1, ease: 'easeInOut' }}
+          exit={{ opacity: 0.99 }}
+          transition={{ duration: 0.8, ease: 'easeInOut' }}
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${activeSlide.image})` }}
         >
