@@ -115,7 +115,7 @@ export default function RegisterPage() {
     <div className="container flex items-center justify-center min-h-[80vh] py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle>Crear cuenta</CardTitle>
+          <CardTitle as="h1">Crear cuenta</CardTitle>
           <CardDescription>
             Registrate para empezar a descubrir regalos
           </CardDescription>

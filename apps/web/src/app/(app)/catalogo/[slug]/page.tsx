@@ -9,14 +9,7 @@ import { RelatedSlider } from '@/components/catalog/related-slider'
 import { BenefitsBlock } from '@/components/catalog/benefits-block'
 import { fetchProductBySlugRaw } from '@/lib/product-by-slug'
 import { fetchProducts } from '@/lib/catalog'
-import {
-  MOCK_BADGES,
-  MOCK_CATEGORY,
-  MOCK_PRODUCTS,
-  mockDetailImages,
-  type MockBadge,
-} from '@/components/catalog/catalog-mock'
-import { mockBadgeForSlug, resolveMockDetail } from '@/components/catalog/catalog-tipos'
+import type { MockBadge } from '@/components/catalog/catalog-mock'
 import type {
   Category,
   Product,
@@ -110,54 +103,15 @@ function buildDetail(product: Product): ProductDetail | null {
   }
 }
 
-/**
- * Detalle para slugs MOCK: misma estructura que el real, construida desde
- * catalog-mock.ts sin tocar el CMS. La categoría representativa es Velas y
- * las notas/tabs usan los fallbacks mock existentes.
- */
-function buildMockDetail(slug: string): (ProductDetail & { mockBadge: string | null }) | null {
-  const resolved = resolveMockDetail(slug)
-  if (!resolved) return null
-  const mock = resolved.product
-  const tagNames = (mock.seoDescription ?? '')
-    .split('·')
-    .map((t) => t.trim())
-    .filter(Boolean)
-  return {
-    ...mock,
-    mockBadge: resolved.badge,
-    imagesDetail: mockDetailImages(mock.title),
-    categoryDetail: { ...MOCK_CATEGORY, parent: null },
-    tagsDetail: tagNames.map((name, i) => ({
-      id: 92000 + i,
-      name,
-      slug: name
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-'),
-    })),
-    attributesDetail: [],
-  }
-}
-
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = (await params) ?? { slug: '' }
-  const mockDetail = buildMockDetail(slug)
-  if (mockDetail) {
-    const title = `${mockDetail.title} · Regalarte`
-    const description =
-      mockDetail.seoDescription ??
-      `Descubrí ${mockDetail.title} en el catálogo de Regalarte.`
-    return { title, description }
-  }
   const result = await fetchProductBySlugRaw(slug)
   const product = result.docs.length > 0 ? buildDetail(result.docs[0]) : null
   if (!product) {
     return {
-      title: 'Producto no encontrado · Regalarte',
+      title: 'Producto no encontrado',
       robots: { index: false, follow: false },
     }
   }
@@ -220,22 +174,18 @@ const PDP_BENEFITS = [
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = (await params) ?? { slug: '' }
-  // Los slugs mock se resuelven en local sin consultar el CMS.
-  let product: ProductDetail | null = buildMockDetail(slug)
+  const result = await fetchProductBySlugRaw(slug)
+  if (result.docs.length === 0) {
+    notFound()
+  }
+  const product = buildDetail(result.docs[0])
   if (!product) {
-    const result = await fetchProductBySlugRaw(slug)
-    if (result.docs.length === 0) {
-      notFound()
-    }
-    product = buildDetail(result.docs[0])
-    if (!product) {
-      notFound()
-    }
-    // Un producto oculto (active=false) no existe para el storefront
-    // (se gestiona desde /admin).
-    if (product.active === false) {
-      notFound()
-    }
+    notFound()
+  }
+  // Un producto oculto (active=false) no existe para el storefront
+  // (se gestiona desde /admin).
+  if (product.active === false) {
+    notFound()
   }
 
   const wholesalePrice =
@@ -282,7 +232,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
     slug: product.slug,
     title: product.title,
     price: product.price,
-    active: product.active !== false,
+    // Un producto con active=false ya devolvió notFound() arriba.
+    active: true,
     seoDescription: product.seoDescription ?? null,
     tagsDetail: product.tagsDetail.map((t) => ({ id: t.id, name: t.name })),
     imagesDetail: galleryImages.map((g) => ({ id: g.id, url: g.url })),
@@ -300,32 +251,23 @@ export default async function ProductDetailPage({ params }: PageProps) {
     },
   }
 
-  // Relacionados: reales de la misma categoría con imagen primero,
-  // mock para completar hasta 8 (sin placeholders "Sin imagen").
+  // Relacionados: solo productos reales de la misma categoría, con imagen
+  // primero. Nunca se completan con productos que no existen en el CMS.
   const relatedCategorySlug = product.categoryDetail?.slug
   const relatedResult = relatedCategorySlug
     ? await fetchProducts({ categorySlug: relatedCategorySlug }, 1, 9).catch(() => null)
     : null
-  const relatedReal = (relatedResult?.docs ?? [])
-    .filter((d) => d.slug !== product.slug && d.featuredImage?.url)
+  const related = (relatedResult?.docs ?? [])
+    .filter((d) => d.slug !== product.slug)
+    .sort(
+      (x, y) =>
+        Number(Boolean(y.featuredImage?.url)) -
+        Number(Boolean(x.featuredImage?.url)),
+    )
     .slice(0, 8)
-  const relatedRealSlugs = new Set(relatedReal.map((d) => d.slug))
-  const related =
-    relatedReal.length >= 8
-      ? relatedReal
-      : [
-          ...relatedReal,
-          ...MOCK_PRODUCTS.filter((m) => !relatedRealSlugs.has(m.slug)).slice(
-            0,
-            8 - relatedReal.length,
-          ),
-        ]
   const relatedBadges: Record<number | string, MockBadge> = {}
   for (const rel of related) {
-    const badge =
-      mockBadgeForSlug(rel.slug, MOCK_BADGES, rel.id) ??
-      (rel.featured ? ('FAVORITO' as const) : null)
-    if (badge) relatedBadges[rel.id] = badge
+    if (rel.featured) relatedBadges[rel.id] = 'FAVORITO'
   }
 
   return (

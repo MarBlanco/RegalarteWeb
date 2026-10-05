@@ -43,7 +43,7 @@ function VerifyContent() {
       <div className="container flex items-center justify-center min-h-[80vh] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle>Verificando email...</CardTitle>
+            <CardTitle as="h1">Verificando email...</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -55,7 +55,7 @@ function VerifyContent() {
       <div className="container flex items-center justify-center min-h-[80vh] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle>Link inválido</CardTitle>
+            <CardTitle as="h1">Link inválido</CardTitle>
             <CardDescription>
               Este link de verificación no es válido o expiró.
             </CardDescription>
@@ -74,7 +74,7 @@ function VerifyContent() {
     <div className="container flex items-center justify-center min-h-[80vh] py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle>Email verificado</CardTitle>
+          <CardTitle as="h1">Email verificado</CardTitle>
           <CardDescription>
             Tu email fue verificado correctamente.
           </CardDescription>
