@@ -163,4 +163,29 @@ describe('Login — errores', () => {
       )
     })
   })
+
+  it('credenciales inválidas muestran el error en español aunque el backend responda en inglés', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        json: async () => ({
+          errors: [{ message: 'The email or password provided is incorrect.' }],
+        }),
+      }),
+    )
+    render(<LoginPage />)
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'a@b.com' },
+    })
+    fireEvent.change(screen.getByLabelText('Contraseña'), {
+      target: { value: 'secret123' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
+    expect(
+      await screen.findByText('Email o contraseña incorrectos'),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/provided is incorrect/)).toBeNull()
+  })
 })

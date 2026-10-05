@@ -73,6 +73,7 @@ export default function LoginPage() {
       const data = await res.json()
 
       if (!res.ok) {
+        if (res.status === 401) throw new Error('Email o contraseña incorrectos')
         throw new Error(data.errors?.[0]?.message || 'Email o contraseña incorrectos')
       }
 
