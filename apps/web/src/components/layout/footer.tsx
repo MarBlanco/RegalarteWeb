@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useAyudaSections, useSocialLinks } from '@/lib/site-content-client'
 
 // Arrow Right Icon for Newsletter
 const ArrowRightIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
@@ -117,6 +118,8 @@ function SocialLink({
 }
 
 export function Footer() {
+  const social = useSocialLinks()
+  const ayudaSections = useAyudaSections()
   return (
     <>
       {/* NEWSLETTER — compacto */}
@@ -221,13 +224,12 @@ export function Footer() {
             <div className="lg:px-8">
               <FooterColumnTitle>AYUDA</FooterColumnTitle>
               <ul className="mt-3 space-y-2">
-                {[
-                  { href: '/ayuda#como-comprar', label: 'Cómo comprar' },
-                  { href: '/ayuda#envios', label: 'Envíos' },
-                  { href: '/ayuda#cambios-devoluciones', label: 'Cambios y devoluciones' },
-                  { href: '/ayuda#preguntas-frecuentes', label: 'Preguntas frecuentes' },
-                  { href: '/ayuda#contacto', label: 'Contacto' },
-                ].map((link) => (
+                {ayudaSections
+                  .map((section) => ({
+                    href: `/ayuda#${section.id}`,
+                    label: section.title,
+                  }))
+                  .map((link) => (
                   <li key={link.href}>
                     <AyudaLink href={link.href}>{link.label}</AyudaLink>
                   </li>
@@ -242,13 +244,13 @@ export function Footer() {
                 Formá parte de nuestra comunidad y descubrí más inspiración.
               </p>
               <div className="mt-4 grid grid-cols-4 gap-2 sm:gap-3">
-                <SocialLink href="https://instagram.com" label="Instagram">
+                <SocialLink href={social.instagram} label="Instagram">
                   <InstagramIcon className="w-5 h-5" />
                 </SocialLink>
-                <SocialLink href="https://tiktok.com" label="TikTok">
+                <SocialLink href={social.tiktok} label="TikTok">
                   <TikTokIcon className="w-5 h-5" />
                 </SocialLink>
-                <SocialLink href="https://facebook.com" label="Facebook">
+                <SocialLink href={social.facebook} label="Facebook">
                   <FacebookIcon className="w-5 h-5" />
                 </SocialLink>
                 <SocialLink href="/ayuda#contacto" label="WhatsApp">

@@ -1,24 +1,33 @@
 /**
- * Envío gratis: umbral ilustrativo para la barra de progreso del carrito.
- * No hay cálculo de envío en backend; el checkout lo confirma. Si el CMS
- * publica un umbral real, reemplazar esta constante por ese valor.
+ * Envío gratis: barra de progreso del carrito. El umbral real es el campo
+ * `free_shipping_threshold` de la configuración de la tienda (editable por
+ * admin); esta constante es el valor por defecto / de respaldo. No hay
+ * cálculo de envío en backend; el checkout lo confirma.
  */
 export const FREE_SHIPPING_THRESHOLD = 105000
 
-export function freeShippingProgress(subtotal: number): {
+/** Umbral válido (> 0) o el de respaldo. */
+export function resolveFreeShippingThreshold(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : FREE_SHIPPING_THRESHOLD
+}
+
+export function freeShippingProgress(
+  subtotal: number,
+  threshold: number = FREE_SHIPPING_THRESHOLD,
+): {
   reached: boolean
   remaining: number
   pct: number
 } {
-  if (subtotal >= FREE_SHIPPING_THRESHOLD) {
+  const limit = resolveFreeShippingThreshold(threshold)
+  if (subtotal >= limit) {
     return { reached: true, remaining: 0, pct: 100 }
   }
   return {
     reached: false,
-    remaining: FREE_SHIPPING_THRESHOLD - subtotal,
-    pct: Math.min(
-      100,
-      Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100),
-    ),
+    remaining: limit - subtotal,
+    pct: Math.min(100, Math.round((subtotal / limit) * 100)),
   }
 }

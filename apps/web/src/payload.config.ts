@@ -1,6 +1,7 @@
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { es } from '@payloadcms/translations/languages/es'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { migrations } from '@/migrations'
@@ -14,7 +15,10 @@ import { Products } from '@/collections/Products'
 import { ProductAttributes } from '@/collections/ProductAttributes'
 import { ProductImages } from '@/collections/ProductImages'
 import { Orders } from '@/collections/Orders'
+import { Coupons } from '@/collections/Coupons'
 import { CommerceSettings } from '@/globals/CommerceSettings'
+import { SiteSettings } from '@/globals/SiteSettings'
+import { AyudaContent } from '@/globals/AyudaContent'
 import { HomeContent } from '@/globals/HomeContent'
 import { PdpContent } from '@/globals/PdpContent'
 
@@ -22,14 +26,19 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  // Panel de administración en español (es el idioma de la tienda).
+  i18n: {
+    supportedLanguages: { es },
+    fallbackLanguage: 'es',
+  },
   admin: {
     user: 'users',
     components: {
       beforeDashboard: ['@/components/admin/dashboard#AdminDashboard'],
     },
   },
-  collections: [Users, Media, Categories, ProductTags, Products, ProductAttributes, ProductImages, Orders],
-  globals: [CommerceSettings, HomeContent, PdpContent],
+  collections: [Users, Media, Categories, ProductTags, Products, ProductAttributes, ProductImages, Orders, Coupons],
+  globals: [CommerceSettings, HomeContent, PdpContent, SiteSettings, AyudaContent],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({

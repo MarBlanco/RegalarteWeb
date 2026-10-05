@@ -23,6 +23,7 @@ import {
 } from '@/lib/cart/ritual-suggestions'
 import type { RitualProduct } from '@/components/cart/ritual-card'
 import { formatPrice } from '@/lib/format'
+import { useFreeShippingThreshold } from '@/lib/site-content-client'
 import { useShallow } from 'zustand/react/shallow'
 
 function TrashIcon({ className = 'h-[18px] w-[18px]' }: { className?: string }) {
@@ -65,7 +66,8 @@ export default function CartPage() {
     setConfirmItem({ id: item.id, name: item.name, image: item.image ?? null })
   }
 
-  const ship = freeShippingProgress(totals.subtotal)
+  const shippingThreshold = useFreeShippingThreshold()
+  const ship = freeShippingProgress(totals.subtotal, shippingThreshold)
   const ritualProducts: RitualProduct[] = buildRitualSuggestions(
     ritualCandidates,
     new Set(items.map((i) => i.slug)),

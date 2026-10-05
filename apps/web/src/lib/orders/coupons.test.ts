@@ -1,31 +1,39 @@
 import { describe, it, expect } from 'vitest'
 import {
   normalizeCouponCode,
-  getCoupon,
+  couponFromDoc,
   couponDiscount,
   couponTotal,
 } from './coupons'
 
-describe('Cupones — normalización y validez', () => {
+describe('Cupones — normalización', () => {
   it('normaliza mayúsculas y espacios', () => {
     expect(normalizeCouponCode('  regalarte10 ')).toBe('REGALARTE10')
     expect(normalizeCouponCode('REGALARTE10')).toBe('REGALARTE10')
     expect(normalizeCouponCode('')).toBe('')
     expect(normalizeCouponCode(null)).toBe('')
   })
+})
 
-  it('resuelve el cupón inicial sin importar el formato', () => {
-    expect(getCoupon('regalarte10')).toMatchObject({
+describe('Cupones — documento de la colección', () => {
+  it('un cupón activo válido se normaliza', () => {
+    expect(couponFromDoc({ code: ' regalarte10 ', percent: 10, active: true })).toEqual({
       code: 'REGALARTE10',
       percent: 10,
     })
-    expect(getCoupon('  REGALARTE10 ')).not.toBeNull()
+    // `active` ausente (default true en la colección) también aplica.
+    expect(couponFromDoc({ code: 'X1', percent: 5 })).toEqual({ code: 'X1', percent: 5 })
   })
 
-  it('código desconocido o vacío es inválido', () => {
-    expect(getCoupon('INEXISTENTE')).toBeNull()
-    expect(getCoupon('')).toBeNull()
-    expect(getCoupon('regalarte10 ' + 'x')).toBeNull()
+  it('inactivo, vacío o con porcentaje inválido no aplica', () => {
+    expect(couponFromDoc({ code: 'X1', percent: 10, active: false })).toBeNull()
+    expect(couponFromDoc({ code: '  ', percent: 10 })).toBeNull()
+    expect(couponFromDoc({ code: 'X1', percent: 0 })).toBeNull()
+    expect(couponFromDoc({ code: 'X1', percent: 101 })).toBeNull()
+    expect(couponFromDoc({ code: 'X1', percent: '10' })).toBeNull()
+    expect(couponFromDoc({ code: 'X1', percent: Number.NaN })).toBeNull()
+    expect(couponFromDoc(null)).toBeNull()
+    expect(couponFromDoc(undefined)).toBeNull()
   })
 })
 

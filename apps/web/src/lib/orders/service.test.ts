@@ -12,10 +12,21 @@ vi.mock('@payload-config', () => ({
 
 const { getPayload } = await import('payload')
 
+const COUPONS: Record<string, { code: string; percent: number; active: boolean }> = {
+  REGALARTE10: { code: 'REGALARTE10', percent: 10, active: true },
+}
+
 function mockPayload() {
   return {
-    find: vi.fn().mockResolvedValue({
-      docs: [{ id: 1, title: 'Vela', slug: 'vela', price: 100, active: true }],
+    find: vi.fn().mockImplementation(({ collection, where }: { collection: string; where: unknown }) => {
+      if (collection === 'coupons') {
+        const code = JSON.stringify(where).match(/"equals":"([^"]+)"/)?.[1] ?? ''
+        const doc = COUPONS[code]
+        return Promise.resolve({ docs: doc ? [doc] : [] })
+      }
+      return Promise.resolve({
+        docs: [{ id: 1, title: 'Vela', slug: 'vela', price: 100, active: true }],
+      })
     }),
     create: vi.fn().mockImplementation(({ data }: { data: object }) =>
       Promise.resolve({ id: 7, ...(data as object) }),
@@ -90,14 +101,16 @@ describe('createOrder — cupón', () => {
     })
   })
 
-  it('cupón inválido rechaza sin tocar la DB', async () => {
+  it('cupón inexistente o inactivo rechaza sin crear la orden', async () => {
     const payload = mockPayload()
     vi.mocked(getPayload).mockResolvedValue(payload as never)
 
     const err = await createOrder(makeInput('TRUCHO')).catch((e) => e)
     expect(err).toBeInstanceOf(OrderRejectedError)
     expect((err as OrderRejectedError).code).toBe('INVALID_COUPON')
-    expect(payload.find).not.toHaveBeenCalled()
+    // Solo se consultó el cupón; ni productos ni creación de la orden.
+    const collections = payload.find.mock.calls.map((c) => c[0].collection)
+    expect(collections).toEqual(['coupons'])
     expect(payload.create).not.toHaveBeenCalled()
   })
 })

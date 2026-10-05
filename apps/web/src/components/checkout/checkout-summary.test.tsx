@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { CheckoutSummary } from './checkout-summary'
 import { useCartStore } from '@/lib/cart'
@@ -31,7 +31,22 @@ const ITEMS = [
   },
 ]
 
+function stubCoupons(valid: Record<string, number>) {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation(async (_url: string, init: { body: string }) => {
+      const code = JSON.parse(init.body).code as string
+      const percent = valid[code]
+      return percent
+        ? { ok: true, json: async () => ({ valid: true, code, percent }) }
+        : { ok: false, json: async () => ({ valid: false }) }
+    }),
+  )
+}
+
 beforeEach(() => {
+  vi.unstubAllGlobals()
+  stubCoupons({ REGALARTE10: 10 })
   useCartStore.setState({ items: ITEMS, mode: 'RETAIL', hydrated: true } as never)
   useCouponStore.getState().clear()
 })
@@ -46,24 +61,24 @@ describe('CheckoutSummary — cupón', () => {
     expect(screen.getAllByText(/19\.000/).length).toBeGreaterThanOrEqual(1)
   })
 
-  it('cupón válido actualiza descuento y total', () => {
+  it('cupón válido actualiza descuento y total', async () => {
     render(<CheckoutSummary />)
     fireEvent.change(screen.getByLabelText('Código de cupón'), {
       target: { value: 'regalarte10' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }))
-    expect(screen.getByText(/Descuento \(REGALARTE10\)/)).toBeInTheDocument()
+    expect(await screen.findByText(/Descuento \(REGALARTE10\)/)).toBeInTheDocument()
     expect(screen.getAllByText(/1\.900/).length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText(/17\.100/).length).toBeGreaterThanOrEqual(1)
   })
 
-  it('cupón inválido muestra error sin tocar el total', () => {
+  it('cupón inválido muestra error sin tocar el total', async () => {
     render(<CheckoutSummary />)
     fireEvent.change(screen.getByLabelText('Código de cupón'), {
       target: { value: 'TRUCHO' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }))
-    expect(screen.getByRole('alert')).toHaveTextContent(/inválido/i)
+    expect(await screen.findByRole('alert')).toHaveTextContent(/inválido/i)
     expect(screen.queryByText(/Descuento/)).toBeNull()
   })
 })

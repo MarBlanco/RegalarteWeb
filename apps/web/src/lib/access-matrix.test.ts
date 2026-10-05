@@ -117,3 +117,34 @@ describe('Matriz de permisos — clientes y anónimos sin edición', () => {
     expect(call(Products.access?.read, null)).toBe(true)
   })
 })
+
+describe('Registro público de clientes', () => {
+  it('cualquiera puede registrarse, pero ninguno puede asignarse un rol', () => {
+    expect(call(Users.access?.create, null)).toBe(true)
+    const roleField = Users.fields.find((f: any) => f.name === 'role') as any
+    expect(call(roleField?.access?.create, null)).toBe(false)
+    expect(call(roleField?.access?.create, retail)).toBe(false)
+    expect(call(roleField?.access?.create, staff)).toBe(false)
+    expect(call(roleField?.access?.create, admin)).toBe(true)
+    expect(roleField?.defaultValue).toBe('retail')
+  })
+})
+
+describe('Usuarios — listado en el panel y aislamiento de datos', () => {
+  it('admin lista y edita a todos los usuarios (sin id)', () => {
+    expect(call(Users.access?.read, admin)).toBe(true)
+    expect(call(Users.access?.update, admin)).toBe(true)
+  })
+
+  it('staff y cliente solo ven/editan su propio documento, también en listados', () => {
+    for (const u of [staff, retail]) {
+      expect(call(Users.access?.read, u)).toEqual({ id: { equals: u.id } })
+      expect(call(Users.access?.update, u)).toEqual({ id: { equals: u.id } })
+    }
+  })
+
+  it('anónimo no lee ni edita usuarios', () => {
+    expect(call(Users.access?.read, null)).toBe(false)
+    expect(call(Users.access?.update, null)).toBe(false)
+  })
+})

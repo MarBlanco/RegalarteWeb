@@ -44,6 +44,18 @@ export const CommerceSettings: GlobalConfig = {
       },
     },
     {
+      name: 'free_shipping_threshold',
+      type: 'number',
+      required: true,
+      defaultValue: 105000,
+      min: 1,
+      label: 'Umbral de envío gratis',
+      admin: {
+        description:
+          'Monto (en ARS) del subtotal desde el cual el carrito muestra el envío gratis. Alimenta la barra de progreso del carrito.',
+      },
+    },
+    {
       name: 'minimum_wholesale_order',
       type: 'number',
       required: true,
