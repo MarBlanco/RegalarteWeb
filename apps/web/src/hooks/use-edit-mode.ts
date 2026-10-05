@@ -29,6 +29,17 @@ export function useIsStaff(): boolean {
 }
 
 /**
+ * ¿El usuario actual es admin? (gate visual del acceso al panel). El control
+ * real es `access.admin` de la colección users en el backend (solo admin).
+ */
+export function useIsAdmin(): boolean {
+  const user = useAuth((s) => s.user)
+  const token = useAuth((s) => s.token)
+  if (!token) return false
+  return user?.role === 'admin'
+}
+
+/**
  * ¿Modo Edición activo? Requiere rol staff/admin, sesión válida y no estar
  * en "ver como cliente". El control de seguridad real está en el backend
  * (`PUT /api/home-content` revalida el JWT y el rol).

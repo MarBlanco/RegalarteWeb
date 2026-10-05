@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 export const ProductTags: CollectionConfig = {
   slug: 'product-tags',
+  labels: { singular: 'Etiqueta de producto', plural: 'Etiquetas de producto' },
   admin: {
     useAsTitle: 'name',
     group: 'Catálogo',

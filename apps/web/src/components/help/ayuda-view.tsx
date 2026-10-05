@@ -2,15 +2,23 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AYUDA_SECTIONS, type AyudaSection } from './ayuda-data'
+import type { AyudaSection } from './ayuda-data'
+import { useAyudaSections, useSocialLinks } from '@/lib/site-content-client'
+import type { SocialLinks } from '@/lib/site-settings'
 
-function sectionFromHash(): string | null {
+function sectionFromHash(sections: readonly AyudaSection[]): string | null {
   if (typeof window === 'undefined') return null
   const id = window.location.hash.replace('#', '')
-  return AYUDA_SECTIONS.some((s) => s.id === id) ? id : null
+  return sections.some((s) => s.id === id) ? id : null
 }
 
-function QueryView({ section }: { section: AyudaSection }) {
+function QueryView({
+  section,
+  social,
+}: {
+  section: AyudaSection
+  social: SocialLinks
+}) {
   return (
     <div>
       <Link
@@ -57,10 +65,10 @@ function QueryView({ section }: { section: AyudaSection }) {
         {section.id === 'contacto' ? (
           <div className="mt-6 flex flex-wrap gap-2">
             {[
-              { label: 'Instagram', href: 'https://instagram.com' },
-              { label: 'TikTok', href: 'https://tiktok.com' },
-              { label: 'Facebook', href: 'https://facebook.com' },
-              { label: 'WhatsApp', href: 'https://wa.me/5491158582146' },
+              { label: 'Instagram', href: social.instagram },
+              { label: 'TikTok', href: social.tiktok },
+              { label: 'Facebook', href: social.facebook },
+              { label: 'WhatsApp', href: social.whatsapp },
             ].map((s) => (
               <Link
                 key={s.label}
@@ -94,7 +102,13 @@ function QueryView({ section }: { section: AyudaSection }) {
   )
 }
 
-function IndexView({ onSelect }: { onSelect: (id: string) => void }) {
+function IndexView({
+  sections,
+  onSelect,
+}: {
+  sections: readonly AyudaSection[]
+  onSelect: (id: string) => void
+}) {
   return (
     <div>
       <header className="text-center">
@@ -113,7 +127,7 @@ function IndexView({ onSelect }: { onSelect: (id: string) => void }) {
 
       <nav aria-label="Temas de ayuda" className="mx-auto mt-8 max-w-2xl">
         <ul className="divide-y divide-[#EBDFD1] overflow-hidden rounded-xl border border-[#EBDFD1] bg-[#FFFDF9]">
-          {AYUDA_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <li key={section.id}>
               <button
                 type="button"
@@ -151,6 +165,8 @@ function IndexView({ onSelect }: { onSelect: (id: string) => void }) {
  * consulta (vía hash). Un solo mecanismo: el hash es la fuente de verdad.
  */
 export function AyudaView() {
+  const sections = useAyudaSections()
+  const social = useSocialLinks()
   const [activeId, setActiveId] = useState<string | null>(null)
 
   const showOnly = useCallback((id: string) => {
@@ -162,7 +178,7 @@ export function AyudaView() {
 
   useEffect(() => {
     const sync = () => {
-      const id = sectionFromHash()
+      const id = sectionFromHash(sections)
       if (id) {
         showOnly(id)
       } else {
@@ -175,7 +191,7 @@ export function AyudaView() {
     sync()
     window.addEventListener('hashchange', sync)
     return () => window.removeEventListener('hashchange', sync)
-  }, [showOnly])
+  }, [showOnly, sections])
 
   function handleSelect(id: string) {
     if (typeof window !== 'undefined') {
@@ -185,8 +201,12 @@ export function AyudaView() {
   }
 
   const active = activeId
-    ? (AYUDA_SECTIONS.find((s) => s.id === activeId) ?? null)
+    ? (sections.find((s) => s.id === activeId) ?? null)
     : null
 
-  return active ? <QueryView section={active} /> : <IndexView onSelect={handleSelect} />
+  return active ? (
+    <QueryView section={active} social={social} />
+  ) : (
+    <IndexView sections={sections} onSelect={handleSelect} />
+  )
 }

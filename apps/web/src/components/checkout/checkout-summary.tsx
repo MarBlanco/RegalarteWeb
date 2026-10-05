@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useShallow } from 'zustand/react/shallow'
 import { useCouponStore } from '@/lib/checkout/coupon-store'
-import { couponDiscount, getCoupon } from '@/lib/orders/coupons'
+import { couponDiscount } from '@/lib/orders/coupons'
 
 function CouponBlock() {
   const [input, setInput] = useState('')
   const code = useCouponStore((s) => s.code)
   const percent = useCouponStore((s) => s.percent)
   const status = useCouponStore((s) => s.status)
+  const checking = status === 'checking'
   const apply = useCouponStore((s) => s.apply)
   const clear = useCouponStore((s) => s.clear)
 
@@ -53,7 +54,8 @@ function CouponBlock() {
             />
             <Button
               type="button"
-              onClick={() => apply(input)}
+              onClick={() => void apply(input)}
+              disabled={checking}
               className="h-9 shrink-0"
             >
               Aplicar
@@ -77,8 +79,9 @@ export function CheckoutSummary() {
     useShallow((s) => selectTotals({ items: s.items, mode: s.mode })),
   )
   const couponCode = useCouponStore((s) => s.code)
+  const couponPercent = useCouponStore((s) => s.percent)
 
-  const coupon = couponCode ? getCoupon(couponCode) : null
+  const coupon = couponCode ? { code: couponCode, percent: couponPercent } : null
   const discount = coupon ? couponDiscount(totals.subtotal, coupon) : 0
   const total = Math.max(0, totals.subtotal - discount)
 

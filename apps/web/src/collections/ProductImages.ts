@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 export const ProductImages: CollectionConfig = {
   slug: 'product-images',
+  labels: { singular: 'Imagen de producto', plural: 'Imágenes de producto' },
   admin: {
     useAsTitle: 'alt',
     group: 'Catálogo',

@@ -22,6 +22,7 @@ import { canTransition, isOrderStatus } from '@/lib/orders/transitions'
  */
 export const Orders: CollectionConfig = {
   slug: 'orders',
+  labels: { singular: 'Pedido', plural: 'Pedidos' },
   admin: {
     useAsTitle: 'orderNumber',
     description:

@@ -30,6 +30,7 @@ import type { CollectionConfig } from 'payload'
  */
 export const Users: CollectionConfig = {
   slug: 'users',
+  labels: { singular: 'Usuario', plural: 'Usuarios' },
   auth: {
     tokenExpiration: 7200,
     verify: false,
@@ -67,24 +68,32 @@ export const Users: CollectionConfig = {
     ],
   },
   access: {
+    // Registro público desde el storefront (/auth/register). Sin esto Payload
+    // aplica su default (solo usuarios autenticados) y nadie puede registrarse.
+    // La elevación de privilegios está cerrada: `role` solo lo asigna admin
+    // (access.create del campo) y el default es 'retail'.
+    create: () => true,
     admin: ({ req: { user } }) => {
       const u = user as { role?: string } | null
       if (!u) return false
       return u.role === 'admin'
     },
+    // Admin lee y edita a todos (incluido el listado del panel /admin). El
+    // resto solo su propio documento (perfil / me): con `id` se decide por
+    // booleano; sin `id` (listados/consultas) se restringe a su propio id.
     read: ({ req: { user }, id }) => {
       const u = user as { role?: string; id?: string | number } | null
-      if (!u || !id) return false
-      // Cada usuario puede leer su propio documento (perfil / me).
-      if (String(u.id) === String(id)) return true
-      return u.role === 'admin'
+      if (!u) return false
+      if (u.role === 'admin') return true
+      if (id) return String(u.id) === String(id)
+      return { id: { equals: u.id } }
     },
     update: ({ req: { user }, id }) => {
       const u = user as { role?: string; id?: string | number } | null
-      if (!u || !id) return false
-      // Cada usuario actualiza su propio documento (perfil / me).
-      if (String(u.id) === String(id)) return true
-      return u.role === 'admin'
+      if (!u) return false
+      if (u.role === 'admin') return true
+      if (id) return String(u.id) === String(id)
+      return { id: { equals: u.id } }
     },
     delete: ({ req: { user } }) => {
       const u = user as { role?: string } | null

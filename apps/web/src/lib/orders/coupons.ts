@@ -1,13 +1,14 @@
 /**
  * Cupones de descuento del checkout.
  *
- * No existe infraestructura previa de cupones en el proyecto: este módulo
- * es la ÚNICA fuente de verdad, compartida por cliente (vista previa del
- * resumen) y servidor (aplicación autoritativa al crear la orden, coherente
- * con AUDIT-004: totales calculados desde la DB, nunca del cliente).
+ * Los cupones viven en la colección `coupons` de Payload (editable por
+ * admin en /admin). Este módulo conserva la lógica pura compartida por
+ * cliente (vista previa del resumen) y servidor (aplicación autoritativa al
+ * crear la orden, coherente con AUDIT-004: totales calculados desde la DB,
+ * nunca del cliente). La búsqueda en DB está en `coupon-service.ts`.
  *
- * El servidor siempre revalida el código: un cupón inválido o retirado
- * rechaza la orden aunque el cliente lo muestre aplicado.
+ * El servidor siempre revalida el código: un cupón inexistente, inactivo o
+ * retirado rechaza la orden aunque el cliente lo muestre aplicado.
  */
 
 export interface CouponDef {
@@ -17,20 +18,29 @@ export interface CouponDef {
   percent: number
 }
 
-/** Catálogo inicial de cupones. Un solo cupón de lanzamiento. */
-const COUPONS: CouponDef[] = [{ code: 'REGALARTE10', percent: 10 }]
-
 /** Normaliza lo que escribe el cliente: recorta y pasa a mayúsculas. */
 export function normalizeCouponCode(input: unknown): string {
   if (typeof input !== 'string') return ''
   return input.trim().toUpperCase().replace(/\s+/g, '')
 }
 
-/** Cupón válido o null (código desconocido o vacío). */
-export function getCoupon(code: unknown): CouponDef | null {
+/**
+ * Documento de la colección `coupons` → cupón aplicable, o null si está
+ * inactivo o es inválido (porcentaje fuera de 1-100, código vacío).
+ */
+export function couponFromDoc(doc: unknown): CouponDef | null {
+  if (!doc || typeof doc !== 'object') return null
+  const { code, percent, active } = doc as {
+    code?: unknown
+    percent?: unknown
+    active?: unknown
+  }
+  if (active === false) return null
   const normalized = normalizeCouponCode(code)
   if (!normalized) return null
-  return COUPONS.find((c) => c.code === normalized) ?? null
+  if (typeof percent !== 'number' || !Number.isFinite(percent)) return null
+  if (percent < 1 || percent > 100) return null
+  return { code: normalized, percent }
 }
 
 /** Descuento en pesos (redondeado a 2 decimales, nunca negativo). */

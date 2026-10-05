@@ -75,6 +75,7 @@ export interface Config {
     'product-attributes': ProductAttribute;
     'product-images': ProductImage;
     orders: Order;
+    coupons: Coupon;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,6 +91,7 @@ export interface Config {
     'product-attributes': ProductAttributesSelect<false> | ProductAttributesSelect<true>;
     'product-images': ProductImagesSelect<false> | ProductImagesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
+    coupons: CouponsSelect<false> | CouponsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -103,11 +105,15 @@ export interface Config {
     'commerce-settings': CommerceSetting;
     'home-content': HomeContent;
     'pdp-content': PdpContent;
+    'site-settings': SiteSetting;
+    'ayuda-content': AyudaContent;
   };
   globalsSelect: {
     'commerce-settings': CommerceSettingsSelect<false> | CommerceSettingsSelect<true>;
     'home-content': HomeContentSelect<false> | HomeContentSelect<true>;
     'pdp-content': PdpContentSelect<false> | PdpContentSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'ayuda-content': AyudaContentSelect<false> | AyudaContentSelect<true>;
   };
   locale: null;
   widgets: {
@@ -476,6 +482,29 @@ export interface Order {
   createdAt: string;
 }
 /**
+ * Cupones de descuento porcentual aplicables en el checkout. Solo admin.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons".
+ */
+export interface Coupon {
+  id: number;
+  /**
+   * Se guarda en mayúsculas y sin espacios.
+   */
+  code: string;
+  /**
+   * Porcentaje sobre el subtotal del pedido (1 a 100).
+   */
+  percent: number;
+  /**
+   * Un cupón inactivo se rechaza en el checkout.
+   */
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -530,6 +559,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'orders';
         value: number | Order;
+      } | null)
+    | ({
+        relationTo: 'coupons';
+        value: number | Coupon;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -881,6 +914,17 @@ export interface OrdersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons_select".
+ */
+export interface CouponsSelect<T extends boolean = true> {
+  code?: T;
+  percent?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -931,6 +975,10 @@ export interface CommerceSetting {
    * Habilita el canal mayorista en la storefront. Cuando está deshabilitado, los mayoristas no pueden comprar.
    */
   wholesale_enabled: boolean;
+  /**
+   * Monto (en ARS) del subtotal desde el cual el carrito muestra el envío gratis. Alimenta la barra de progreso del carrito.
+   */
+  free_shipping_threshold: number;
   /**
    * Monto mínimo (en ARS) que debe alcanzar un pedido para ser aceptado en el canal mayorista.
    */
@@ -1007,11 +1055,63 @@ export interface PdpContent {
   createdAt?: string | null;
 }
 /**
+ * Enlaces de redes sociales y de contacto (pie de página y página de Ayuda). Vacío = valor por defecto.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  instagramUrl?: string | null;
+  tiktokUrl?: string | null;
+  facebookUrl?: string | null;
+  /**
+   * Enlace de contacto de la sección Contacto de Ayuda (ej: https://wa.me/549...).
+   */
+  whatsappUrl?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Secciones de la página de Ayuda. Sin secciones guardadas se usa el contenido por defecto.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ayuda-content".
+ */
+export interface AyudaContent {
+  id: number;
+  sections?:
+    | {
+        /**
+         * Minúsculas, números y guiones. Se usa en /ayuda#identificador.
+         */
+        sectionId: string;
+        title: string;
+        intro?: string | null;
+        body?:
+          | {
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        ctaLabel?: string | null;
+        /**
+         * Ruta interna, ej: /catalogo
+         */
+        ctaHref?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "commerce-settings_select".
  */
 export interface CommerceSettingsSelect<T extends boolean = true> {
   wholesale_enabled?: T;
+  free_shipping_threshold?: T;
   minimum_wholesale_order?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1067,6 +1167,44 @@ export interface PdpContentSelect<T extends boolean = true> {
   detalles?: T;
   gifting?: T;
   faq?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  instagramUrl?: T;
+  tiktokUrl?: T;
+  facebookUrl?: T;
+  whatsappUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ayuda-content_select".
+ */
+export interface AyudaContentSelect<T extends boolean = true> {
+  sections?:
+    | T
+    | {
+        sectionId?: T;
+        title?: T;
+        intro?: T;
+        body?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        ctaLabel?: T;
+        ctaHref?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

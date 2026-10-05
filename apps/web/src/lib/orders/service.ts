@@ -31,7 +31,8 @@ import {
   parseProductId,
   type ProductPricingSource,
 } from './lines'
-import { couponDiscount, getCoupon } from './coupons'
+import { couponDiscount } from './coupons'
+import { findActiveCoupon } from './coupon-service'
 
 function buildOrderNumber(now: Date): string {
   const year = now.getUTCFullYear()
@@ -69,7 +70,7 @@ export async function createOrder(
   }
 
   // El cupón se valida acá (autoridad): el cliente solo sugiere el código.
-  const coupon = input.couponCode ? getCoupon(input.couponCode) : null
+  const coupon = input.couponCode ? await findActiveCoupon(input.couponCode) : null
   if (input.couponCode && !coupon) {
     throw new OrderRejectedError('Cupón inválido', 'INVALID_COUPON')
   }
