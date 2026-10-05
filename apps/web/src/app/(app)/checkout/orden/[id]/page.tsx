@@ -20,7 +20,10 @@ interface PageProps {
  * firma HMAC (secreto server-only), igual que el retorno de Mercado Pago:
  * sin firma válida no se puede consultar el pedido de otra persona.
  */
-export default async function OrdenPage({ params, searchParams }: PageProps) {
+export default async function OrdenPage({
+  params,
+  searchParams,
+}: Readonly<PageProps>) {
   const { id } = (await params) ?? {}
   const query = (await searchParams) ?? {}
   const orderId = Number(id)

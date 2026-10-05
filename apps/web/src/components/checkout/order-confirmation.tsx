@@ -15,7 +15,9 @@ export interface OrderConfirmationData {
  * Destino del checkout cuando el pedido se registra sin pasarela externa
  * (provider mock). Textos y estados salen de `ORDER_STATUS_META`.
  */
-export function OrderConfirmation({ order }: { order: OrderConfirmationData }) {
+export function OrderConfirmation({
+  order,
+}: Readonly<{ order: OrderConfirmationData }>) {
   const meta = ORDER_STATUS_META[order.status]
   return (
     <main className="flex-1 bg-background">
