@@ -205,3 +205,20 @@ describe('Categoría — agrega hijas activas (tipos)', () => {
     expect(res.docs).toEqual([])
   })
 })
+
+describe('Búsqueda por texto — comodines escapados', () => {
+  function titleLike(): string | undefined {
+    const where = lastProductsWhere as { and?: Array<{ title?: { like?: string } }> }
+    return where.and?.find((c) => c.title)?.title?.like
+  }
+
+  it('%, _ y barra invertida del usuario se buscan de forma literal', async () => {
+    await fetchProducts({ q: '50%_off\\' }, 1, 12)
+    expect(titleLike()).toBe('50\\%\\_off\\\\')
+  })
+
+  it('un texto normal no se altera', async () => {
+    await fetchProducts({ q: 'vela' }, 1, 12)
+    expect(titleLike()).toBe('vela')
+  })
+})

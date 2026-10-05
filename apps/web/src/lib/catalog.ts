@@ -154,6 +154,14 @@ export async function resolveCategoryIds(
   return [id, ...children.docs.map((d) => d.id)]
 }
 
+/**
+ * `like` de Payload se traduce a ILIKE: `%` y `_` del texto del usuario
+ * actuarían como comodines. Se escapan para que la búsqueda sea literal.
+ */
+function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, '\\$&')
+}
+
 async function buildWhere(
   filters: CatalogFilters,
   refs: ResolveRefsInput,
@@ -217,7 +225,7 @@ async function buildWhere(
   }
 
   if (filters.q && filters.q.trim().length > 0) {
-    and.push({ title: { like: filters.q.trim() } })
+    and.push({ title: { like: escapeLike(filters.q.trim()) } })
   }
 
   return and.length > 1 ? { and } : and[0]

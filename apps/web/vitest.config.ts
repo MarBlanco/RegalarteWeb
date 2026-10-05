@@ -14,7 +14,9 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
+      // Capa de lógica: incluye archivos aún sin tests (cuentan como 0 %).
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'node_modules/**',
         '.next/**',
@@ -23,6 +25,12 @@ export default defineConfig({
         'src/app/**',
         'src/components/**',
         'src/migrations/**',
+        // Configuración declarativa de Payload y tipos autogenerados.
+        'src/collections/**',
+        'src/globals/**',
+        'src/payload.config.ts',
+        'src/payload-types.ts',
+        'src/**/*.test.{ts,tsx}',
       ],
     },
   },
