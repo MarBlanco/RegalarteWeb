@@ -15,10 +15,10 @@ function sectionFromHash(sections: readonly AyudaSection[]): string | null {
 function QueryView({
   section,
   social,
-}: {
+}: Readonly<{
   section: AyudaSection
   social: SocialLinks
-}) {
+}>) {
   return (
     <div>
       <Link
@@ -105,10 +105,10 @@ function QueryView({
 function IndexView({
   sections,
   onSelect,
-}: {
+}: Readonly<{
   sections: readonly AyudaSection[]
   onSelect: (id: string) => void
-}) {
+}>) {
   return (
     <div>
       <header className="text-center">
