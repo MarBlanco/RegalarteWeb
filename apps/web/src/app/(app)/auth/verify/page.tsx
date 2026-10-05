@@ -20,10 +20,9 @@ function VerifyContent() {
 
   useEffect(() => {
     if (token) {
-      fetch('/api/users/verify', {
+      // Payload expone la verificación como POST /verify/:token.
+      fetch(`/api/users/verify/${encodeURIComponent(token)}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
       })
         .then((res) => {
           if (res.ok) {
