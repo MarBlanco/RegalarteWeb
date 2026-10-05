@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { RitualCard } from '@/components/cart/ritual-card'
 import {
@@ -17,7 +17,11 @@ import {
   selectUnitPrice,
   useCartStore,
 } from '@/lib/cart'
-import { MOCK_PRODUCTS } from '@/components/catalog/catalog-mock'
+import {
+  buildRitualSuggestions,
+  RITUAL_SUGGESTIONS_URL,
+} from '@/lib/cart/ritual-suggestions'
+import type { RitualProduct } from '@/components/cart/ritual-card'
 import { formatPrice } from '@/lib/format'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -45,19 +49,27 @@ export default function CartPage() {
     useShallow((s) => selectTotals({ items: s.items, mode: s.mode })),
   )
   const [confirmItem, setConfirmItem] = useState<ConfirmRemoveItem | null>(null)
+  const [ritualCandidates, setRitualCandidates] = useState<unknown>(null)
+
+  // "Completá tu ritual": productos reales del CMS (nunca datos de relleno).
+  useEffect(() => {
+    const controller = new AbortController()
+    fetch(RITUAL_SUGGESTIONS_URL, { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setRitualCandidates(data?.docs ?? null))
+      .catch(() => {})
+    return () => controller.abort()
+  }, [])
 
   function askRemove(item: { id: string; name: string; image?: ConfirmRemoveItem['image'] }) {
     setConfirmItem({ id: item.id, name: item.name, image: item.image ?? null })
   }
 
   const ship = freeShippingProgress(totals.subtotal)
-  const ritualProducts = MOCK_PRODUCTS.slice(0, 5).map((p) => ({
-    id: String(p.id),
-    slug: p.slug,
-    name: p.title,
-    price: p.price,
-    image: p.featuredImage?.url ?? null,
-  }))
+  const ritualProducts: RitualProduct[] = buildRitualSuggestions(
+    ritualCandidates,
+    new Set(items.map((i) => i.slug)),
+  )
 
   return (
     <main className="flex-1 bg-[#FDFBF7]">
@@ -327,6 +339,7 @@ export default function CartPage() {
             </div>
 
             {/* Completá tu ritual */}
+            {ritualProducts.length > 0 ? (
             <section aria-label="Completá tu ritual" className="mt-12">
               <div className="flex items-end justify-between gap-4">
                 <div>
@@ -350,6 +363,7 @@ export default function CartPage() {
                 ))}
               </div>
             </section>
+            ) : null}
           </>
         )}
       </div>

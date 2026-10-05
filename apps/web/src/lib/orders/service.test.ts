@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createOrder, OrderRejectedError } from './service'
+import { verifyOrderSig } from '@/lib/mercadopago/return-urls'
 
 vi.mock('payload', () => ({
   getPayload: vi.fn(),
@@ -98,5 +99,22 @@ describe('createOrder — cupón', () => {
     expect((err as OrderRejectedError).code).toBe('INVALID_COUPON')
     expect(payload.find).not.toHaveBeenCalled()
     expect(payload.create).not.toHaveBeenCalled()
+  })
+})
+
+describe('createOrder — destino del checkout', () => {
+  it('redirectUrl apunta a la confirmación firmada del pedido', async () => {
+    vi.stubEnv('PAYLOAD_SECRET', 'test-secret')
+    const payload = mockPayload()
+    vi.mocked(getPayload).mockResolvedValue(payload as never)
+    const result = await createOrder(makeInput())
+    expect(result.status).toBe('success')
+    const url = (result as { redirectUrl: string }).redirectUrl
+    const [path, qs] = url.split('?')
+    expect(path).toBe('/checkout/orden/7')
+    const sig = new URLSearchParams(qs).get('sig')
+    expect(verifyOrderSig(7, sig, 'test-secret')).toBe(true)
+    expect(verifyOrderSig(8, sig, 'test-secret')).toBe(false)
+    vi.unstubAllEnvs()
   })
 })

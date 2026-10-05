@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
       <div className="container flex items-center justify-center min-h-[80vh] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle>Email enviado</CardTitle>
+            <CardTitle as="h1">Email enviado</CardTitle>
             <CardDescription>
               Si existe una cuenta con ese email, vas a recibir instrucciones para
               restablecer tu contraseña.
@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
     <div className="container flex items-center justify-center min-h-[80vh] py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle>Recuperar contraseña</CardTitle>
+          <CardTitle as="h1">Recuperar contraseña</CardTitle>
           <CardDescription>
             Te enviaremos un link para restablecer tu contraseña
           </CardDescription>

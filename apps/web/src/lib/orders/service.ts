@@ -18,6 +18,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { randomBytes } from 'crypto'
+import { signOrderId } from '@/lib/mercadopago/return-urls'
 
 import type {
   CreateOrderInput,
@@ -111,8 +112,11 @@ export async function createOrder(
     status: 'success',
     orderId: String(order.id),
     // URL provista al provider para que el checkout sepa a donde volver.
-    // Hoy apunta a una ruta mock; TICKET-010 la cambiara por la URL real
-    // del proveedor de pago.
-    redirectUrl: `/checkout/orden/${order.id}?status=mock-success`,
+    // Sin pasarela externa (provider mock) es la confirmación del pedido,
+    // firmada para que solo quien creó la orden pueda consultarla.
+    redirectUrl: `/checkout/orden/${order.id}?sig=${signOrderId(
+      order.id as number,
+      process.env.PAYLOAD_SECRET ?? '',
+    )}`,
   }
 }

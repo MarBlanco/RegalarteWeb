@@ -58,7 +58,7 @@ function ResetPasswordContent() {
       <div className="container flex items-center justify-center min-h-[80vh] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle>Link inválido</CardTitle>
+            <CardTitle as="h1">Link inválido</CardTitle>
             <CardDescription>
               Este link de recuperación no es válido o expiró.
             </CardDescription>
@@ -78,7 +78,7 @@ function ResetPasswordContent() {
       <div className="container flex items-center justify-center min-h-[80vh] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle>Contraseña actualizada</CardTitle>
+            <CardTitle as="h1">Contraseña actualizada</CardTitle>
             <CardDescription>
               Tu contraseña se actualizó correctamente.
             </CardDescription>
@@ -97,7 +97,7 @@ function ResetPasswordContent() {
     <div className="container flex items-center justify-center min-h-[80vh] py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle>Nueva contraseña</CardTitle>
+          <CardTitle as="h1">Nueva contraseña</CardTitle>
           <CardDescription>
             Ingresá tu nueva contraseña
           </CardDescription>
