@@ -28,7 +28,8 @@ export const DEFAULT_NAV_LINKS: NavLink[] = [
 export const MAX_NAV_ITEMS = 20
 export const MAX_NAV_LABEL = 40
 
-const INTERNAL_PATH_RE = /^\/(?!\/)[^\s]*$/
+// Sin `//` ni `/\` iniciales (los navegadores los tratan como otro host) ni backslashes.
+const INTERNAL_PATH_RE = /^\/(?![/\\])[^\s\\]*$/
 const CATALOG_CATEGORY_RE = /^\/catalogo\?category=([a-z0-9-]+)$/
 
 export type NavDestinationType = 'category' | 'path'

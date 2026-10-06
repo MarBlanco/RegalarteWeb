@@ -13,7 +13,7 @@ import type { GlobalConfig } from 'payload'
  */
 const internalPath = (value: unknown) => {
   if (value === undefined || value === null || value === '') return true
-  return typeof value === 'string' && /^\/(?!\/)[^\s]*$/.test(value)
+  return typeof value === 'string' && /^\/(?![/\\])[^\s\\]*$/.test(value)
     ? true
     : 'Debe ser una ruta interna que empiece con / (ej: /catalogo?category=velas)'
 }
