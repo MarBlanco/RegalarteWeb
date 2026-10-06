@@ -6,16 +6,11 @@ import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { CartTrigger } from '@/components/cart/cart-trigger'
 import { AccountMenu } from '@/components/layout/account-menu'
+import { NavEditButton } from '@/components/edit-mode/nav-edit-controls'
+import { DEFAULT_NAV_LINKS, type NavLink } from '@/lib/navigation'
 
-export const navLinks: Array<{ href: string; label: string; category: string | null; accent?: boolean }> = [
-  { href: '/', label: 'Inicio', category: null },
-  { href: '/catalogo?category=velas', label: 'Velas', category: 'velas' },
-  { href: '/catalogo?category=aromas', label: 'Aromas', category: 'aromas' },
-  { href: '/catalogo?category=wax-melts', label: 'Wax-Melts', category: 'wax-melts' },
-  { href: '/catalogo?category=quemadores', label: 'Quemadores', category: 'quemadores' },
-  { href: '/catalogo?category=packs', label: 'Packs', category: 'packs' },
-  { href: '/catalogo?category=regalarte', label: 'Regalarte', category: 'regalarte', accent: true },
-]
+/** Menú por defecto (lo usan consumidores que no reciben el menú editado). */
+export const navLinks: NavLink[] = DEFAULT_NAV_LINKS
 
 const giftIcon = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
@@ -85,7 +80,7 @@ function HeaderIcons() {
   )
 }
 
-export function Header() {
+export function Header({ navItems = DEFAULT_NAV_LINKS }: Readonly<{ navItems?: NavLink[] }>) {
   return (
     <>
       {/* Barra superior */}
@@ -128,16 +123,17 @@ export function Header() {
             </span>
           </Link>
 
-          <Suspense fallback={<HeaderNavDesktopFallback />}>
-            <HeaderNavDesktop />
+          <Suspense fallback={<HeaderNavDesktopFallback links={navItems} />}>
+            <HeaderNavDesktop links={navItems} />
           </Suspense>
 
+          <NavEditButton className="hidden lg:inline-flex" />
           <HeaderIcons />
         </div>
 
         {/* Navegación mobile: scroll horizontal */}
-        <Suspense fallback={<HeaderNavMobileFallback />}>
-          <HeaderNavMobile />
+        <Suspense fallback={<HeaderNavMobileFallback links={navItems} />}>
+          <HeaderNavMobile links={navItems} />
         </Suspense>
       </header>
     </>
@@ -150,25 +146,27 @@ export function Header() {
  * render sin hooks (el resaltado activo se hidrata en cliente).
  */
 function NavLinks({
+  links,
   pathname,
   currentCategory,
   mobile,
-}: {
+}: Readonly<{
+  links: NavLink[]
   pathname: string
   currentCategory: string
   mobile: boolean
-}) {
+}>) {
   const onCatalog = pathname.startsWith('/catalogo')
   return (
     <>
-      {navLinks.map((link) => {
+      {links.map((link) => {
         const active =
           link.category === null
             ? pathname === '/'
             : onCatalog && currentCategory === link.category
         return (
           <Link
-            key={link.href}
+            key={`${link.href}|${link.label}`}
             href={link.href}
             aria-current={active ? 'page' : undefined}
             className={
@@ -203,12 +201,13 @@ const DESKTOP_NAV_CLS =
 const MOBILE_NAV_CLS =
   'flex items-center gap-5 overflow-x-auto border-t border-[#E5DDD1]/60 px-4 py-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden'
 
-function HeaderNavDesktop() {
+function HeaderNavDesktop({ links }: Readonly<{ links: NavLink[] }>) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   return (
     <nav className={DESKTOP_NAV_CLS} aria-label="Navegación principal">
       <NavLinks
+        links={links}
         pathname={pathname}
         currentCategory={searchParams.get('category') ?? ''}
         mobile={false}
@@ -217,33 +216,35 @@ function HeaderNavDesktop() {
   )
 }
 
-function HeaderNavDesktopFallback() {
+function HeaderNavDesktopFallback({ links }: Readonly<{ links: NavLink[] }>) {
   return (
     <nav className={DESKTOP_NAV_CLS} aria-label="Navegación principal" aria-hidden="true">
-      <NavLinks pathname="" currentCategory="" mobile={false} />
+      <NavLinks links={links} pathname="" currentCategory="" mobile={false} />
     </nav>
   )
 }
 
-function HeaderNavMobile() {
+function HeaderNavMobile({ links }: Readonly<{ links: NavLink[] }>) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   return (
     <nav className={MOBILE_NAV_CLS} aria-label="Navegación principal móvil">
       <NavLinks
+        links={links}
         pathname={pathname}
         currentCategory={searchParams.get('category') ?? ''}
         mobile
       />
+      <NavEditButton className="shrink-0 lg:hidden" />
       <span className="w-px shrink-0" aria-hidden="true" />
     </nav>
   )
 }
 
-function HeaderNavMobileFallback() {
+function HeaderNavMobileFallback({ links }: Readonly<{ links: NavLink[] }>) {
   return (
     <nav className={MOBILE_NAV_CLS} aria-label="Navegación principal móvil" aria-hidden="true">
-      <NavLinks pathname="" currentCategory="" mobile />
+      <NavLinks links={links} pathname="" currentCategory="" mobile />
       <span className="w-px shrink-0" aria-hidden="true" />
     </nav>
   )

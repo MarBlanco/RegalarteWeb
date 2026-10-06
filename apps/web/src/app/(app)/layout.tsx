@@ -3,6 +3,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Header } from '@/components/layout/header'
+import { getNavLinks } from '@/lib/navigation-server'
 import { Footer } from '@/components/layout/footer'
 import { Providers } from '@/providers'
 import { EditModeBar } from '@/components/edit-mode/edit-mode-bar'
@@ -53,11 +54,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const navItems = await getNavLinks()
   return (
     <html lang="es" className={`${inter.variable} ${playfair.variable}`}>
       <body className={`${inter.className} min-h-screen flex flex-col`}>
@@ -66,7 +68,7 @@ export default function RootLayout({
         <GoogleAnalytics />
         <Providers>
           <EditModeBar />
-          <Header />
+          <Header navItems={navItems} />
           <main className="flex-1">{children}</main>
           <Footer />
         </Providers>

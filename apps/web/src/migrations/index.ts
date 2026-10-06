@@ -11,6 +11,7 @@ import * as migration_20260925_234916 from './20260925_234916';
 import * as migration_20260926_174732 from './20260926_174732';
 import * as migration_20260927_132401 from './20260927_132401';
 import * as migration_20261005_105342_admin_config from './20261005_105342_admin_config';
+import * as migration_20261006_105706_navigation from './20261006_105706_navigation';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20261005_105342_admin_config.up,
     down: migration_20261005_105342_admin_config.down,
-    name: '20261005_105342_admin_config'
+    name: '20261005_105342_admin_config',
+  },
+  {
+    up: migration_20261006_105706_navigation.up,
+    down: migration_20261006_105706_navigation.down,
+    name: '20261006_105706_navigation'
   },
 ];

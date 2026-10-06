@@ -31,11 +31,14 @@ export function ModalShell({
   title,
   onClose,
   children,
-}: {
+  wide = false,
+}: Readonly<{
   title: string
   onClose: () => void
   children: React.ReactNode
-}) {
+  /** Panel ancho (editores con listas, ej. navegación). */
+  wide?: boolean
+}>) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
@@ -60,7 +63,7 @@ export function ModalShell({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:max-w-lg sm:rounded-2xl"
+        className={`flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:rounded-2xl ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'}`}
       >
         <div className="flex items-center justify-between border-b border-[#E5DDD1] px-5 py-4">
           <h2 className="font-serif text-lg font-normal text-[#38271D]">

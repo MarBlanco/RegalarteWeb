@@ -107,6 +107,7 @@ export interface Config {
     'pdp-content': PdpContent;
     'site-settings': SiteSetting;
     'ayuda-content': AyudaContent;
+    navigation: Navigation;
   };
   globalsSelect: {
     'commerce-settings': CommerceSettingsSelect<false> | CommerceSettingsSelect<true>;
@@ -114,6 +115,7 @@ export interface Config {
     'pdp-content': PdpContentSelect<false> | PdpContentSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'ayuda-content': AyudaContentSelect<false> | AyudaContentSelect<true>;
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1106,6 +1108,28 @@ export interface AyudaContent {
   createdAt?: string | null;
 }
 /**
+ * Opciones del menú principal. También se editan desde la tienda con "Editar navegación". Sin opciones guardadas se usa el menú por defecto.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: number;
+  items?:
+    | {
+        label: string;
+        destinationType: 'category' | 'path';
+        category?: (number | null) | Category;
+        path?: string | null;
+        active?: boolean | null;
+        accent?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "commerce-settings_select".
  */
@@ -1203,6 +1227,26 @@ export interface AyudaContentSelect<T extends boolean = true> {
             };
         ctaLabel?: T;
         ctaHref?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        label?: T;
+        destinationType?: T;
+        category?: T;
+        path?: T;
+        active?: T;
+        accent?: T;
         id?: T;
       };
   updatedAt?: T;
