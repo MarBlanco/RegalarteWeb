@@ -261,7 +261,7 @@ function NavRow({
               onChange={(e) => onChange({ accent: e.target.checked })}
               className="h-4 w-4 accent-[#B85C33]"
             />
-            Destacada (color y símbolo de regalo)
+            <span>Destacada (color y símbolo de regalo)</span>
           </label>
         </div>
       ) : null}

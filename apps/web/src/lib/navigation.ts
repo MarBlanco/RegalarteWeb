@@ -63,7 +63,6 @@ type StoredCategory =
   | { id?: number; slug?: string; active?: boolean }
   | number
   | null
-  | undefined
 
 interface StoredItem {
   label?: unknown
@@ -82,7 +81,7 @@ function storedItems(stored: unknown): StoredItem[] | null {
   return Array.isArray(raw) && raw.length > 0 ? (raw as StoredItem[]) : null
 }
 
-function populatedSlug(c: StoredCategory): string | null {
+function populatedSlug(c: StoredCategory | undefined): string | null {
   if (!c || typeof c !== 'object') return null
   if (typeof c.slug !== 'string' || c.slug === '' || c.active === false) return null
   return c.slug
@@ -177,6 +176,31 @@ export interface NavItemData {
   accent: boolean
 }
 
+/** Valida una fila del PUT: devuelve los datos o el mensaje de error. */
+function sanitizeNavRow(
+  r: unknown,
+  validCategoryIds: ReadonlySet<number>,
+): NavItemData | string {
+  const row = (r && typeof r === 'object' ? r : {}) as Record<string, unknown>
+  const label = typeof row.label === 'string' ? row.label.trim() : ''
+  if (!label) return 'Cada opción necesita un texto'
+  if (label.length > MAX_NAV_LABEL) {
+    return `El texto admite hasta ${MAX_NAV_LABEL} caracteres`
+  }
+  const active = row.active !== false
+  const accent = row.accent === true
+  if (row.destinationType === 'path') {
+    const path = typeof row.path === 'string' ? row.path.trim() : ''
+    if (!isInternalPath(path)) return `"${label}": la ruta debe empezar con /`
+    return { label, destinationType: 'path', category: null, path, active, accent }
+  }
+  const id = row.categoryId
+  if (typeof id !== 'number' || !validCategoryIds.has(id)) {
+    return `"${label}": elegí una categoría válida`
+  }
+  return { label, destinationType: 'category', category: id, path: null, active, accent }
+}
+
 /**
  * Valida el cuerpo del PUT. Devuelve los datos listos para guardar o un
  * mensaje de error. `validCategoryIds` = categorías activas existentes.
@@ -195,27 +219,9 @@ export function sanitizeNavItems(
   }
   const items: NavItemData[] = []
   for (const r of raw) {
-    const row = (r && typeof r === 'object' ? r : {}) as Record<string, unknown>
-    const label = typeof row.label === 'string' ? row.label.trim() : ''
-    if (!label) return { error: 'Cada opción necesita un texto' }
-    if (label.length > MAX_NAV_LABEL) {
-      return { error: `El texto admite hasta ${MAX_NAV_LABEL} caracteres` }
-    }
-    const active = row.active !== false
-    const accent = row.accent === true
-    if (row.destinationType === 'path') {
-      const path = typeof row.path === 'string' ? row.path.trim() : ''
-      if (!isInternalPath(path)) {
-        return { error: `"${label}": la ruta debe empezar con /` }
-      }
-      items.push({ label, destinationType: 'path', category: null, path, active, accent })
-    } else {
-      const id = row.categoryId
-      if (typeof id !== 'number' || !validCategoryIds.has(id)) {
-        return { error: `"${label}": elegí una categoría válida` }
-      }
-      items.push({ label, destinationType: 'category', category: id, path: null, active, accent })
-    }
+    const result = sanitizeNavRow(r, validCategoryIds)
+    if (typeof result === 'string') return { error: result }
+    items.push(result)
   }
   return { items }
 }

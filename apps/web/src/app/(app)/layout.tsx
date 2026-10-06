@@ -56,9 +56,9 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   const navItems = await getNavLinks()
   return (
     <html lang="es" className={`${inter.variable} ${playfair.variable}`}>
