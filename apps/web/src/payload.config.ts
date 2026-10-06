@@ -18,7 +18,6 @@ import { Orders } from '@/collections/Orders'
 import { Coupons } from '@/collections/Coupons'
 import { CommerceSettings } from '@/globals/CommerceSettings'
 import { SiteSettings } from '@/globals/SiteSettings'
-import { Navigation } from '@/globals/Navigation'
 import { AyudaContent } from '@/globals/AyudaContent'
 import { HomeContent } from '@/globals/HomeContent'
 import { PdpContent } from '@/globals/PdpContent'
@@ -39,7 +38,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Categories, ProductTags, Products, ProductAttributes, ProductImages, Orders, Coupons],
-  globals: [CommerceSettings, HomeContent, PdpContent, SiteSettings, AyudaContent, Navigation],
+  globals: [CommerceSettings, HomeContent, PdpContent, SiteSettings, AyudaContent],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({
