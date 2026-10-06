@@ -59,8 +59,28 @@ describe('/api/edit-mode/navigation', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
       stored: { items: [] },
-      categories: [{ id: 2, slug: 'velas', title: 'Velas' }],
+      categories: [{ id: 2, slug: 'velas', title: 'Velas', parent: null }],
     })
+  })
+
+  it('lista todas las categorías activas, incluidas las hijas con su padre', async () => {
+    const payload = mockPayload('staff')
+    payload.find.mockResolvedValue({
+      docs: [
+        { id: 2, slug: 'velas', title: 'Velas' },
+        { id: 9, slug: 'jabones', title: 'Jabones', parent: null },
+        { id: 20, slug: 'vela-clasica', title: 'Vela Clásica', parent: 2 },
+        { id: 21, slug: 'vela-bubble', title: 'Vela Bubble', parent: { id: 2 } },
+      ],
+    })
+    const body = await (await GET(req('GET'))).json()
+    expect(body.categories.map((c: { id: number; parent: number | null }) => [c.id, c.parent])).toEqual([
+      [2, null],
+      [9, null],
+      [20, 2],
+      [21, 2],
+    ])
+    expect(payload.find.mock.calls[0][0].where).toEqual({ active: { equals: true } })
   })
 
   it.each(['staff', 'admin'])('%s guarda y revalida el cache del menú', async (role) => {

@@ -36,6 +36,25 @@ function destinationText(item: NavEditorItem, categories: NavCategoryOption[]) {
   return cat ? `/catalogo?category=${cat.slug}` : 'Elegí una categoría'
 }
 
+interface CategoryGroup {
+  key: string
+  label: string
+  options: NavCategoryOption[]
+}
+
+/** Primer nivel sin grupo; los tipos (hijas) agrupados bajo su categoría. */
+function groupCategories(categories: NavCategoryOption[]): CategoryGroup[] {
+  const top = categories.filter((c) => !c.parent)
+  const groups: CategoryGroup[] = [{ key: 'top', label: '', options: top }]
+  for (const parent of top) {
+    const children = categories.filter((c) => c.parent === parent.id)
+    if (children.length > 0) {
+      groups.push({ key: `p${parent.id}`, label: parent.title, options: children })
+    }
+  }
+  return groups
+}
+
 function validate(items: NavEditorItem[]): string {
   if (items.length === 0) return 'Agregá al menos una opción'
   for (const item of items) {
@@ -235,13 +254,29 @@ function NavRow({
               {item.destinationType === 'category' && item.categoryId === null ? (
                 <option value="">Elegí una categoría…</option>
               ) : null}
-              {categories.map((c) => (
-                <option key={c.id} value={String(c.id)}>
-                  {c.title}
-                </option>
-              ))}
+              {groupCategories(categories).map((g) =>
+                g.label ? (
+                  <optgroup key={g.key} label={g.label}>
+                    {g.options.map((c) => (
+                      <option key={c.id} value={String(c.id)}>
+                        {c.title}
+                      </option>
+                    ))}
+                  </optgroup>
+                ) : (
+                  g.options.map((c) => (
+                    <option key={c.id} value={String(c.id)}>
+                      {c.title}
+                    </option>
+                  ))
+                ),
+              )}
               <option value={OTHER_PATH}>Otra ruta interna…</option>
             </select>
+            <span className="block text-xs text-[#7A6A5D]">
+              Se listan las categorías activas. Si falta una, creala primero en
+              Categorías.
+            </span>
           </label>
           {item.destinationType === 'path' ? (
             <label className="space-y-1.5 text-sm text-[#38271D] sm:col-span-2">

@@ -11,20 +11,32 @@ const NO_STORE = { 'Cache-Control': 'no-store' }
 
 type PayloadInstance = Awaited<ReturnType<typeof getPayload>>
 
-async function topLevelCategories(payload: PayloadInstance) {
+/**
+ * Categorías activas existentes (fuente de verdad de los destinos). Incluye
+ * las hijas (tipos) con su categoría padre para poder agruparlas.
+ */
+async function activeCategories(payload: PayloadInstance) {
   const found = await payload.find({
     collection: 'categories',
-    where: {
-      and: [{ parent: { exists: false } }, { active: { equals: true } }],
-    },
-    limit: 100,
+    where: { active: { equals: true } },
+    limit: 500,
     depth: 0,
     pagination: false,
     sort: 'title',
   } as never)
-  return (found.docs as unknown as Array<{ id: number; slug: string; title: string }>).map(
-    (c) => ({ id: c.id, slug: c.slug, title: c.title }),
-  )
+  return (
+    found.docs as unknown as Array<{
+      id: number
+      slug: string
+      title: string
+      parent?: number | { id: number } | null
+    }>
+  ).map((c) => ({
+    id: c.id,
+    slug: c.slug,
+    title: c.title,
+    parent: typeof c.parent === 'object' && c.parent ? c.parent.id : (c.parent ?? null),
+  }))
 }
 
 /**
@@ -42,7 +54,7 @@ export async function GET(req: Request) {
       depth: 1,
       overrideAccess: true,
     })
-    const categories = await topLevelCategories(payload)
+    const categories = await activeCategories(payload)
     return NextResponse.json(
       { stored, categories },
       { headers: NO_STORE },
@@ -73,7 +85,7 @@ export async function PUT(req: Request) {
   }
 
   try {
-    const categories = await topLevelCategories(payload)
+    const categories = await activeCategories(payload)
     const result = sanitizeNavItems(body, new Set(categories.map((c) => c.id)))
     if ('error' in result) {
       return NextResponse.json({ error: result.error }, { status: 400 })

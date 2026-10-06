@@ -38,6 +38,8 @@ export interface NavCategoryOption {
   id: number
   slug: string
   title: string
+  /** Categoría padre (los tipos son categorías hijas); null si es de primer nivel. */
+  parent?: number | null
 }
 
 /** Fila editable (incluye opciones desactivadas). */

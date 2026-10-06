@@ -19,7 +19,8 @@ const STAFF = {
 
 const CATEGORIES = [
   { id: 2, slug: 'velas', title: 'Velas' },
-  { id: 9, slug: 'jabones', title: 'Jabones' },
+  { id: 9, slug: 'jabones', title: 'Jabones', parent: null },
+  { id: 20, slug: 'vela-clasica', title: 'Vela Clásica', parent: 2 },
 ]
 const STORED = {
   items: [
@@ -109,6 +110,22 @@ describe('Editor de navegación', () => {
       { label: 'Velas', destinationType: 'category', categoryId: 2, path: '', active: false, accent: false },
     ])
     await waitFor(() => expect(refresh).toHaveBeenCalled())
+  })
+
+  it('el selector lista las categorías reales: primer nivel y tipos agrupados', async () => {
+    stubFetch()
+    render(<NavEditButton />)
+    await openEditor()
+    fireEvent.click(screen.getByRole('button', { name: '+ Agregar opción' }))
+    const select = screen.getByLabelText('Destino de la opción') as HTMLSelectElement
+    expect([...select.options].map((o) => o.textContent)).toEqual([
+      'Elegí una categoría…',
+      'Velas',
+      'Jabones',
+      'Vela Clásica',
+      'Otra ruta interna…',
+    ])
+    expect(select.querySelector('optgroup')?.getAttribute('label')).toBe('Velas')
   })
 
   it('permite cambiar el destino a una ruta interna', async () => {
