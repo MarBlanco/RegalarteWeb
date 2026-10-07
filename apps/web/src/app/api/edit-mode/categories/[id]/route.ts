@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { revalidateTag } from 'next/cache'
-import { sanitizeCategoryPatch } from '@/lib/catalog-edit'
+import { reorderSiblings, sanitizeCategoryPatch } from '@/lib/catalog-edit'
 import { verifyStaff } from '../../auth'
 
 export const dynamic = 'force-dynamic'
@@ -59,6 +59,39 @@ export async function PUT(
         return NextResponse.json({ error: 'Imagen inválida' }, { status: 400 })
       }
     }
+    // Cambiar el orden reubica al tipo entre sus hermanos y renumera todos
+    // (consecutivo, sin duplicados).
+    const parentId = existing.parent
+    if (patch.sortOrder !== undefined && typeof parentId === 'number') {
+      const siblings = await payload.find({
+        collection: 'categories',
+        where: { parent: { equals: parentId } },
+        limit: 200,
+        depth: 0,
+        pagination: false,
+        sort: 'sortOrder',
+      } as never)
+      const current = new Map<number, number>()
+      for (const d of siblings.docs as unknown as Array<{ id: number; sortOrder?: number }>) {
+        current.set(d.id, typeof d.sortOrder === 'number' ? d.sortOrder : 0)
+      }
+      const next = reorderSiblings(
+        Array.from(current, ([sid, sortOrder]) => ({ id: sid, sortOrder })),
+        id,
+        patch.sortOrder,
+      )
+      patch.sortOrder = next.get(id) ?? patch.sortOrder
+      for (const [sid, order] of Array.from(next)) {
+        if (sid === id || current.get(sid) === order) continue
+        await payload.update({
+          collection: 'categories',
+          id: sid,
+          data: { sortOrder: order },
+          user: user as never,
+          overrideAccess: false,
+        })
+      }
+    }
     const updated = (await payload.update({
       collection: 'categories',
       id,
@@ -66,7 +99,7 @@ export async function PUT(
       user: user as never,
       overrideAccess: false,
     })) as { id: number; title: string; slug: string }
-    revalidateTag('categories', 'max')
+    revalidateTag('categories', { expire: 0 })
     return NextResponse.json(
       { id: updated.id, title: updated.title, slug: updated.slug },
       { headers: { 'Cache-Control': 'no-store' } },
@@ -122,7 +155,7 @@ export async function DELETE(
         user: user as never,
         overrideAccess: false,
       })
-      revalidateTag('categories', 'max')
+      revalidateTag('categories', { expire: 0 })
       return NextResponse.json(
         { deactivated: true },
         { headers: { 'Cache-Control': 'no-store' } },
@@ -134,7 +167,7 @@ export async function DELETE(
       user: user as never,
       overrideAccess: false,
     })
-    revalidateTag('categories', 'max')
+    revalidateTag('categories', { expire: 0 })
     return NextResponse.json(
       { deleted: true },
       { headers: { 'Cache-Control': 'no-store' } },

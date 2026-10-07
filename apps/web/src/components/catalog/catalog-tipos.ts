@@ -36,6 +36,8 @@ export interface Tipo {
   categoryId?: number
   /** Orden manual en el CMS (solo tipos reales). */
   sortOrder?: number
+  /** Visible en la tienda; ausente = visible (solo tipos reales). */
+  active?: boolean
 }
 
 export interface MockTipoSeed {

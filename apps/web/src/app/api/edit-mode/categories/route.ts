@@ -118,7 +118,7 @@ export async function POST(req: Request) {
     } as never)
     const first = siblings.docs[0] as { sortOrder?: unknown } | undefined
     const sortOrder =
-      typeof first?.sortOrder === 'number' ? first.sortOrder + 1 : 0
+      typeof first?.sortOrder === 'number' ? first.sortOrder + 1 : 1
 
     const created = (await payload.create({
       collection: 'categories',
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
         description: data.description,
         parent: data.parent,
         sortOrder,
-        active: true,
+        active: data.active,
         ...(data.image !== undefined ? { image: data.image } : {}),
       },
       user: user as never,
@@ -137,7 +137,7 @@ export async function POST(req: Request) {
 
     // El selector de tipos y el catálogo cachean categorías (300s):
     // invalida para reflejo inmediato.
-    revalidateTag('categories', 'max')
+    revalidateTag('categories', { expire: 0 })
 
     return NextResponse.json(
       { id: created.id, title: created.title, slug: created.slug },
