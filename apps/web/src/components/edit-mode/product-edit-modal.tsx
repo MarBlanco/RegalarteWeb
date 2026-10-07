@@ -480,8 +480,8 @@ export function ProductEditModal({
       setSaveError('La categoría es requerida')
       return
     }
-    if (price.trim() === '') {
-      setSaveError('El precio es requerido')
+    if (!/^\d+([.,]\d{0,2})?$/.test(price.trim())) {
+      setSaveError(price.trim() === '' ? 'El precio es requerido' : 'Precio inválido')
       return
     }
     setSaving(true)
@@ -489,7 +489,7 @@ export function ProductEditModal({
     try {
       const payload = {
         title,
-        price: price.replace(',', '.'),
+        price: price.trim().replace(',', '.'),
         stock: stock === '' ? '0' : stock,
         active: state !== 'hidden',
         featured,
