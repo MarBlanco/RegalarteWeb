@@ -174,6 +174,40 @@ describe('Mis compras — estados de página', () => {
     expect(useCartStore.getState().items).toHaveLength(0)
   })
 
+  it('un producto borrado del catálogo se informa y no se agrega', async () => {
+    login()
+    useCartStore.getState().clearCart()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((url: string) =>
+        String(url).startsWith('/api/products')
+          ? Promise.resolve({ ok: true, json: () => Promise.resolve({ docs: [] }) })
+          : Promise.resolve({
+              ok: true,
+              json: () =>
+                Promise.resolve({
+                  docs: [{ ...ORDER, items: [{ ...ORDER.items[0], product: null }] }],
+                }),
+            }),
+      ),
+    )
+    await clickBuyAgain()
+    expect(await screen.findByRole('status')).toHaveTextContent('Vela Vainilla & Ámbar')
+    expect(useCartStore.getState().items).toHaveLength(0)
+  })
+
+  it('dos clics seguidos no suman el producto dos veces', async () => {
+    login()
+    useCartStore.getState().clearCart()
+    stubOrdersAndProducts([{ id: 4, active: true, soldOut: false, stock: 10 }])
+    await clickBuyAgain()
+    const button = screen.getByRole('button', { name: 'Volver a comprar' })
+    expect(button).toBeDisabled()
+    fireEvent.click(button)
+    await waitFor(() => expect(useCartStore.getState().items).toHaveLength(1))
+    expect(useCartStore.getState().items[0].quantity).toBe(2)
+  })
+
   it('si no se puede verificar la disponibilidad no agrega nada', async () => {
     login()
     useCartStore.getState().clearCart()

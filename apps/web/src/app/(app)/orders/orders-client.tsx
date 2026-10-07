@@ -92,6 +92,7 @@ function OrderCard({ order }: Readonly<{ order: HistoryOrder }>) {
   const addItem = useCartStore((s) => s.addItem)
   const [expanded, setExpanded] = useState(false)
   const [notice, setNotice] = useState('')
+  const [checking, setChecking] = useState(false)
   const meta = ORDER_STATUS_META[order.status]
   const mainImage = order.items.find((i) => i.imageUrl)?.imageUrl ?? null
   const thumbs = order.items
@@ -101,6 +102,9 @@ function OrderCard({ order }: Readonly<{ order: HistoryOrder }>) {
   const count = order.items.reduce((acc, i) => acc + i.quantity, 0)
 
   async function buyAgain() {
+    // Un solo intento a la vez: sin esto, dos clics seguidos sumarían doble.
+    if (checking) return
+    setChecking(true)
     setNotice('')
     const ids = order.items.flatMap((i) => (i.product === null ? [] : [i.product]))
     let unavailable: Set<number>
@@ -108,12 +112,14 @@ function OrderCard({ order }: Readonly<{ order: HistoryOrder }>) {
       unavailable = await findUnavailableProducts(ids)
     } catch {
       setNotice('No pudimos verificar la disponibilidad. Intentá de nuevo.')
+      setChecking(false)
       return
     }
+    setChecking(false)
     const skipped: string[] = []
     for (const item of order.items) {
-      if (item.product === null) continue
-      if (unavailable.has(item.product)) {
+      // Producto borrado del catálogo: ya no se puede comprar.
+      if (item.product === null || unavailable.has(item.product)) {
         skipped.push(item.name)
         continue
       }
@@ -252,14 +258,13 @@ function OrderCard({ order }: Readonly<{ order: HistoryOrder }>) {
               type="button"
               variant="outline"
               onClick={() => void buyAgain()}
+              disabled={checking}
               className="h-10 w-full rounded-lg border-[#C9A24B] text-xs font-semibold uppercase tracking-wider text-[#8A5A33] hover:bg-[#F9EFE2]"
             >
               Volver a comprar
             </Button>
             {notice ? (
-              <p role="status" className="text-xs text-[#7A6A5D]">
-                {notice}
-              </p>
+              <output className="block text-xs text-[#7A6A5D]">{notice}</output>
             ) : null}
           </div>
         </div>
