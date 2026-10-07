@@ -52,6 +52,8 @@ export async function GET(req: Request) {
             : null,
         sortOrder: typeof d.sortOrder === 'number' ? d.sortOrder : 0,
         active: d.active !== false,
+        seoTitle: typeof d.seoTitle === 'string' ? d.seoTitle : '',
+        seoDescription: typeof d.seoDescription === 'string' ? d.seoDescription : '',
       }
     })
     return NextResponse.json(
@@ -118,7 +120,8 @@ export async function POST(req: Request) {
     } as never)
     const first = siblings.docs[0] as { sortOrder?: unknown } | undefined
     const sortOrder =
-      typeof first?.sortOrder === 'number' ? first.sortOrder + 1 : 0
+      data.sortOrder ??
+      (typeof first?.sortOrder === 'number' ? first.sortOrder + 1 : 0)
 
     const created = (await payload.create({
       collection: 'categories',
@@ -128,8 +131,12 @@ export async function POST(req: Request) {
         description: data.description,
         parent: data.parent,
         sortOrder,
-        active: true,
+        active: data.active,
         ...(data.image !== undefined ? { image: data.image } : {}),
+        ...(data.seoTitle !== undefined ? { seoTitle: data.seoTitle } : {}),
+        ...(data.seoDescription !== undefined
+          ? { seoDescription: data.seoDescription }
+          : {}),
       },
       user: user as never,
       overrideAccess: false,

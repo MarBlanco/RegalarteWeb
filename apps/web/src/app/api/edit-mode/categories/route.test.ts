@@ -43,6 +43,39 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
+describe('Tipos — alta desde el editor central', () => {
+  it('respeta visibilidad, orden y SEO enviados y asocia al padre', async () => {
+    const db = mockPayloadDb()
+    vi.mocked(getPayload).mockResolvedValue(db as never)
+    const res = await POST(
+      authedJson({
+        title: 'Vela Bubble',
+        parent: 3,
+        active: false,
+        sortOrder: 0,
+        seoTitle: 'SEO',
+      }),
+    )
+    expect(res.status).toBe(201)
+    expect(db.create.mock.calls[0][0].data).toMatchObject({
+      title: 'Vela Bubble',
+      slug: 'vela-bubble',
+      parent: 3,
+      active: false,
+      sortOrder: 0,
+      seoTitle: 'SEO',
+    })
+  })
+
+  it('sin orden enviado calcula el siguiente', async () => {
+    const db = mockPayloadDb()
+    db.find.mockResolvedValue({ docs: [{ sortOrder: 4 }] })
+    vi.mocked(getPayload).mockResolvedValue(db as never)
+    await POST(authedJson({ title: 'Otro', parent: 3 }))
+    expect(db.create.mock.calls[0][0].data).toMatchObject({ sortOrder: 5, active: true })
+  })
+})
+
 describe('Tipos — invalidación inmediata del caché', () => {
   it('POST invalida categories', async () => {
     vi.mocked(getPayload).mockResolvedValue(mockPayloadDb() as never)

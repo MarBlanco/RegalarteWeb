@@ -172,3 +172,39 @@ describe('Filtros — edición de opción aroma/ritual', () => {
     expect(sanitizeFilterTagPatch({ active: 'si' })).toBeNull()
   })
 })
+
+describe('Editor central de tipos — campos opcionales', () => {
+  it('el alta acepta visibilidad, orden y SEO', () => {
+    expect(
+      sanitizeCategoryCreate({
+        title: 'Bubble',
+        parent: 3,
+        active: false,
+        sortOrder: 4,
+        seoTitle: ' Vela Bubble ',
+        seoDescription: 'Desc',
+      }),
+    ).toEqual({
+      title: 'Bubble',
+      description: '',
+      parent: 3,
+      active: false,
+      sortOrder: 4,
+      seoTitle: 'Vela Bubble',
+      seoDescription: 'Desc',
+    })
+  })
+
+  it('el alta rechaza orden o visibilidad inválidos', () => {
+    expect(sanitizeCategoryCreate({ title: 'X', parent: 3, sortOrder: -1 })).toBeNull()
+    expect(sanitizeCategoryCreate({ title: 'X', parent: 3, active: 'quizás' })).toBeNull()
+    expect(sanitizeCategoryCreate({ title: 'X', parent: 3, seoTitle: 5 })).toBeNull()
+  })
+
+  it('la edición acepta SEO y visibilidad, y limita el largo', () => {
+    expect(
+      sanitizeCategoryPatch({ active: false, seoTitle: 'x'.repeat(200), seoDescription: '' }),
+    ).toEqual({ active: false, seoTitle: 'x'.repeat(120), seoDescription: '' })
+    expect(sanitizeCategoryPatch({ seoDescription: 3 })).toBeNull()
+  })
+})

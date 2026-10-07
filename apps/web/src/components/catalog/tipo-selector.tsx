@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Tipo } from './catalog-tipos'
 import { cn } from '@/lib/utils'
-import { TipoAddButton, TipoItemControls, HiddenTiposStrip } from '@/components/edit-mode/tipo-edit-controls'
+import { TipoAddButton, TipoItemControls, HiddenTiposStrip, CategoryTypesEditorHost } from '@/components/edit-mode/tipo-edit-controls'
 
 interface TipoSelectorProps {
   categorySlug: string
@@ -167,7 +167,7 @@ export function TipoSelector({ categorySlug, tipos, activeSlug, editCategoryId }
                 tipo={tipo}
                 active={activeSlug === tipo.slug}
               />
-              <TipoItemControls tipo={tipo} tipos={tipos} index={index} />
+              <TipoItemControls tipo={tipo} tipos={tipos} index={index} parentId={editCategoryId} />
             </div>
           ))}
         </nav>
@@ -184,6 +184,7 @@ export function TipoSelector({ categorySlug, tipos, activeSlug, editCategoryId }
         </button>
       </div>
       <HiddenTiposStrip parentId={editCategoryId} />
+      <CategoryTypesEditorHost />
     </div>
   )
 }

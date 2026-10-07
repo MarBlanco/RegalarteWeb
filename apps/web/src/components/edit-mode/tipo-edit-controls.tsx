@@ -11,6 +11,43 @@ import { ModalShell } from './edit-modal'
 import { PencilIcon, TrashIcon } from './edit-button'
 import { editModeRequest } from './api'
 import type { Tipo } from '@/components/catalog/catalog-tipos'
+import { ImagePicker } from './tipo-image-picker'
+import { CategoryTypesEditor } from './category-types-editor'
+
+const OPEN_EDITOR_EVENT = 'open-category-types-editor'
+
+interface OpenEditorDetail {
+  categoryId: number
+  tipoId?: number
+}
+
+/**
+ * Abre el editor central. El modal vive en `CategoryTypesEditorHost` (fuera de
+ * las tarjetas): al cambiar la visibilidad de un tipo su tarjeta se mueve
+ * entre la lista y los ocultos, y el modal no debe cerrarse con ella.
+ */
+function openCategoryTypesEditor(detail: OpenEditorDetail) {
+  window.dispatchEvent(new CustomEvent<OpenEditorDetail>(OPEN_EDITOR_EVENT, { detail }))
+}
+
+/** Monta el editor central cuando una tarjeta lo pide (solo MODO EDICIÓN). */
+export function CategoryTypesEditorHost() {
+  const active = useEditActive()
+  const [open, setOpen] = useState<OpenEditorDetail | null>(null)
+  useEffect(() => {
+    const onOpen = (e: Event) => setOpen((e as CustomEvent<OpenEditorDetail>).detail)
+    window.addEventListener(OPEN_EDITOR_EVENT, onOpen)
+    return () => window.removeEventListener(OPEN_EDITOR_EVENT, onOpen)
+  }, [])
+  if (!active || !open) return null
+  return (
+    <CategoryTypesEditor
+      initialCategoryId={open.categoryId}
+      initialTipoId={open.tipoId}
+      onClose={() => setOpen(null)}
+    />
+  )
+}
 
 function useEditToken() {
   const router = useRouter()
@@ -26,108 +63,6 @@ function useEditToken() {
       return out
     },
   }
-}
-
-function ImagePicker({
-  value,
-  onChange,
-}: {
-  value: { id: number | null; url: string | null }
-  onChange: (next: { id: number | null; url: string | null }) => void
-}) {
-  const token = useAuth((s) => s.token)
-  const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState('')
-
-  async function handleSelect(file: File) {
-    if (!token) {
-      setError('Sesión vencida. Volvé a iniciar sesión.')
-      return
-    }
-    if (!file.type.startsWith('image/')) {
-      setError('Solo se permiten imágenes')
-      return
-    }
-    if (file.size > 6 * 1024 * 1024) {
-      setError('La imagen supera los 6MB')
-      return
-    }
-    setUploading(true)
-    setError('')
-    try {
-      const form = new FormData()
-      form.append('file', file)
-      form.append('alt', file.name)
-      const res = await fetch('/api/edit-mode/media', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-      })
-      const data = (await res.json().catch(() => null)) as {
-        id?: number
-        url?: string | null
-        error?: string
-      } | null
-      if (!res.ok || !data || typeof data.id !== 'number') {
-        throw new Error(data?.error ?? 'No se pudo subir la imagen')
-      }
-      onChange({ id: data.id, url: data.url ?? null })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo subir')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  return (
-    <div className="space-y-2">
-      <span className="text-sm font-medium">Imagen</span>
-      <div className="flex items-center gap-3">
-        {value.url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={value.url}
-            alt=""
-            className="h-14 w-14 rounded-md border border-[#E5DDD1] object-cover"
-          />
-        ) : (
-          <span className="flex h-14 w-14 items-center justify-center rounded-md border border-dashed border-[#E5DDD1] text-[10px] text-[#7A6A5D]">
-            Sin imagen
-          </span>
-        )}
-        <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-[#8A5A33]">
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            disabled={uploading}
-            onChange={(e) => {
-              const f = e.target.files?.[0]
-              e.target.value = ''
-              if (f) void handleSelect(f)
-            }}
-          />
-          <span className="rounded-full border border-[#E5C9A8] bg-[#F9EFE2] px-3 py-1.5 text-xs">
-            {uploading ? 'Subiendo…' : value.url ? 'Cambiar' : 'Subir'}
-          </span>
-        </label>
-        {value.url ? (
-          <button
-            type="button"
-            onClick={() => onChange({ id: null, url: null })}
-            className="text-xs text-[#7A6A5D] underline underline-offset-2"
-          >
-            Quitar
-          </button>
-        ) : null}
-      </div>
-      {error ? (
-        <p role="alert" className="text-xs text-red-700">
-          {error}
-        </p>
-      ) : null}
-    </div>
-  )
 }
 
 function TipoForm({
@@ -338,10 +273,12 @@ interface TipoItemControlsProps {
   tipo: Tipo
   tipos: Tipo[]
   index: number
+  /** Categoría principal del tipo: abre el editor central en su solapa. */
+  parentId?: number
 }
 
 /** Controles por tarjeta de tipo real: editar, mover, eliminar. */
-export function TipoItemControls({ tipo, tipos, index }: TipoItemControlsProps) {
+export function TipoItemControls({ tipo, tipos, index, parentId }: Readonly<TipoItemControlsProps>) {
   const active = useEditActive()
   const { run } = useEditToken()
   const [editing, setEditing] = useState(false)
@@ -409,7 +346,11 @@ export function TipoItemControls({ tipo, tipos, index }: TipoItemControlsProps) 
             e.stopPropagation()
             setServerError('')
             setNotice('')
-            setEditing(true)
+            if (parentId !== undefined) {
+              openCategoryTypesEditor({ categoryId: parentId, tipoId: tipo.categoryId })
+            } else {
+              setEditing(true)
+            }
           }}
           className="inline-flex items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 px-2 py-0.5 text-[10px] font-medium text-[#8A5A33] shadow-sm hover:bg-[#F3E2CC]"
           aria-label={`Editar tipo ${tipo.name}`}
@@ -468,7 +409,7 @@ export function TipoItemControls({ tipo, tipos, index }: TipoItemControlsProps) 
           {notice}
         </span>
       ) : null}
-      {editing ? (
+      {editing && parentId === undefined ? (
         <ModalShell
           title={`Editar tipo: ${tipo.name}`}
           onClose={() => setEditing(false)}
@@ -528,7 +469,7 @@ interface HiddenTipo {
  * activarlos reaparecen con todo su contenido (productos intactos).
  * Solo existe en edición; los clientes nunca la ven ni la reciben.
  */
-export function HiddenTiposStrip({ parentId }: { parentId: number }) {
+export function HiddenTiposStrip({ parentId }: Readonly<{ parentId: number }>) {
   const active = useEditActive()
   const token = useAuth((s) => s.token)
   const [items, setItems] = useState<HiddenTipo[]>([])
@@ -611,7 +552,7 @@ export function HiddenTiposStrip({ parentId }: { parentId: number }) {
                 </span>
               </span>
             </span>
-            <TipoItemControls tipo={tipo} tipos={tipos} index={index} />
+            <TipoItemControls tipo={tipo} tipos={tipos} index={index} parentId={parentId} />
           </div>
         ))}
       </div>

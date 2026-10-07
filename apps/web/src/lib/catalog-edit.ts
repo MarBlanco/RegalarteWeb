@@ -60,18 +60,23 @@ export interface CategoryCreateData {
   sortOrder: number
   active: boolean
   image?: number
+  seoTitle?: string
+  seoDescription?: string
+}
+
+/** Creación saneada: orden y slug los completa el servidor si faltan. */
+export type CategoryCreateInput = Omit<CategoryCreateData, 'slug' | 'sortOrder'> & {
+  sortOrder?: number
 }
 
 /** Sanitiza creación de tipo (categoría hija). Slug se genera en servidor. */
-export function sanitizeCategoryCreate(
-  body: unknown,
-): Omit<CategoryCreateData, 'slug' | 'sortOrder'> | null {
+export function sanitizeCategoryCreate(body: unknown): CategoryCreateInput | null {
   if (!isRecord(body)) return null
   const title = body.title === undefined ? null : cleanText(body.title, 80)
   if (title === null) return null
   const parent = body.parent === undefined ? null : cleanId(body.parent)
   if (parent === null) return null
-  const data: Omit<CategoryCreateData, 'slug' | 'sortOrder'> = {
+  const data: CategoryCreateInput = {
     title,
     description:
       typeof body.description === 'string'
@@ -85,7 +90,34 @@ export function sanitizeCategoryCreate(
     if (image === null) return null
     data.image = image
   }
+  if (body.active !== undefined) {
+    const b = cleanBoolean(body.active)
+    if (b === null) return null
+    data.active = b
+  }
+  if (body.sortOrder !== undefined) {
+    const n = cleanNumber(body.sortOrder, 100000)
+    if (n === null || !Number.isInteger(n)) return null
+    data.sortOrder = n
+  }
+  if (!readSeo(body, data)) return null
   return data
+}
+
+/** SEO opcional (campos existentes de Categories). Devuelve false si es inválido. */
+function readSeo(
+  body: Record<string, unknown>,
+  into: { seoTitle?: string; seoDescription?: string },
+): boolean {
+  if (body.seoTitle !== undefined) {
+    if (typeof body.seoTitle !== 'string') return false
+    into.seoTitle = body.seoTitle.trim().slice(0, 120)
+  }
+  if (body.seoDescription !== undefined) {
+    if (typeof body.seoDescription !== 'string') return false
+    into.seoDescription = body.seoDescription.trim().slice(0, 300)
+  }
+  return true
 }
 
 export interface CategoryPatchData {
@@ -94,6 +126,8 @@ export interface CategoryPatchData {
   sortOrder?: number
   active?: boolean
   image?: number | null
+  seoTitle?: string
+  seoDescription?: string
 }
 
 /** Sanitiza edición de tipo. */
@@ -128,6 +162,7 @@ export function sanitizeCategoryPatch(body: unknown): CategoryPatchData | null {
       patch.image = image
     }
   }
+  if (!readSeo(body, patch)) return null
   return Object.keys(patch).length > 0 ? patch : null
 }
 
