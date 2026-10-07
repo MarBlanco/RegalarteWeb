@@ -75,7 +75,7 @@ describe('Editor comercial — producto real', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('Nombre / título')).toHaveValue('Vela Test')
     })
-    expect(screen.getByLabelText('Precio')).toHaveValue(1000)
+    expect(screen.getByLabelText('Precio')).toHaveValue('1000')
     expect(screen.getByLabelText('Descripción')).toHaveValue('Desc')
   })
 
