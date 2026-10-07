@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/use-auth'
 import { useCartStore } from '@/lib/cart/store'
+import { isAgotado } from '@/lib/catalog'
 import { formatPrice } from '@/lib/format'
 import {
   ORDER_STATUS_META,
@@ -64,10 +65,33 @@ function StatusIcon({ status, className = 'h-3.5 w-3.5' }: { status: OrderStatus
   }
 }
 
-function OrderCard({ order }: { order: HistoryOrder }) {
+/**
+ * Ids de productos que hoy NO se pueden comprar (agotados, sin stock o
+ * despublicados). Un producto que ya no existe también se considera no
+ * disponible. Lanza si no se puede consultar.
+ */
+async function findUnavailableProducts(ids: number[]): Promise<Set<number>> {
+  if (ids.length === 0) return new Set()
+  const res = await fetch(
+    `/api/products?where[id][in]=${ids.join(',')}&limit=${ids.length}&depth=0`,
+  )
+  if (!res.ok) throw new Error('availability')
+  const data = (await res.json()) as {
+    docs?: Array<{ id: number; active?: boolean | null; soldOut?: boolean | null; stock?: number | null }>
+  }
+  const available = new Set(
+    (data.docs ?? [])
+      .filter((p) => p.active !== false && !isAgotado(p))
+      .map((p) => p.id),
+  )
+  return new Set(ids.filter((id) => !available.has(id)))
+}
+
+function OrderCard({ order }: Readonly<{ order: HistoryOrder }>) {
   const router = useRouter()
   const addItem = useCartStore((s) => s.addItem)
   const [expanded, setExpanded] = useState(false)
+  const [notice, setNotice] = useState('')
   const meta = ORDER_STATUS_META[order.status]
   const mainImage = order.items.find((i) => i.imageUrl)?.imageUrl ?? null
   const thumbs = order.items
@@ -76,9 +100,23 @@ function OrderCard({ order }: { order: HistoryOrder }) {
     .slice(0, 2)
   const count = order.items.reduce((acc, i) => acc + i.quantity, 0)
 
-  function buyAgain() {
+  async function buyAgain() {
+    setNotice('')
+    const ids = order.items.flatMap((i) => (i.product === null ? [] : [i.product]))
+    let unavailable: Set<number>
+    try {
+      unavailable = await findUnavailableProducts(ids)
+    } catch {
+      setNotice('No pudimos verificar la disponibilidad. Intentá de nuevo.')
+      return
+    }
+    const skipped: string[] = []
     for (const item of order.items) {
       if (item.product === null) continue
+      if (unavailable.has(item.product)) {
+        skipped.push(item.name)
+        continue
+      }
       addItem({
         id: String(item.product),
         productId: String(item.product),
@@ -88,6 +126,12 @@ function OrderCard({ order }: { order: HistoryOrder }) {
         quantity: item.quantity,
         image: item.imageUrl ? { url: item.imageUrl, alt: item.name } : null,
       })
+    }
+    if (skipped.length > 0) {
+      setNotice(
+        `Sin disponibilidad, no se agregó: ${skipped.join(', ')}. Lo demás ya está en tu carrito.`,
+      )
+      return
     }
     router.push('/cart')
   }
@@ -207,11 +251,16 @@ function OrderCard({ order }: { order: HistoryOrder }) {
             <Button
               type="button"
               variant="outline"
-              onClick={buyAgain}
+              onClick={() => void buyAgain()}
               className="h-10 w-full rounded-lg border-[#C9A24B] text-xs font-semibold uppercase tracking-wider text-[#8A5A33] hover:bg-[#F9EFE2]"
             >
               Volver a comprar
             </Button>
+            {notice ? (
+              <p role="status" className="text-xs text-[#7A6A5D]">
+                {notice}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

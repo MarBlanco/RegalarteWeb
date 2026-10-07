@@ -58,6 +58,7 @@ export function ProductDetailActions({
   }
 
   const handleAdd = () => {
+    if (isOutOfStock) return
     const input: CartItemInput = {
       id: String(product.id),
       productId: String(product.id),

@@ -156,6 +156,8 @@ export function ProductCard({ product, badge, fallbackImage, fallbackSubtitle }:
           ) : (
             <AddToCartButton
               compact
+              soldOut={product.soldOut ?? null}
+              stock={product.stock ?? null}
               product={{
                 id: product.id,
                 slug: product.slug,

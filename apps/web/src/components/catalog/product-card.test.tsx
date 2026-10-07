@@ -73,3 +73,18 @@ describe('ProductCard — estado Agotado', () => {
     expect(screen.queryByRole('button', { name: 'Agotado' })).toBeNull()
   })
 })
+
+describe('ProductCard — compra por estado', () => {
+  it('Activo: "Agregar al carrito" habilitado', () => {
+    render(<ProductCard product={makeProduct({ active: true, soldOut: false })} />)
+    expect(screen.getByRole('button', { name: 'Agregar al carrito' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Agotado' })).toBeNull()
+  })
+
+  it('Agotado: sin botón de compra, con precio visible', () => {
+    render(<ProductCard product={makeProduct({ soldOut: true })} />)
+    expect(screen.queryByRole('button', { name: 'Agregar al carrito' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Agotado' })).toBeDisabled()
+    expect(screen.getByText(/4\.500/)).toBeInTheDocument()
+  })
+})

@@ -118,22 +118,68 @@ describe('Mis compras — estados de página', () => {
     expect(screen.queryByText('Pedido #RG-000124')).toBeNull()
   })
 
-  it('volver a comprar lleva al carrito', async () => {
-    login()
+  function stubOrdersAndProducts(products: Array<Record<string, unknown>> | 'fail') {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ docs: [ORDER] }),
+      vi.fn().mockImplementation((url: string) => {
+        if (String(url).startsWith('/api/products')) {
+          return products === 'fail'
+            ? Promise.resolve({ ok: false, json: () => Promise.resolve({}) })
+            : Promise.resolve({ ok: true, json: () => Promise.resolve({ docs: products }) })
+        }
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ docs: [ORDER] }) })
       }),
     )
+  }
+
+  async function clickBuyAgain() {
     render(<OrdersClient />)
     await screen.findByText('Pedido #RG-000124')
     fireEvent.click(screen.getByRole('button', { name: 'Volver a comprar' }))
+  }
+
+  it('volver a comprar con producto Activo lo agrega al carrito', async () => {
+    login()
+    useCartStore.getState().clearCart()
+    stubOrdersAndProducts([{ id: 4, active: true, soldOut: false, stock: 10 }])
+    await clickBuyAgain()
     await waitFor(() => {
-      expect(
-        useCartStore.getState().items.map((i) => i.slug),
-      ).toContain('vela-vainilla-ambar')
+      expect(useCartStore.getState().items.map((i) => i.slug)).toContain('vela-vainilla-ambar')
     })
+  })
+
+  it('volver a comprar NO agrega un producto Agotado (manual o sin stock) y avisa', async () => {
+    for (const product of [
+      { id: 4, active: true, soldOut: true, stock: 10 },
+      { id: 4, active: true, soldOut: false, stock: 0 },
+    ]) {
+      login()
+      useCartStore.getState().clearCart()
+      stubOrdersAndProducts([product])
+      const { unmount } = render(<OrdersClient />)
+      await screen.findByText('Pedido #RG-000124')
+      fireEvent.click(screen.getByRole('button', { name: 'Volver a comprar' }))
+      expect(await screen.findByRole('status')).toHaveTextContent('Sin disponibilidad')
+      expect(useCartStore.getState().items).toHaveLength(0)
+      unmount()
+    }
+  })
+
+  it('volver a comprar mantiene el comportamiento para un producto Oculto: tampoco se agrega', async () => {
+    login()
+    useCartStore.getState().clearCart()
+    stubOrdersAndProducts([{ id: 4, active: false, soldOut: false, stock: 10 }])
+    await clickBuyAgain()
+    expect(await screen.findByRole('status')).toHaveTextContent('Sin disponibilidad')
+    expect(useCartStore.getState().items).toHaveLength(0)
+  })
+
+  it('si no se puede verificar la disponibilidad no agrega nada', async () => {
+    login()
+    useCartStore.getState().clearCart()
+    stubOrdersAndProducts('fail')
+    await clickBuyAgain()
+    expect(await screen.findByRole('status')).toHaveTextContent('No pudimos verificar')
+    expect(useCartStore.getState().items).toHaveLength(0)
   })
 })
