@@ -70,15 +70,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Imágenes inválidas' }, { status: 400 })
     }
 
-    const created = (await payload.create({
-      collection: 'products',
-      data: {
-        ...data,
-        slug: await uniqueSlug(payload, 'products', slugify(data.title)),
-      },
-      user: user as never,
-      overrideAccess: false,
-    } as never)) as unknown as { id: number; title: string; slug: string }
+    // Si dos altas con el mismo título compiten por el slug, la restricción
+    // única rechaza una: se reintenta una vez con un slug recalculado (que ya
+    // ve la fila ganadora). Cualquier otro error vuelve a fallar y da 500.
+    let created: { id: number; title: string; slug: string } | null = null
+    for (let attempt = 0; attempt < 2 && !created; attempt++) {
+      try {
+        created = (await payload.create({
+          collection: 'products',
+          data: {
+            ...data,
+            slug: await uniqueSlug(payload, 'products', slugify(data.title)),
+          },
+          user: user as never,
+          overrideAccess: false,
+        } as never)) as unknown as { id: number; title: string; slug: string }
+      } catch (err) {
+        if (attempt === 1) throw err
+      }
+    }
+    if (!created) throw new Error('create failed')
 
     // Listados, facetas y PDP usan el tag 'products': invalida ya para que el
     // producto nuevo aparezca al refrescar.

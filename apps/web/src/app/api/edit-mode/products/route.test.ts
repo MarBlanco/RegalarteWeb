@@ -120,9 +120,20 @@ describe('POST /api/edit-mode/products', () => {
     expect(payload.create).not.toHaveBeenCalled()
   })
 
-  it('error de base de datos → 500', async () => {
+  it('si el alta choca por slug repetido reintenta una vez con slug recalculado', async () => {
+    const payload = mockPayload('staff')
+    payload.create
+      .mockRejectedValueOnce(new Error('unique'))
+      .mockResolvedValueOnce({ id: 78, title: 'Vela Nueva', slug: 'vela-nueva-2' })
+    const res = await POST(req(good))
+    expect(res.status).toBe(201)
+    expect(payload.create).toHaveBeenCalledTimes(2)
+  })
+
+  it('error de base de datos persistente → 500 tras un único reintento', async () => {
     const payload = mockPayload('staff')
     payload.create.mockRejectedValue(new Error('boom'))
     expect((await POST(req(good))).status).toBe(500)
+    expect(payload.create).toHaveBeenCalledTimes(2)
   })
 })
