@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ModalShell } from './edit-modal'
+import { MultiSelect } from './multi-select'
 import { PencilIcon } from './edit-button'
 import { notifyProductsChanged } from './api'
 import { isSimpleLexical, lexicalToPlainText } from '@/lib/product-edit'
@@ -264,6 +265,40 @@ export function CatalogProductControls({
   )
 }
 
+const TAG_GROUPS: Array<{
+  kind: 'aroma' | 'ritual' | 'other'
+  label: string
+  empty: string
+}> = [
+  { kind: 'aroma', label: 'Aromas', empty: 'Sin aromas disponibles.' },
+  { kind: 'ritual', label: 'Rituales', empty: 'Sin rituales disponibles.' },
+  { kind: 'other', label: 'Otros', empty: 'Sin opciones disponibles.' },
+]
+
+type ProductState = 'active' | 'soldout' | 'hidden'
+
+/** Estado comercial único: Activo, Agotado (visible, sin compra) u Oculto. */
+function stateFrom(active: boolean, soldOut: boolean): ProductState {
+  if (!active) return 'hidden'
+  return soldOut ? 'soldout' : 'active'
+}
+
+const PRODUCT_STATES: Array<{ value: ProductState; label: string; title?: string }> = [
+  { value: 'active', label: 'Activo' },
+  { value: 'soldout', label: 'Agotado', title: 'Visible en catálogo y PDP, sin compra' },
+  { value: 'hidden', label: 'Oculto', title: 'No se muestra en la tienda' },
+]
+
+/** Entrada de precio: solo dígitos y hasta 2 decimales (acepta coma o punto). */
+function cleanPriceInput(raw: string): string | null {
+  return /^\d*([.,]\d{0,2})?$/.test(raw) ? raw : null
+}
+
+/** Entrada de stock: solo dígitos. */
+function cleanStockInput(raw: string): string | null {
+  return /^\d*$/.test(raw) ? raw : null
+}
+
 export function ProductEditModal({
   productId,
   presetCategoryId,
@@ -288,11 +323,9 @@ export function ProductEditModal({
 
   const [title, setTitle] = useState('')
   const [price, setPrice] = useState('')
-  const [compareAtPrice, setCompareAtPrice] = useState('')
   const [stock, setStock] = useState('')
-  const [active, setActive] = useState(true)
+  const [state, setState] = useState<ProductState>('active')
   const [featured, setFeatured] = useState(false)
-  const [soldOut, setSoldOut] = useState(false)
   const [categoryId, setCategoryId] = useState('')
   const [tagIds, setTagIds] = useState<number[]>([])
   const [descriptionText, setDescriptionText] = useState('')
@@ -326,15 +359,9 @@ export function ProductEditModal({
         if (cancelled) return
         setTitle(typeof p.title === 'string' ? p.title : '')
         setPrice(p.price !== undefined && p.price !== null ? String(p.price) : '')
-        setCompareAtPrice(
-          p.compareAtPrice !== undefined && p.compareAtPrice !== null
-            ? String(p.compareAtPrice)
-            : '',
-        )
         setStock(p.stock !== undefined && p.stock !== null ? String(p.stock) : '')
-        setActive(p.active !== false)
+        setState(stateFrom(p.active !== false, p.soldOut === true))
         setFeatured(p.featured === true)
-        setSoldOut(p.soldOut === true)
         const catId = asId(p.category)
         setCategoryId(catId !== null ? String(catId) : '')
         const tagListIds = Array.isArray(p.tags)
@@ -374,10 +401,9 @@ export function ProductEditModal({
     }
   }, [productId, presetCategoryId])
 
-  function toggleTag(id: number) {
-    setTagIds((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
-    )
+  /** Reemplaza la selección de un grupo de tags (aromas/rituales/otros). */
+  function setTagGroup(groupIds: number[], next: number[]) {
+    setTagIds((prev) => [...prev.filter((t) => !groupIds.includes(t)), ...next])
   }
 
   const clearPending = useCallback(() => {
@@ -454,17 +480,20 @@ export function ProductEditModal({
       setSaveError('La categoría es requerida')
       return
     }
+    if (price.trim() === '') {
+      setSaveError('El precio es requerido')
+      return
+    }
     setSaving(true)
     setSaveError('')
     try {
       const payload = {
         title,
-        price,
-        compareAtPrice: compareAtPrice.trim() === '' ? null : compareAtPrice,
-        stock,
-        active,
+        price: price.replace(',', '.'),
+        stock: stock === '' ? '0' : stock,
+        active: state !== 'hidden',
         featured,
-        soldOut,
+        soldOut: state === 'soldout',
         category: categoryId,
         tags: tagIds,
         images: images.map((i) => i.id),
@@ -541,40 +570,33 @@ export function ProductEditModal({
                 <Label htmlFor="pe-price">Precio</Label>
                 <Input
                   id="pe-price"
-                  type="number"
-                  min="0"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => {
+                    const next = cleanPriceInput(e.target.value)
+                    if (next !== null) setPrice(next)
+                  }}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="pe-compare">Precio tachado</Label>
-                <Input
-                  id="pe-compare"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="Vacío = sin tachado"
-                  value={compareAtPrice}
-                  onChange={(e) => setCompareAtPrice(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="pe-stock">Stock</Label>
                 <Input
                   id="pe-stock"
-                  type="number"
-                  min="0"
-                  step="1"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
                   value={stock}
-                  onChange={(e) => setStock(e.target.value)}
+                  onChange={(e) => {
+                    const next = cleanStockInput(e.target.value)
+                    if (next !== null) setStock(next)
+                  }}
                 />
               </div>
-              <div className="space-y-1.5">
+            </div>
+
+            <div className="space-y-1.5">
                 <Label htmlFor="pe-category">Categoría</Label>
                 <select
                   id="pe-category"
@@ -589,19 +611,29 @@ export function ProductEditModal({
                     </option>
                   ))}
                 </select>
-              </div>
             </div>
 
-            <div className="flex flex-wrap gap-4">
-              <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-[#38271D]">
-                <input
-                  type="checkbox"
-                  checked={active}
-                  onChange={(e) => setActive(e.target.checked)}
-                  className="h-4 w-4 accent-[#B85C33]"
-                />
-                Activo
-              </label>
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium">Estado</legend>
+              <div className="flex flex-wrap gap-4">
+                {PRODUCT_STATES.map((opt) => (
+                  <label
+                    key={opt.value}
+                    className="inline-flex cursor-pointer items-center gap-2 text-sm text-[#38271D]"
+                    title={opt.title}
+                  >
+                    <input
+                      type="radio"
+                      name="pe-state"
+                      value={opt.value}
+                      checked={state === opt.value}
+                      onChange={() => setState(opt.value)}
+                      className="h-4 w-4 accent-[#B85C33]"
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
               <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-[#38271D]">
                 <input
                   type="checkbox"
@@ -611,62 +643,28 @@ export function ProductEditModal({
                 />
                 Destacado
               </label>
-              <label
-                className="inline-flex cursor-pointer items-center gap-2 text-sm text-[#38271D]"
-                title="Visible en catálogo y PDP, sin compra"
-              >
-                <input
-                  type="checkbox"
-                  checked={soldOut}
-                  onChange={(e) => setSoldOut(e.target.checked)}
-                  className="h-4 w-4 accent-[#B85C33]"
-                />
-                Agotado
-              </label>
-            </div>
+            </fieldset>
 
-            <div className="space-y-1.5">
-              <span className="text-sm font-medium">Aromas / notas (tags)</span>
-              <div className="max-h-32 space-y-1 overflow-y-auto rounded-md border border-[#E5DDD1] p-2">
-                {tags.length === 0 ? (
-                  <p className="text-xs text-[#7A6A5D]">Sin tags disponibles.</p>
-                ) : (
-                  (['aroma', 'ritual', 'other'] as const).map((group) => {
-                    const groupTags = tags.filter((t) =>
-                      group === 'other'
-                        ? t.kind !== 'aroma' && t.kind !== 'ritual'
-                        : t.kind === group,
-                    )
-                    if (groupTags.length === 0) return null
-                    return (
-                      <div key={group}>
-                        <p className="px-1 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9A8A7A]">
-                          {group === 'aroma'
-                            ? 'Aromas'
-                            : group === 'ritual'
-                              ? 'Rituales'
-                              : 'Otros'}
-                        </p>
-                        {groupTags.map((t) => (
-                          <label
-                            key={t.id}
-                            className="flex cursor-pointer items-center gap-2 text-sm text-[#38271D]"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={tagIds.includes(t.id)}
-                              onChange={() => toggleTag(t.id)}
-                              className="h-4 w-4 accent-[#B85C33]"
-                            />
-                            {t.label}
-                          </label>
-                        ))}
-                      </div>
-                    )
-                  })
-                )}
-              </div>
-            </div>
+            {TAG_GROUPS.map((g) => {
+              const groupTags = tags.filter((t) =>
+                g.kind === 'other'
+                  ? t.kind !== 'aroma' && t.kind !== 'ritual'
+                  : t.kind === g.kind,
+              )
+              if (groupTags.length === 0 && g.kind === 'other') return null
+              const ids = groupTags.map((t) => t.id)
+              return (
+                <MultiSelect
+                  key={g.kind}
+                  id={`pe-tags-${g.kind}`}
+                  label={g.label}
+                  options={groupTags.map((t) => ({ id: t.id, label: t.label }))}
+                  selected={tagIds.filter((id) => ids.includes(id))}
+                  onChange={(next) => setTagGroup(ids, next)}
+                  emptyText={g.empty}
+                />
+              )
+            })}
 
             <div className="space-y-1.5">
               <Label htmlFor="pe-description">Descripción</Label>

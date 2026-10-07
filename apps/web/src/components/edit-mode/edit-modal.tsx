@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -36,6 +36,8 @@ export function ModalShell({
   onClose: () => void
   children: React.ReactNode
 }) {
+  const pressedOnBackdrop = useRef(false)
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
@@ -51,8 +53,16 @@ export function ModalShell({
   return (
     <div
       className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-6"
+      onMouseDown={(e) => {
+        pressedOnBackdrop.current = e.target === e.currentTarget
+      }}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
+        // Un arrastre que empieza dentro del panel (ej. seleccionar texto de un
+        // campo) y termina sobre el fondo genera un `click` sobre el fondo:
+        // solo se cierra si el clic también empezó en el fondo.
+        const closing = e.target === e.currentTarget && pressedOnBackdrop.current
+        pressedOnBackdrop.current = false
+        if (closing) onClose()
       }}
       role="presentation"
     >
