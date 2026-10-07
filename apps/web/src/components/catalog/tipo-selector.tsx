@@ -13,6 +13,8 @@ interface TipoSelectorProps {
   activeSlug: string | null
   /** Id de la categoría padre: habilita el "+" en MODO EDICIÓN. */
   editCategoryId?: number
+  /** Título de la categoría (textos del modal de alta). */
+  categoryTitle?: string
 }
 
 function TipoCard({
@@ -84,7 +86,7 @@ const NAV_CLASS =
  * scroll, sinWrap. En MODO EDICIÓN el "+" vive FUERA del scroll (siempre
  * visible, sin solape posible) y cada tarjeta real lleva sus controles.
  */
-export function TipoSelector({ categorySlug, tipos, activeSlug, editCategoryId }: TipoSelectorProps) {
+export function TipoSelector({ categorySlug, tipos, activeSlug, editCategoryId, categoryTitle }: Readonly<TipoSelectorProps>) {
   const scrollRef = useRef<HTMLElement>(null)
 
   function scrollBy(direction: -1 | 1) {
@@ -171,7 +173,7 @@ export function TipoSelector({ categorySlug, tipos, activeSlug, editCategoryId }
             </div>
           ))}
         </nav>
-        <TipoAddButton categoryId={editCategoryId} />
+        <TipoAddButton categoryId={editCategoryId} categoryTitle={categoryTitle} />
         <button
           type="button"
           onClick={() => scrollBy(1)}

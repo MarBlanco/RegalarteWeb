@@ -85,7 +85,33 @@ export function sanitizeCategoryCreate(
     if (image === null) return null
     data.image = image
   }
+  if (body.active !== undefined) {
+    const active = cleanBoolean(body.active)
+    if (active === null) return null
+    data.active = active
+  }
   return data
+}
+
+/**
+ * Reubica un tipo entre sus hermanos y devuelve el nuevo orden de TODOS
+ * (consecutivo desde 1, sin duplicados). `desired` es la posición pedida
+ * (1 = primero); se acota al rango válido. Los hermanos se ordenan por su
+ * orden actual y, a igualdad, por id, así que datos con duplicados previos
+ * se normalizan en la primera reubicación.
+ */
+export function reorderSiblings(
+  siblings: Array<{ id: number; sortOrder: number }>,
+  id: number,
+  desired: number,
+): Map<number, number> {
+  const sorted = [...siblings].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id)
+  const rest = sorted.filter((s) => s.id !== id)
+  const position = Math.min(Math.max(Math.round(desired), 1), rest.length + 1)
+  const moved = sorted.find((s) => s.id === id)
+  const list = [...rest]
+  if (moved) list.splice(position - 1, 0, moved)
+  return new Map(list.map((s, i) => [s.id, i + 1]))
 }
 
 export interface CategoryPatchData {

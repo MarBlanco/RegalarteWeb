@@ -215,6 +215,7 @@ export default async function CatalogPage({ searchParams }: PageProps) {
                 tipos={tipos}
                 activeSlug={activeTipo.slug}
                 editCategoryId={category?.id}
+                categoryTitle={category?.title}
               />
             </Suspense>
           </div>

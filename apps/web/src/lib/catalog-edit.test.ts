@@ -3,6 +3,7 @@ import {
   slugify,
   sanitizeCategoryCreate,
   sanitizeCategoryPatch,
+  reorderSiblings,
   sanitizeProductCreate,
   sanitizeFilterTagCreate,
   sanitizeFilterTagPatch,
@@ -170,5 +171,41 @@ describe('Filtros — edición de opción aroma/ritual', () => {
     expect(sanitizeFilterTagPatch({ name: '' })).toBeNull()
     expect(sanitizeFilterTagPatch({ color: 'zzz' })).toBeNull()
     expect(sanitizeFilterTagPatch({ active: 'si' })).toBeNull()
+  })
+})
+
+describe('Alta de tipo — visibilidad', () => {
+  it('acepta active y lo rechaza si no es booleano', () => {
+    expect(sanitizeCategoryCreate({ title: 'X', parent: 3, active: false })).toMatchObject({
+      active: false,
+    })
+    expect(sanitizeCategoryCreate({ title: 'X', parent: 3, active: 'tal vez' })).toBeNull()
+  })
+})
+
+describe('reorderSiblings', () => {
+  const sibs = [
+    { id: 1, sortOrder: 2 },
+    { id: 2, sortOrder: 2 },
+    { id: 3, sortOrder: 3 },
+    { id: 4, sortOrder: 4 },
+  ]
+  const asList = (m: Map<number, number>) => [...m.entries()].sort((a, b) => a[1] - b[1]).map(([id]) => id)
+
+  it('renumera de 1 a n sin duplicados, aun con duplicados previos', () => {
+    const out = reorderSiblings(sibs, 1, 2)
+    expect(asList(out)).toEqual([2, 1, 3, 4])
+    expect(new Set(out.values()).size).toBe(4)
+    expect([...out.values()].sort()).toEqual([1, 2, 3, 4])
+  })
+
+  it('mover al primero y al último', () => {
+    expect(asList(reorderSiblings(sibs, 4, 1))).toEqual([4, 1, 2, 3])
+    expect(asList(reorderSiblings(sibs, 1, 99))).toEqual([2, 3, 4, 1])
+  })
+
+  it('acota posiciones inválidas', () => {
+    expect(asList(reorderSiblings(sibs, 3, 0))).toEqual([3, 1, 2, 4])
+    expect(asList(reorderSiblings(sibs, 3, -5))).toEqual([3, 1, 2, 4])
   })
 })

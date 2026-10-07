@@ -28,13 +28,18 @@ function useEditToken() {
   }
 }
 
+function pickerLabel(uploading: boolean, hasImage: boolean): string {
+  if (uploading) return 'Subiendo…'
+  return hasImage ? 'Cambiar imagen' : 'Subir imagen'
+}
+
 function ImagePicker({
   value,
   onChange,
-}: {
+}: Readonly<{
   value: { id: number | null; url: string | null }
   onChange: (next: { id: number | null; url: string | null }) => void
-}) {
+}>) {
   const token = useAuth((s) => s.token)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -108,7 +113,7 @@ function ImagePicker({
             }}
           />
           <span className="rounded-full border border-[#E5C9A8] bg-[#F9EFE2] px-3 py-1.5 text-xs">
-            {uploading ? 'Subiendo…' : value.url ? 'Cambiar' : 'Subir'}
+            {pickerLabel(uploading, Boolean(value.url))}
           </span>
         </label>
         {value.url ? (
@@ -130,26 +135,42 @@ function ImagePicker({
   )
 }
 
+interface TipoFormValues {
+  title: string
+  description: string
+  imageId: number | null
+  imageTouched: boolean
+  sortOrder: string
+  active: boolean
+}
+
+/**
+ * Formulario de un tipo: nombre, descripción, imagen, orden y visibilidad.
+ * En el alta el orden es automático (se asigna al final al guardar); en la
+ * edición se puede cambiar a mano.
+ */
 function TipoForm({
   initial,
+  mode,
+  noun,
   submitLabel,
   onSubmit,
+  onCancel,
+  onDelete,
   saving,
   serverError,
-}: {
+}: Readonly<{
   initial: { title: string; description: string; image: { id: number | null; url: string | null }; sortOrder: string; active: boolean }
+  mode: 'create' | 'edit'
+  /** Nombre en singular de la categoría (ej. "vela"), solo para los textos del alta. */
+  noun?: string
   submitLabel: string
-  onSubmit: (values: {
-    title: string
-    description: string
-    imageId: number | null
-    imageTouched: boolean
-    sortOrder: string
-    active: boolean
-  }) => Promise<void>
+  onSubmit: (values: TipoFormValues) => Promise<void>
+  onCancel: () => void
+  onDelete?: () => void
   saving: boolean
   serverError: string
-}) {
+}>) {
   const [title, setTitle] = useState(initial.title)
   const [description, setDescription] = useState(initial.description)
   const [image, setImage] = useState(initial.image)
@@ -176,7 +197,8 @@ function TipoForm({
   }
 
   const inputCls =
-    'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+    'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#F1ECE4] disabled:text-[#7A6A5D]'
+  const creating = mode === 'create'
 
   return (
     <form
@@ -192,6 +214,7 @@ function TipoForm({
             id="tipo-title"
             value={title}
             maxLength={80}
+            placeholder={creating ? 'Nombre del tipo' : ''}
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
@@ -202,6 +225,7 @@ function TipoForm({
             value={description}
             rows={3}
             maxLength={600}
+            placeholder={creating && noun ? `Descripción del tipo de ${noun}…` : ''}
             onChange={(e) => setDescription(e.target.value)}
             className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
@@ -216,36 +240,51 @@ function TipoForm({
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="tipo-order">Orden de aparición</Label>
-            <input
-              id="tipo-order"
-              type="number"
-              min="0"
-              step="1"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              className={inputCls}
-            />
+            {creating ? (
+              <input
+                id="tipo-order"
+                type="text"
+                value="Automático (se asignará al guardar)"
+                disabled
+                readOnly
+                className={inputCls}
+              />
+            ) : (
+              <input
+                id="tipo-order"
+                type="number"
+                min="1"
+                step="1"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                className={inputCls}
+              />
+            )}
             <p className="text-xs text-[#7A6A5D]">
-              Define el orden en que se muestra este tipo en la tienda.
+              {creating
+                ? 'Este tipo se mostrará al final de la lista de tipos de esta categoría.'
+                : 'Define el orden en que se muestra este tipo en la tienda.'}
             </p>
           </div>
           <div className="space-y-1.5">
             <span id="tipo-visible-label" className="text-sm font-medium">
               Visible en catálogo
             </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={active}
-              aria-labelledby="tipo-visible-label"
-              onClick={() => setActive((v) => !v)}
-              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${active ? 'bg-[#B85C33]' : 'bg-[#D8CFC2]'}`}
-            >
-              <span
-                aria-hidden="true"
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`}
-              />
-            </button>
+            <div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={active}
+                aria-labelledby="tipo-visible-label"
+                onClick={() => setActive((v) => !v)}
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${active ? 'bg-[#B85C33]' : 'bg-[#D8CFC2]'}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`}
+                />
+              </button>
+            </div>
             <p className="text-xs text-[#7A6A5D]">
               Si desactivas esta opción, este tipo no se mostrará en la
               tienda, pero no se eliminará.
@@ -258,23 +297,53 @@ function TipoForm({
           {error || serverError}
         </p>
       ) : null}
-      <div className="mt-5 flex justify-end">
-        <Button type="submit" disabled={saving}>
-          {saving ? 'Guardando…' : submitLabel}
-        </Button>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#E5DDD1] pt-4">
+        {onDelete ? (
+          <button
+            type="button"
+            onClick={onDelete}
+            disabled={saving}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#B23A2E] hover:underline disabled:opacity-50"
+          >
+            <TrashIcon className="h-4 w-4" />
+            Eliminar tipo
+          </button>
+        ) : (
+          <span />
+        )}
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? 'Guardando…' : submitLabel}
+          </Button>
+        </div>
       </div>
     </form>
   )
 }
 
+/** Singular aproximado del nombre de la categoría para los textos ("Velas" → "vela"). */
+export function singularNoun(title: string): string {
+  const t = title.trim().toLowerCase()
+  if (t.endsWith('ores')) return t.slice(0, -2)
+  if (t.endsWith('s') && !t.endsWith('ss') && t.length > 3) return t.slice(0, -1)
+  return t
+}
+
 /** Tarjeta "+" para agregar un tipo (solo MODO EDICIÓN). */
-export function TipoAddButton({ categoryId }: { categoryId: number }) {
+export function TipoAddButton({
+  categoryId,
+  categoryTitle,
+}: Readonly<{ categoryId: number; categoryTitle?: string }>) {
   const active = useEditActive()
   const { run } = useEditToken()
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [serverError, setServerError] = useState('')
   if (!active) return null
+  const noun = categoryTitle ? singularNoun(categoryTitle) : undefined
   return (
     <>
       <button
@@ -294,7 +363,11 @@ export function TipoAddButton({ categoryId }: { categoryId: number }) {
         </span>
       </button>
       {open ? (
-        <ModalShell title="Agregar tipo" onClose={() => setOpen(false)}>
+        <ModalShell
+          title={noun ? `Nuevo tipo de ${noun}` : 'Nuevo tipo'}
+          onClose={() => setOpen(false)}
+          wide
+        >
           <TipoForm
             initial={{
               title: '',
@@ -303,6 +376,9 @@ export function TipoAddButton({ categoryId }: { categoryId: number }) {
               sortOrder: '0',
               active: true,
             }}
+            mode="create"
+            noun={noun}
+            onCancel={() => setOpen(false)}
             submitLabel="Crear tipo"
             saving={saving}
             serverError={serverError}
@@ -314,6 +390,7 @@ export function TipoAddButton({ categoryId }: { categoryId: number }) {
                   title: v.title,
                   description: v.description,
                   parent: categoryId,
+                  active: v.active,
                   ...(v.imageTouched && v.imageId !== null
                     ? { image: v.imageId }
                     : {}),
@@ -472,14 +549,21 @@ export function TipoItemControls({ tipo, tipos, index }: TipoItemControlsProps) 
         <ModalShell
           title={`Editar tipo: ${tipo.name}`}
           onClose={() => setEditing(false)}
+          wide
         >
           <TipoForm
             initial={{
               title: tipo.name,
               description: tipo.description,
               image: { id: null, url: tipo.image },
-              sortOrder: String(tipo.sortOrder ?? index),
-              active: true,
+              sortOrder: String(tipo.sortOrder ?? index + 1),
+              active: tipo.active ?? true,
+            }}
+            mode="edit"
+            onCancel={() => setEditing(false)}
+            onDelete={() => {
+              setEditing(false)
+              void remove()
             }}
             submitLabel="Guardar cambios"
             saving={saving}
@@ -491,7 +575,8 @@ export function TipoItemControls({ tipo, tipos, index }: TipoItemControlsProps) 
                 await run(`/api/edit-mode/categories/${tipo.categoryId}`, 'PUT', {
                   title: v.title,
                   description: v.description,
-                  sortOrder: v.sortOrder === '' ? 0 : Number(v.sortOrder),
+                  sortOrder: v.sortOrder === '' ? 1 : Number(v.sortOrder),
+                  active: v.active,
                   ...(v.imageTouched
                     ? { image: v.imageId }
                     : {}),
@@ -575,6 +660,7 @@ export function HiddenTiposStrip({ parentId }: { parentId: number }) {
     real: true,
     categoryId: d.id,
     sortOrder: d.sortOrder,
+    active: false,
   }))
 
   return (
