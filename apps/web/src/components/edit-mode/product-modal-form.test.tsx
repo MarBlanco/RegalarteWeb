@@ -104,6 +104,12 @@ describe('Editar producto — precio y stock', () => {
     fireEvent.click(screen.getByRole('button', { name: /Guardar/ }))
     expect(await screen.findByRole('alert')).toHaveTextContent('El precio es requerido')
     expect(saved).toBeNull()
+    for (const bad of ['.', ',']) {
+      fireEvent.change(screen.getByLabelText('Precio'), { target: { value: bad } })
+      fireEvent.click(screen.getByRole('button', { name: /Guardar/ }))
+      expect(await screen.findByRole('alert')).toHaveTextContent('Precio inválido')
+      expect(saved).toBeNull()
+    }
     fireEvent.change(screen.getByLabelText('Precio'), { target: { value: '1500,50' } })
     fireEvent.click(screen.getByRole('button', { name: /Guardar/ }))
     await waitFor(() => expect(saved).not.toBeNull())
@@ -145,9 +151,14 @@ describe('Editar producto — estado', () => {
     expect(saved).toMatchObject(expected)
   })
 
-  it('un producto guardado como inactivo abre en Oculto y el agotado en Agotado', async () => {
+  it('un producto inactivo abre en Oculto', async () => {
     await openEditor({ ...PRODUCT, active: false, soldOut: true })
     expect(screen.getByRole('radio', { name: 'Oculto' })).toBeChecked()
+  })
+
+  it('un producto activo y agotado abre en Agotado', async () => {
+    await openEditor({ ...PRODUCT, active: true, soldOut: true })
+    expect(screen.getByRole('radio', { name: 'Agotado' })).toBeChecked()
   })
 })
 
