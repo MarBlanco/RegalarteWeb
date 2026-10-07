@@ -22,6 +22,8 @@ export interface AddToCartButtonProps {
   }
   /** Stock opcional; si se provee, limita la cantidad maxima seleccionable. */
   stock?: number | null
+  /** Agotado manual (staff): visible pero no comprable. */
+  soldOut?: boolean | null
   /** Cantidad inicial (default 1). */
   defaultQuantity?: number
   className?: string
@@ -32,6 +34,7 @@ export interface AddToCartButtonProps {
 export function AddToCartButton({
   product,
   stock = null,
+  soldOut = null,
   defaultQuantity = 1,
   className,
   compact = false,
@@ -43,13 +46,16 @@ export function AddToCartButton({
   const [justAdded, setJustAdded] = useState(false)
 
   const isOutOfStock =
-    typeof stock === 'number' && Number.isFinite(stock) && stock <= 0
+    soldOut === true ||
+    (typeof stock === 'number' && Number.isFinite(stock) && stock <= 0)
+  const outLabel = soldOut === true ? 'Agotado' : 'Sin stock'
   const stockCap =
     typeof stock === 'number' && Number.isFinite(stock) && stock > 0
       ? stock
       : undefined
 
   const handleAdd = () => {
+    if (isOutOfStock) return
     const input: CartItemInput = {
       id: String(product.id),
       productId: String(product.id),
@@ -84,7 +90,7 @@ export function AddToCartButton({
           className="h-9 w-full rounded-md bg-[#B85C33] text-[11px] font-semibold uppercase tracking-wider text-white hover:bg-[#9E4E2B]"
         >
           {isOutOfStock
-            ? 'Sin stock'
+            ? outLabel
             : justAdded
               ? 'Agregado ✓'
               : 'Agregar al carrito'}
@@ -161,7 +167,7 @@ export function AddToCartButton({
         disabled={!hydrated || isOutOfStock}
       >
         {isOutOfStock
-          ? 'Sin stock'
+          ? outLabel
           : justAdded
             ? 'Agregado ✓'
             : 'Agregar al carrito'}

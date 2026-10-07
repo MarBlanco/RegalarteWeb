@@ -143,7 +143,7 @@ export async function PUT(
     // Invalida el caché del storefront (listados, facetas y PDP usan el tag
     // 'products'): sin esto, router.refresh() reutiliza datos viejos hasta
     // 30–60s y el cambio (p. ej. Agotado↔Disponible) no se ve al instante.
-    revalidateTag('products', 'max')
+    revalidateTag('products', { expire: 0 })
 
     return NextResponse.json(
       {

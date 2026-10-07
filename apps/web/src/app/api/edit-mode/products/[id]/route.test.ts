@@ -50,7 +50,7 @@ describe('PUT edit-mode products — invalidación de caché', () => {
       params: Promise.resolve({ id: '4' }),
     })
     expect(res.status).toBe(200)
-    expect(revalidateTag).toHaveBeenCalledWith('products', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('products', { expire: 0 })
     expect(revalidateTag).toHaveBeenCalledTimes(1)
   })
 
@@ -60,7 +60,7 @@ describe('PUT edit-mode products — invalidación de caché', () => {
       params: Promise.resolve({ id: '4' }),
     })
     expect(res.status).toBe(200)
-    expect(revalidateTag).toHaveBeenCalledWith('products', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('products', { expire: 0 })
   })
 
   it('si el guardado falla, no invalida', async () => {
