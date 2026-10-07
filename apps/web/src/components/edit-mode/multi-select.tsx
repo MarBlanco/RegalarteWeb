@@ -40,8 +40,19 @@ export function MultiSelect({
         setOpen(false)
       }
     }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'Escape') return
+      // Cierra solo el desplegable: el modal escucha Escape en `window`, que
+      // este listener de `document` corta antes de que llegue.
+      e.stopPropagation()
+      setOpen(false)
+    }
     document.addEventListener('mousedown', onPointerDown)
-    return () => document.removeEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
   }, [open])
 
   const chosen = options.filter((o) => selected.includes(o.id))
@@ -56,25 +67,15 @@ export function MultiSelect({
   }
 
   return (
-    <div
-      ref={rootRef}
-      className="space-y-1.5"
-      onKeyDown={(e) => {
-        if (e.key === 'Escape' && open) {
-          // Cierra solo el desplegable, nunca el modal.
-          e.stopPropagation()
-          setOpen(false)
-        }
-      }}
-    >
+    <div ref={rootRef} className="space-y-1.5">
       <label htmlFor={id} className="text-sm font-medium leading-none">
         {label}
       </label>
       <button
         id={id}
         type="button"
-        aria-haspopup="listbox"
         aria-expanded={open}
+        aria-controls={`${id}-panel`}
         onClick={() => setOpen((v) => !v)}
         className="flex h-10 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-left text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
@@ -95,12 +96,11 @@ export function MultiSelect({
         </svg>
       </button>
       {open ? (
-        <div
-          role="listbox"
-          aria-label={label}
-          aria-multiselectable="true"
-          className="max-h-44 space-y-0.5 overflow-y-auto rounded-md border border-[#E5DDD1] bg-white p-1.5 shadow-sm"
+        <fieldset
+          id={`${id}-panel`}
+          className="max-h-44 min-w-0 space-y-0.5 overflow-y-auto rounded-md border border-[#E5DDD1] bg-white p-1.5 shadow-sm"
         >
+          <legend className="sr-only">{label}</legend>
           {options.length === 0 ? (
             <p className="px-2 py-1 text-xs text-[#7A6A5D]">{emptyText}</p>
           ) : (
@@ -119,7 +119,7 @@ export function MultiSelect({
               </label>
             ))
           )}
-        </div>
+        </fieldset>
       ) : null}
     </div>
   )

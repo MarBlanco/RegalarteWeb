@@ -157,7 +157,7 @@ describe('Editar producto — aromas y rituales', () => {
     const aromas = screen.getByRole('button', { name: 'Aromas' })
     expect(aromas).toHaveTextContent('Ámbar, Vainilla')
     fireEvent.click(aromas)
-    const list = screen.getByRole('listbox', { name: 'Aromas' })
+    const list = screen.getByRole('group', { name: 'Aromas' })
     expect(within(list).getAllByRole('checkbox').map((c) => (c as HTMLInputElement).labels?.[0]?.textContent?.trim())).toEqual([
       'Ámbar',
       'Vainilla',
@@ -173,7 +173,7 @@ describe('Editar producto — aromas y rituales', () => {
   it('rituales usa el mismo patrón y guardar combina ambos grupos', async () => {
     await openEditor()
     fireEvent.click(screen.getByRole('button', { name: 'Rituales' }))
-    const list = screen.getByRole('listbox', { name: 'Rituales' })
+    const list = screen.getByRole('group', { name: 'Rituales' })
     fireEvent.click(within(list).getByRole('checkbox', { name: 'Energía' }))
     fireEvent.click(within(list).getByRole('checkbox', { name: 'Relajación' }))
     expect(screen.getByRole('button', { name: 'Rituales' })).toHaveTextContent('Energía, Relajación')
@@ -185,9 +185,13 @@ describe('Editar producto — aromas y rituales', () => {
   it('Escape cierra el desplegable pero no el modal', async () => {
     await openEditor()
     fireEvent.click(screen.getByRole('button', { name: 'Aromas' }))
-    expect(screen.getByRole('listbox', { name: 'Aromas' })).toBeInTheDocument()
-    fireEvent.keyDown(screen.getByRole('listbox', { name: 'Aromas' }), { key: 'Escape' })
-    expect(screen.queryByRole('listbox')).toBeNull()
+    expect(screen.getByRole('group', { name: 'Aromas' })).toBeInTheDocument()
+    const onWindowKey = vi.fn()
+    window.addEventListener('keydown', onWindowKey)
+    fireEvent.keyDown(document.body, { key: 'Escape' })
+    window.removeEventListener('keydown', onWindowKey)
+    expect(onWindowKey).not.toHaveBeenCalled() // el modal no recibe ese Escape
+    expect(screen.queryByRole('group', { name: 'Aromas' })).toBeNull()
     expect(screen.getByLabelText('Nombre / título')).toBeInTheDocument()
   })
 })
@@ -209,9 +213,9 @@ describe('MultiSelect', () => {
       </div>,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Aromas' }))
-    expect(screen.getByRole('listbox')).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'Aromas' })).toBeInTheDocument()
     fireEvent.mouseDown(screen.getByText('fuera'))
-    expect(screen.queryByRole('listbox')).toBeNull()
+    expect(screen.queryByRole('group', { name: 'Aromas' })).toBeNull()
   })
 })
 
