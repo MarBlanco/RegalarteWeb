@@ -3,13 +3,18 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 
+function pickerLabel(uploading: boolean, hasImage: boolean): string {
+  if (uploading) return 'Subiendo…'
+  return hasImage ? 'Cambiar' : 'Subir'
+}
+
 export function ImagePicker({
   value,
   onChange,
-}: {
+}: Readonly<{
   value: { id: number | null; url: string | null }
   onChange: (next: { id: number | null; url: string | null }) => void
-}) {
+}>) {
   const token = useAuth((s) => s.token)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -83,7 +88,7 @@ export function ImagePicker({
             }}
           />
           <span className="rounded-full border border-[#E5C9A8] bg-[#F9EFE2] px-3 py-1.5 text-xs">
-            {uploading ? 'Subiendo…' : value.url ? 'Cambiar' : 'Subir'}
+            {pickerLabel(uploading, Boolean(value.url))}
           </span>
         </label>
         {value.url ? (

@@ -90,18 +90,26 @@ export function sanitizeCategoryCreate(body: unknown): CategoryCreateInput | nul
     if (image === null) return null
     data.image = image
   }
+  if (!readCreateOptions(body, data)) return null
+  return data
+}
+
+/** Visibilidad, orden y SEO opcionales del alta. Devuelve false si son inválidos. */
+function readCreateOptions(
+  body: Record<string, unknown>,
+  data: CategoryCreateInput,
+): boolean {
   if (body.active !== undefined) {
     const b = cleanBoolean(body.active)
-    if (b === null) return null
+    if (b === null) return false
     data.active = b
   }
   if (body.sortOrder !== undefined) {
     const n = cleanNumber(body.sortOrder, 100000)
-    if (n === null || !Number.isInteger(n)) return null
+    if (n === null || !Number.isInteger(n)) return false
     data.sortOrder = n
   }
-  if (!readSeo(body, data)) return null
-  return data
+  return readSeo(body, data)
 }
 
 /** SEO opcional (campos existentes de Categories). Devuelve false si es inválido. */
