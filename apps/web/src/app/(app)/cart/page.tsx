@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { RitualCard } from '@/components/cart/ritual-card'
 import {
@@ -24,7 +24,8 @@ import {
 import type { RitualProduct } from '@/components/cart/ritual-card'
 import { formatPrice } from '@/lib/format'
 import { useFreeShippingThreshold } from '@/lib/site-content-client'
-import { useShallow } from 'zustand/react/shallow'
+import { unavailableMessage } from '@/lib/cart/availability'
+import { useCartAvailability } from '@/lib/cart/use-cart-availability'
 
 function TrashIcon({ className = 'h-[18px] w-[18px]' }: { className?: string }) {
   return (
@@ -46,9 +47,20 @@ export default function CartPage() {
   const updateQuantity = useCartStore((s) => s.updateQuantity)
   const removeItem = useCartStore((s) => s.removeItem)
   const itemCount = useCartStore(selectItemCount)
-  const totals = useCartStore(
-    useShallow((s) => selectTotals({ items: s.items, mode: s.mode })),
+  // Disponibilidad real: un producto que dejó de ser comprable se informa y no
+  // cuenta para el total ni para continuar.
+  const availability = useCartAvailability()
+  const { reasons, hasUnavailable } = availability
+  const availableItems = useMemo(
+    () => items.filter((i) => !reasons.has(i.id)),
+    [items, reasons],
   )
+  const totals = useMemo(
+    () => selectTotals({ items: availableItems, mode }),
+    [availableItems, mode],
+  )
+  const availableCount = availableItems.reduce((n, i) => n + i.quantity, 0)
+  const nothingBuyable = availableItems.length === 0
   const [confirmItem, setConfirmItem] = useState<ConfirmRemoveItem | null>(null)
   const [ritualCandidates, setRitualCandidates] = useState<unknown>(null)
 
@@ -154,6 +166,24 @@ export default function CartPage() {
                   </div>
                 </div>
 
+                {hasUnavailable ? (
+                  <output className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#E7B9AE] bg-[#FBEDE9] p-4 text-sm text-[#7A2E1D]">
+                    <p>
+                      Algunos productos de tu carrito ya no están disponibles.
+                      Quitalos para poder continuar con tu compra.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        for (const id of Array.from(reasons.keys())) removeItem(id)
+                      }}
+                      className="shrink-0 rounded-md border border-[#B85C33] px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#B85C33] hover:bg-white"
+                    >
+                      Quitar no disponibles
+                    </button>
+                  </output>
+                ) : null}
+
                 {/* Tabla de líneas */}
                 <div className="mt-4 overflow-hidden rounded-lg border border-[#EBDFD1] bg-[#FFFDF9]">
                   <div
@@ -170,15 +200,16 @@ export default function CartPage() {
                     {items.map((item) => {
                       const unit = selectUnitPrice(item, mode)
                       const lineTotal = unit * item.quantity
+                      const reason = reasons.get(item.id)
                       return (
                         <li
                           key={item.id}
-                          className="px-4 py-4 md:grid md:grid-cols-[minmax(0,1fr)_110px_140px_120px_56px] md:items-center md:gap-x-3"
+                          className={`px-4 py-4 md:grid md:grid-cols-[minmax(0,1fr)_110px_140px_120px_56px] md:items-center md:gap-x-3 ${reason ? 'bg-[#FBF3F0]' : ''}`}
                         >
                           <div className="flex min-w-0 gap-3">
                             <Link
                               href={`/catalogo/${item.slug}`}
-                              className="relative block h-[72px] w-[72px] shrink-0 overflow-hidden rounded-md bg-[#F4EDE4] sm:h-[88px] sm:w-[88px]"
+                              className={`relative block h-[72px] w-[72px] shrink-0 overflow-hidden rounded-md bg-[#F4EDE4] sm:h-[88px] sm:w-[88px] ${reason ? 'opacity-50' : ''}`}
                               aria-label={item.name}
                             >
                               {item.image?.url ? (
@@ -202,6 +233,11 @@ export default function CartPage() {
                               >
                                 {item.name}
                               </Link>
+                              {reason ? (
+                                <p className="mt-1 text-xs font-medium text-[#B23A2E]">
+                                  {unavailableMessage(reason)}
+                                </p>
+                              ) : null}
                               {item.wholesalePrice != null && item.isWholesaleAvailable ? (
                                 <p className="mt-0.5 whitespace-nowrap text-xs tabular-nums text-[#7A6A5D]">
                                   Mayorista: {formatPrice(item.wholesalePrice)}
@@ -227,8 +263,9 @@ export default function CartPage() {
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                disabled={Boolean(reason)}
                                 aria-label="Disminuir cantidad"
-                                className="flex h-8 w-8 items-center justify-center text-[#B85C33]"
+                                className="flex h-8 w-8 items-center justify-center text-[#B85C33] disabled:opacity-40"
                               >
                                 <span className="text-base leading-none">−</span>
                               </button>
@@ -241,8 +278,9 @@ export default function CartPage() {
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                disabled={Boolean(reason)}
                                 aria-label="Aumentar cantidad"
-                                className="flex h-8 w-8 items-center justify-center text-[#B85C33]"
+                                className="flex h-8 w-8 items-center justify-center text-[#B85C33] disabled:opacity-40"
                               >
                                 <span className="text-base leading-none">+</span>
                               </button>
@@ -297,7 +335,7 @@ export default function CartPage() {
                   </h2>
                   <dl className="mt-4 space-y-2.5 text-sm">
                     <div className="flex items-center justify-between">
-                      <dt className="text-[#5C4A3D]">Productos ({itemCount})</dt>
+                      <dt className="text-[#5C4A3D]">Productos ({availableCount})</dt>
                       <dd className="font-medium tabular-nums text-[#38271D]">
                         {formatPrice(totals.subtotal)}
                       </dd>
@@ -322,13 +360,31 @@ export default function CartPage() {
                       {formatPrice(totals.subtotal)}
                     </span>
                   </div>
-                  <Button
-                    asChild
-                    size="lg"
-                    className="mt-4 h-11 w-full rounded-md bg-[#B85C33] text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-[#9E4E2B]"
-                  >
-                    <Link href="/checkout">Continuar →</Link>
-                  </Button>
+                  {hasUnavailable ? (
+                    <>
+                      <Button
+                        type="button"
+                        size="lg"
+                        disabled
+                        className="mt-4 h-11 w-full rounded-md text-xs font-semibold uppercase tracking-[0.12em]"
+                      >
+                        Continuar →
+                      </Button>
+                      <p className="mt-2 text-center text-[11px] text-[#B23A2E]">
+                        {nothingBuyable
+                          ? 'Ningún producto del carrito está disponible.'
+                          : 'Quitá los productos no disponibles para continuar.'}
+                      </p>
+                    </>
+                  ) : (
+                    <Button
+                      asChild
+                      size="lg"
+                      className="mt-4 h-11 w-full rounded-md bg-[#B85C33] text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-[#9E4E2B]"
+                    >
+                      <Link href="/checkout">Continuar →</Link>
+                    </Button>
+                  )}
                   <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-[#7A6A5D]">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
                       <rect x="4" y="10" width="16" height="10" rx="1.5" />
