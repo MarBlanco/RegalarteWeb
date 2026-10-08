@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { PUT } from './route'
 
 vi.mock('payload', () => ({
@@ -12,6 +12,7 @@ vi.mock('@payload-config', () => ({
 
 vi.mock('next/cache', () => ({
   revalidateTag: vi.fn(),
+  revalidatePath: vi.fn(),
 }))
 
 const { getPayload } = await import('payload')
@@ -52,6 +53,7 @@ describe('PUT edit-mode products — invalidación de caché', () => {
     expect(res.status).toBe(200)
     expect(revalidateTag).toHaveBeenCalledWith('products', { expire: 0 })
     expect(revalidateTag).toHaveBeenCalledTimes(1)
+    expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
   })
 
   it('Disponible→Agotado también invalida', async () => {

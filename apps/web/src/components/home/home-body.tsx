@@ -4,6 +4,7 @@ import Image from 'next/image'
 import {
   fetchCategories,
   fetchProducts,
+  isAgotado,
   type ProductWithImage,
 } from '@/lib/catalog'
 import {
@@ -87,6 +88,8 @@ export interface HomeShowcaseProduct {
   price: number
   imageUrl: string | null
   imageAlt: string
+  /** Agotado (manual o sin stock): sigue visible, no comprable. */
+  soldOut?: boolean
 }
 
 function toShowcaseProduct(
@@ -105,6 +108,7 @@ function toShowcaseProduct(
     price: product.price,
     imageUrl: featured?.url ?? fallback.image,
     imageAlt: featured?.alt ?? product.title,
+    soldOut: isAgotado(product),
   }
 }
 
@@ -154,6 +158,11 @@ export function CategoryProductCard({ product }: { product: HomeShowcaseProduct 
               </span>
             )}
           </span>
+          {product.soldOut ? (
+            <span className="absolute bottom-2 left-2 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#7A6A5D] shadow-sm">
+              Agotado
+            </span>
+          ) : null}
         </Link>
         <ProductEditButton
           productId={product.id}

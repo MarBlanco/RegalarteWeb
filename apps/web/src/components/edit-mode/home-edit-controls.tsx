@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { EditButton } from './edit-button'
 import { EditModal, type EditField } from './edit-modal'
 import { saveHomeContentPatch } from './api'
+import { useRefreshStorefront } from './use-refresh-storefront'
 import type {
   HomeBenefitIcon,
   HomeCategorySlug,
@@ -41,12 +41,12 @@ export interface BenefitInput {
 }
 
 function useSave() {
-  const router = useRouter()
+  const refreshStorefront = useRefreshStorefront()
   const token = useAuth((s) => s.token)
   return async (patch: Record<string, unknown>) => {
     if (!token) throw new Error('Sesión vencida. Volvé a iniciar sesión.')
     await saveHomeContentPatch(patch, token)
-    router.refresh()
+    await refreshStorefront()
   }
 }
 

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidateCatalog } from '@/lib/revalidate-catalog'
 import { sanitizeFilterTagPatch } from '@/lib/catalog-edit'
 import { verifyStaff } from '../../auth'
 
@@ -58,6 +59,7 @@ export async function PUT(
       user: user as never,
       overrideAccess: false,
     })) as { id: number }
+    revalidateCatalog('product-tags', 'products')
     return NextResponse.json(
       { id: updated.id },
       { headers: { 'Cache-Control': 'no-store' } },
@@ -114,6 +116,7 @@ export async function DELETE(
         user: user as never,
         overrideAccess: false,
       })
+      revalidateCatalog('product-tags', 'products')
       return NextResponse.json(
         { id, deactivated: true },
         { headers: { 'Cache-Control': 'no-store' } },
@@ -125,6 +128,7 @@ export async function DELETE(
       user: user as never,
       overrideAccess: false,
     })
+    revalidateCatalog('product-tags', 'products')
     return NextResponse.json(
       { id, deleted: true },
       { headers: { 'Cache-Control': 'no-store' } },

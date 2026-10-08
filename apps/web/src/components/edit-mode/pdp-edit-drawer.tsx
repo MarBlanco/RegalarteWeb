@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useEditActive } from '@/hooks/use-edit-mode'
 import { Button } from '@/components/ui/button'
@@ -9,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PencilIcon, TrashIcon } from './edit-button'
 import { notifyProductsChanged } from './api'
+import { useRefreshStorefront } from './use-refresh-storefront'
 import {
   isSimpleLexical,
   lexicalToPlainText,
@@ -140,7 +140,7 @@ function PdpEditDrawer({
   mode: PdpEditMode
   onClose: () => void
 }) {
-  const router = useRouter()
+  const refreshStorefront = useRefreshStorefront()
   const token = useAuth((s) => s.token)
   const visibleTabs = ALL_TABS.filter((t) => MODE_TABS[mode].includes(t.id))
   const [tab, setTab] = useState<Tab>(MODE_TABS[mode][0])
@@ -391,8 +391,10 @@ function PdpEditDrawer({
           await authedJson('/api/pdp-content', 'PUT', editorialPatch)
         }
       }
-      router.refresh()
+      // Primero se avisa a las listas que dependen del dato (ej. productos
+      // ocultos): la tarjeta puede desmontarse al refrescar y este modal con ella.
       notifyProductsChanged()
+      await refreshStorefront()
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar')

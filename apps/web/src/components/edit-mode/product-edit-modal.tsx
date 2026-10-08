@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useEditActive } from '@/hooks/use-edit-mode'
 import { Button } from '@/components/ui/button'
@@ -11,6 +10,7 @@ import { ModalShell } from './edit-modal'
 import { MultiSelect } from './multi-select'
 import { PencilIcon } from './edit-button'
 import { notifyProductsChanged } from './api'
+import { useRefreshStorefront } from './use-refresh-storefront'
 import { isSimpleLexical, lexicalToPlainText } from '@/lib/product-edit'
 import { safeImageSrc } from '@/lib/safe-url'
 
@@ -164,7 +164,7 @@ export function CatalogProductControls({
   soldOut?: boolean
 }) {
   const active = useEditActive()
-  const router = useRouter()
+  const refreshStorefront = useRefreshStorefront()
   const token = useAuth((s) => s.token)
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -194,8 +194,10 @@ export function CatalogProductControls({
         body: JSON.stringify({ soldOut: !soldOut }),
       })
       if (!res.ok) throw new Error('No se pudo guardar')
-      router.refresh()
+      // Primero se avisa a las listas que dependen del dato (ej. productos
+      // ocultos): la tarjeta puede desmontarse al refrescar y este modal con ella.
       notifyProductsChanged()
+      await refreshStorefront()
     } finally {
       setBusy(false)
     }
@@ -310,7 +312,7 @@ export function ProductEditModal({
   presetCategoryId?: number
   onClose: () => void
 }) {
-  const router = useRouter()
+  const refreshStorefront = useRefreshStorefront()
   const token = useAuth((s) => s.token)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -521,8 +523,10 @@ export function ProductEditModal({
         error?: string
       } | null
       if (!res.ok) throw new Error(data?.error ?? 'No se pudo guardar')
-      router.refresh()
+      // Primero se avisa a las listas que dependen del dato (ej. productos
+      // ocultos): la tarjeta puede desmontarse al refrescar y este modal con ella.
       notifyProductsChanged()
+      await refreshStorefront()
       onClose()
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'No se pudo guardar')

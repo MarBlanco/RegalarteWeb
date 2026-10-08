@@ -12,6 +12,14 @@ export const metadata: Metadata = {
   },
 }
 
+/**
+ * La Home se renderiza por pedido: sus datos (productos, categorías) ya salen
+ * del caché de datos con tags, así que no pierde rendimiento, y el Modo
+ * Edición puede refrescarla al instante. Prerenderizada, el refresco tras
+ * guardar recibía la versión anterior del RSC hasta recargar (F5).
+ */
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   const content = await getHomeContent()
   return (

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidateCatalog } from '@/lib/revalidate-catalog'
 import { slugify, sanitizeFilterTagCreate } from '@/lib/catalog-edit'
 import { verifyStaff, uniqueSlug } from '../auth'
 
@@ -46,6 +47,7 @@ export async function POST(req: Request) {
       user: user as never,
       overrideAccess: false,
     })) as { id: number; slug: string }
+    revalidateCatalog('product-tags', 'products')
     return NextResponse.json(
       { id: created.id, slug: created.slug },
       { headers: { 'Cache-Control': 'no-store' } },
