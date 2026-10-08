@@ -140,7 +140,6 @@ export async function GET(req: Request) {
       where: { and: [{ active: { equals: false } }, { category: { in: ids } }] },
       limit: 100,
       depth: 1,
-      pagination: false,
       sort: 'title',
     } as never)
     const docs = (
@@ -168,7 +167,14 @@ export async function GET(req: Request) {
             : null,
       }
     })
-    return NextResponse.json({ docs }, { headers: { 'Cache-Control': 'no-store' } })
+    const total =
+      typeof (found as { totalDocs?: number }).totalDocs === 'number'
+        ? (found as { totalDocs: number }).totalDocs
+        : docs.length
+    return NextResponse.json(
+      { docs, total },
+      { headers: { 'Cache-Control': 'no-store' } },
+    )
   } catch {
     return NextResponse.json(
       { error: 'No se pudieron cargar los productos ocultos' },

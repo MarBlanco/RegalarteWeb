@@ -90,6 +90,38 @@ describe('Productos ocultos (Modo Edición)', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
+  it('muestra el error de carga y el total real si hay más de los listados', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: 'Sin permiso' }) }),
+    )
+    const { unmount } = render(<HiddenProductsStrip categoryId={3} />)
+    expect(await screen.findByRole('alert')).toHaveTextContent('Sin permiso')
+    unmount()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ docs: HIDDEN, total: 130 }) }),
+    )
+    render(<HiddenProductsStrip categoryId={3} />)
+    expect(await screen.findByText('Mostrando 1 de 130. Reactivá o editá estos para ver el resto.')).toBeInTheDocument()
+  })
+
+  it('con pedidos superpuestos gana el último (no pisa la categoría nueva)', async () => {
+    let first: (v: unknown) => void = () => {}
+    const slow = new Promise((r) => (first = r))
+    const fast = { ok: true, json: async () => ({ docs: [{ ...HIDDEN[0], id: 9, title: 'De la categoría nueva' }], total: 1 }) }
+    const fetchMock = vi.fn()
+    fetchMock.mockImplementationOnce(() => slow)
+    fetchMock.mockResolvedValue(fast)
+    vi.stubGlobal('fetch', fetchMock)
+    const { rerender } = render(<HiddenProductsStrip categoryId={3} />)
+    rerender(<HiddenProductsStrip categoryId={4} />)
+    expect(await screen.findByText('De la categoría nueva')).toBeInTheDocument()
+    first({ ok: true, json: async () => ({ docs: HIDDEN, total: 1 }) })
+    await new Promise((r) => setTimeout(r, 30))
+    expect(screen.queryByText('Vela Oculta')).toBeNull()
+  })
+
   it('se recarga cuando cambia un producto (evento products-changed)', async () => {
     const calls = stubFetch()
     render(<HiddenProductsStrip categoryId={3} />)

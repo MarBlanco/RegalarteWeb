@@ -18,6 +18,7 @@ function mockPayload(role: string | null) {
               { id: 5, title: 'Vela Oculta', slug: 'vela-oculta', price: 4000, stock: 3, soldOut: false, images: [{ url: '/m/a.jpg' }] },
               { id: 6, title: 'Sin imagen', slug: 'sin-imagen', price: 100, images: [9] },
             ],
+            totalDocs: 2,
           },
     ),
   }
@@ -38,6 +39,7 @@ describe('GET /api/edit-mode/products (productos ocultos)', () => {
     const res = await GET(req('?category=3'))
     expect(res.status).toBe(200)
     const body = await res.json()
+    expect(body.total).toBe(2)
     expect(body.docs).toEqual([
       { id: 5, title: 'Vela Oculta', slug: 'vela-oculta', price: 4000, stock: 3, soldOut: false, imageUrl: '/m/a.jpg' },
       { id: 6, title: 'Sin imagen', slug: 'sin-imagen', price: 100, stock: null, soldOut: false, imageUrl: null },

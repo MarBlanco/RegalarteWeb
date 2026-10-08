@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEditActive } from '@/hooks/use-edit-mode'
 import { formatPrice } from '@/lib/format'
@@ -31,21 +31,29 @@ export function HiddenProductsStrip({
   const refreshStorefront = useRefreshStorefront()
   const token = useAuth((s) => s.token)
   const [items, setItems] = useState<HiddenProduct[]>([])
+  const [total, setTotal] = useState(0)
   const [busy, setBusy] = useState<number | null>(null)
   const [error, setError] = useState('')
+  const latest = useRef(0)
 
   const load = useCallback(async () => {
     if (!token || categoryId === undefined) return
+    // Si cambia la categoría con pedidos en vuelo, solo vale el último.
+    const ticket = ++latest.current
     try {
-      const data = await editModeRequest<{ docs: HiddenProduct[] }>(
+      const data = await editModeRequest<{ docs: HiddenProduct[]; total?: number }>(
         `/api/edit-mode/products?category=${categoryId}`,
         'GET',
         null,
         token,
       )
+      if (ticket !== latest.current) return
       setItems(data.docs)
-    } catch {
-      /* sin conexión: la tira queda como estaba */
+      setTotal(data.total ?? data.docs.length)
+      setError('')
+    } catch (err) {
+      if (ticket !== latest.current) return
+      setError(err instanceof Error ? err.message : 'No se pudieron cargar los productos ocultos')
     }
   }, [token, categoryId])
 
@@ -75,14 +83,21 @@ export function HiddenProductsStrip({
     }
   }
 
-  if (!active || categoryId === undefined || items.length === 0) return null
+  if (!active || categoryId === undefined) return null
+  if (items.length === 0) {
+    return error ? (
+      <p role="alert" className="mt-4 text-xs text-red-700">
+        {error}
+      </p>
+    ) : null
+  }
 
   return (
     <div className="mt-6 rounded-lg border border-dashed border-[#C9A24B] bg-[#FCF8F1] p-4">
       <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7A6A5D]">
-        Productos ocultos
+        <span>Productos ocultos</span>
         <span className="rounded-full bg-[#EFE7DD] px-2 py-0.5 text-[10px] font-bold">
-          {items.length}
+          {total}
         </span>
       </p>
       <ul className="space-y-2">
@@ -119,6 +134,11 @@ export function HiddenProductsStrip({
       {error ? (
         <p role="alert" className="mt-2 text-xs text-red-700">
           {error}
+        </p>
+      ) : null}
+      {total > items.length ? (
+        <p className="mt-2 text-xs text-[#7A6A5D]">
+          Mostrando {items.length} de {total}. Reactivá o editá estos para ver el resto.
         </p>
       ) : null}
       <p className="mt-2 text-xs text-[#7A6A5D]">

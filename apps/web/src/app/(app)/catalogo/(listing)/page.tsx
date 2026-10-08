@@ -304,7 +304,13 @@ export default async function CatalogPage({ searchParams }: PageProps) {
                     </Suspense>
                   </>
                 )}
-                <HiddenProductsStrip categoryId={category?.id} />
+                <HiddenProductsStrip
+                  categoryId={
+                    isFullListing && params.tipo && activeTipo?.real
+                      ? activeTipo.categoryId
+                      : category?.id
+                  }
+                />
               </section>
             </div>
           </div>
