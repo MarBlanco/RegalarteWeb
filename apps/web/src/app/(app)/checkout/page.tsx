@@ -10,10 +10,13 @@ import { CheckoutLineList } from '@/components/checkout/checkout-line-list'
 import { CheckoutEmptyState } from '@/components/checkout/checkout-empty'
 import { useCartStore, getSubtotal } from '@/lib/cart'
 import { trackBeginCheckout } from '@/lib/analytics/ga'
+import { unavailableMessage } from '@/lib/cart/availability'
+import { useCartAvailability } from '@/lib/cart/use-cart-availability'
 
 export default function CheckoutPage() {
   const items = useCartStore((s) => s.items)
   const hydrated = useCartStore((s) => s.hydrated)
+  const { reasons, hasUnavailable } = useCartAvailability()
 
   useEffect(() => {
     if (hydrated && items.length > 0) {
@@ -55,6 +58,33 @@ export default function CheckoutPage() {
             <CheckoutSkeleton />
           ) : items.length === 0 ? (
             <CheckoutEmptyState />
+          ) : hasUnavailable ? (
+            <section
+              role="alert"
+              aria-label="Productos no disponibles"
+              className="max-w-xl rounded-lg border border-[#E7B9AE] bg-[#FBEDE9] p-6 text-[#7A2E1D]"
+            >
+              <h2 className="text-base font-semibold">
+                No podemos finalizar tu pedido todavía
+              </h2>
+              <p className="mt-1 text-sm">
+                Algunos productos de tu carrito ya no están disponibles. Quitalos
+                del carrito para continuar.
+              </p>
+              <ul className="mt-3 space-y-1 text-sm">
+                {items
+                  .filter((i) => reasons.has(i.id))
+                  .map((i) => (
+                    <li key={i.id}>
+                      <strong>{i.name}</strong> —{' '}
+                      {unavailableMessage(reasons.get(i.id)!)}
+                    </li>
+                  ))}
+              </ul>
+              <Button asChild className="mt-4">
+                <Link href="/cart">Volver al carrito</Link>
+              </Button>
+            </section>
           ) : (
             <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
               <section aria-label="Datos de envío y pago">

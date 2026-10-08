@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   selectItemCount,
@@ -11,9 +11,10 @@ import {
   useCartStore,
 } from '@/lib/cart'
 import { useCartUIStore } from '@/lib/cart/ui-store'
+import { unavailableMessage } from '@/lib/cart/availability'
+import { useCartAvailability } from '@/lib/cart/use-cart-availability'
 import { formatPrice } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { useShallow } from 'zustand/react/shallow'
 
 export interface CartDrawerProps {
   className?: string
@@ -31,8 +32,15 @@ export function CartDrawer({ className }: CartDrawerProps) {
   const hydrated = useCartStore((s) => s.hydrated)
 
   const itemCount = useCartStore(selectItemCount)
-  const totals = useCartStore(
-    useShallow((s) => selectTotals({ items: s.items, mode: s.mode })),
+  // Mientras el carrito está abierto se revalida la disponibilidad real.
+  const { reasons, hasUnavailable } = useCartAvailability(isOpen)
+  const availableItems = useMemo(
+    () => items.filter((i) => !reasons.has(i.id)),
+    [items, reasons],
+  )
+  const totals = useMemo(
+    () => selectTotals({ items: availableItems, mode }),
+    [availableItems, mode],
   )
 
   useEffect(() => {
@@ -146,13 +154,23 @@ export function CartDrawer({ className }: CartDrawerProps) {
             </div>
           ) : (
             <ul className="space-y-4">
+              {hasUnavailable ? (
+                <li role="alert" className="rounded-lg border border-[#E7B9AE] bg-[#FBEDE9] p-3 text-xs text-[#7A2E1D]">
+                  Algunos productos ya no están disponibles. Quitalos para poder
+                  continuar con tu compra.
+                </li>
+              ) : null}
               {items.map((item) => {
                 const unitPrice = selectUnitPrice(item, mode)
                 const lineTotal = unitPrice * item.quantity
+                const reason = reasons.get(item.id)
                 return (
                   <li
                     key={item.id}
-                    className="flex gap-3 rounded-lg border bg-card p-3"
+                    className={cn(
+                      'flex gap-3 rounded-lg border bg-card p-3',
+                      reason && 'border-[#E7B9AE] bg-[#FBF3F0]',
+                    )}
                   >
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-muted">
                       {item.image?.url ? (
@@ -180,6 +198,11 @@ export function CartDrawer({ className }: CartDrawerProps) {
                       <p className="text-xs text-muted-foreground">
                         Unitario: {formatPrice(unitPrice)}
                       </p>
+                      {reason ? (
+                        <p className="mt-1 text-xs font-medium text-[#B23A2E]">
+                          {unavailableMessage(reason)}
+                        </p>
+                      ) : null}
                       <div className="mt-2 flex items-center gap-2">
                         <Button
                           type="button"
@@ -187,6 +210,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
                           size="icon"
                           className="h-7 w-7"
                           onClick={() => handleDecrement(item.id, item.quantity)}
+                          disabled={Boolean(reason)}
                           aria-label="Disminuir cantidad"
                         >
                           <span className="text-base leading-none">−</span>
@@ -203,6 +227,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
                           size="icon"
                           className="h-7 w-7"
                           onClick={() => handleIncrement(item.id, item.quantity)}
+                          disabled={Boolean(reason)}
                           aria-label="Aumentar cantidad"
                         >
                           <span className="text-base leading-none">+</span>

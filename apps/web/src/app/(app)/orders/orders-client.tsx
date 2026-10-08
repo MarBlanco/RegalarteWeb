@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/use-auth'
 import { useCartStore } from '@/lib/cart/store'
-import { isAgotado } from '@/lib/catalog'
+import { fetchUnavailable } from '@/lib/cart/availability'
 import { formatPrice } from '@/lib/format'
 import {
   ORDER_STATUS_META,
@@ -65,28 +65,6 @@ function StatusIcon({ status, className = 'h-3.5 w-3.5' }: { status: OrderStatus
   }
 }
 
-/**
- * Ids de productos que hoy NO se pueden comprar (agotados, sin stock o
- * despublicados). Un producto que ya no existe también se considera no
- * disponible. Lanza si no se puede consultar.
- */
-async function findUnavailableProducts(ids: number[]): Promise<Set<number>> {
-  if (ids.length === 0) return new Set()
-  const res = await fetch(
-    `/api/products?where[id][in]=${ids.join(',')}&limit=${ids.length}&depth=0`,
-  )
-  if (!res.ok) throw new Error('availability')
-  const data = (await res.json()) as {
-    docs?: Array<{ id: number; active?: boolean | null; soldOut?: boolean | null; stock?: number | null }>
-  }
-  const available = new Set(
-    (data.docs ?? [])
-      .filter((p) => p.active !== false && !isAgotado(p))
-      .map((p) => p.id),
-  )
-  return new Set(ids.filter((id) => !available.has(id)))
-}
-
 function OrderCard({ order }: Readonly<{ order: HistoryOrder }>) {
   const router = useRouter()
   const addItem = useCartStore((s) => s.addItem)
@@ -109,7 +87,7 @@ function OrderCard({ order }: Readonly<{ order: HistoryOrder }>) {
     const ids = order.items.flatMap((i) => (i.product === null ? [] : [i.product]))
     let unavailable: Set<number>
     try {
-      unavailable = await findUnavailableProducts(ids)
+      unavailable = new Set((await fetchUnavailable(ids)).keys())
     } catch {
       setNotice('No pudimos verificar la disponibilidad. Intentá de nuevo.')
       setChecking(false)
