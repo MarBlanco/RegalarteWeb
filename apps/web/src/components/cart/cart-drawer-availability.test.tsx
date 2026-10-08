@@ -61,7 +61,7 @@ describe('CartDrawer — disponibilidad', () => {
     act(() => useCartUIStore.getState().close())
     act(() => useCartUIStore.getState().open())
     expect(await screen.findByText(/Agotado: este producto/)).toBeInTheDocument()
-    expect(screen.getByRole('alert')).toHaveTextContent('Algunos productos ya no están disponibles')
+    expect(screen.getByRole('status')).toHaveTextContent('Algunos productos ya no están disponibles')
     expect(screen.getAllByText(/10\.000/).length).toBeGreaterThan(0)
     expect(screen.queryByText(/15\.000/)).toBeNull()
   })

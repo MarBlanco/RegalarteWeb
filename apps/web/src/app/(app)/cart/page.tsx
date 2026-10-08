@@ -167,10 +167,7 @@ export default function CartPage() {
                 </div>
 
                 {hasUnavailable ? (
-                  <div
-                    role="alert"
-                    className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#E7B9AE] bg-[#FBEDE9] p-4 text-sm text-[#7A2E1D]"
-                  >
+                  <output className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#E7B9AE] bg-[#FBEDE9] p-4 text-sm text-[#7A2E1D]">
                     <p>
                       Algunos productos de tu carrito ya no están disponibles.
                       Quitalos para poder continuar con tu compra.
@@ -184,7 +181,7 @@ export default function CartPage() {
                     >
                       Quitar no disponibles
                     </button>
-                  </div>
+                  </output>
                 ) : null}
 
                 {/* Tabla de líneas */}
@@ -207,7 +204,6 @@ export default function CartPage() {
                       return (
                         <li
                           key={item.id}
-                          aria-disabled={reason ? true : undefined}
                           className={`px-4 py-4 md:grid md:grid-cols-[minmax(0,1fr)_110px_140px_120px_56px] md:items-center md:gap-x-3 ${reason ? 'bg-[#FBF3F0]' : ''}`}
                         >
                           <div className="flex min-w-0 gap-3">

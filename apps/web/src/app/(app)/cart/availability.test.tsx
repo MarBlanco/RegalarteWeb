@@ -69,7 +69,7 @@ describe('Carrito — disponibilidad de los productos', () => {
     catalog = [catalog[0], doc]
     render(<CartPage />)
     expect(await screen.findByText(message)).toBeInTheDocument()
-    expect(screen.getByRole('alert')).toHaveTextContent('ya no están disponibles')
+    expect(screen.getByRole('status')).toHaveTextContent('ya no están disponibles')
     const cta = continueCta()
     expect(cta.closest('a')).toBeNull()
     expect(cta.closest('button')).toBeDisabled()
@@ -101,7 +101,7 @@ describe('Carrito — disponibilidad de los productos', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Quitar no disponibles' }))
     expect(useCartStore.getState().items.map((i) => i.id)).toEqual(['1'])
     await waitFor(() => expect(continueCta().closest('a')).toHaveAttribute('href', '/checkout'))
-    expect(screen.queryByRole('alert')).toBeNull()
+    expect(screen.queryByRole('status')).toBeNull()
   })
 
   it('si ningún producto es comprable lo dice', async () => {

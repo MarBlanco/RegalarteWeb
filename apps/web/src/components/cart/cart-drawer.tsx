@@ -155,9 +155,11 @@ export function CartDrawer({ className }: CartDrawerProps) {
           ) : (
             <ul className="space-y-4">
               {hasUnavailable ? (
-                <li role="alert" className="rounded-lg border border-[#E7B9AE] bg-[#FBEDE9] p-3 text-xs text-[#7A2E1D]">
-                  Algunos productos ya no están disponibles. Quitalos para poder
-                  continuar con tu compra.
+                <li>
+                  <output className="block rounded-lg border border-[#E7B9AE] bg-[#FBEDE9] p-3 text-xs text-[#7A2E1D]">
+                    Algunos productos ya no están disponibles. Quitalos para
+                    poder continuar con tu compra.
+                  </output>
                 </li>
               ) : null}
               {items.map((item) => {

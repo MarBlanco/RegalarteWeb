@@ -38,7 +38,10 @@ export function useCartAvailability(enabled = true): CartAvailability {
   const [failed, setFailed] = useState(false)
   const latest = useRef(0)
 
-  const idsKey = items.map((i) => i.productId).sort().join(',')
+  const idsKey = items
+    .map((i) => i.productId)
+    .sort((a, b) => a.localeCompare(b))
+    .join(',')
 
   const refresh = useCallback(async () => {
     const ids = numericProductIds(idsKey ? idsKey.split(',') : [])
