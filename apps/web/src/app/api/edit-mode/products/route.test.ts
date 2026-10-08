@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { POST } from './route'
 
 vi.mock('payload', () => ({ getPayload: vi.fn() }))
 vi.mock('@payload-config', () => ({ default: {} }))
-vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }))
+vi.mock('next/cache', () => ({ revalidateTag: vi.fn(), revalidatePath: vi.fn() }))
 
 const { getPayload } = await import('payload')
 
@@ -74,6 +74,7 @@ describe('POST /api/edit-mode/products', () => {
     })
     expect(args.data.description.root.children[0].children[0].text).toBe('Texto')
     expect(revalidateTag).toHaveBeenCalledWith('products', { expire: 0 })
+    expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
   })
 
   it('no acepta un slug enviado por el cliente', async () => {

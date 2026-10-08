@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidateCatalog } from '@/lib/revalidate-catalog'
 import { sanitizeAttributeValues } from '@/lib/product-edit'
 import { verifyStaff } from '../../auth'
 
@@ -58,6 +59,7 @@ export async function PUT(
       user: user as never,
       overrideAccess: false,
     })) as { id: number }
+    revalidateCatalog('products')
     return NextResponse.json(
       { id: updated.id },
       { headers: { 'Cache-Control': 'no-store' } },

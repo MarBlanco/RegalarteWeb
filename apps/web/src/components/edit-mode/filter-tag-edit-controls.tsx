@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useEditActive } from '@/hooks/use-edit-mode'
 import { Button } from '@/components/ui/button'
@@ -10,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { ModalShell } from './edit-modal'
 import { PencilIcon, TrashIcon } from './edit-button'
 import { editModeRequest } from './api'
+import { useRefreshStorefront } from './use-refresh-storefront'
 
 export interface FilterTagOption {
   id: number
@@ -18,7 +18,7 @@ export interface FilterTagOption {
 }
 
 function useFilterTagApi() {
-  const router = useRouter()
+  const refreshStorefront = useRefreshStorefront()
   const token = useAuth((s) => s.token)
   return {
     async run(
@@ -28,7 +28,7 @@ function useFilterTagApi() {
     ) {
       if (!token) throw new Error('Sesión vencida. Volvé a iniciar sesión.')
       const out = await editModeRequest(path, method, body, token)
-      router.refresh()
+      await refreshStorefront()
       return out
     },
   }

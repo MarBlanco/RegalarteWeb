@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { revalidateCatalog } from '@/lib/revalidate-catalog'
 import type { getPayload } from 'payload'
 import { slugify } from '@/lib/catalog-edit'
 import { plainTextToLexical, sanitizeProductPatch } from '@/lib/product-edit'
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
 
     // Listados, facetas y PDP usan el tag 'products': invalida ya para que el
     // producto nuevo aparezca al refrescar.
-    revalidateTag('products', { expire: 0 })
+    revalidateCatalog('products')
 
     return NextResponse.json(
       { id: created.id, title: created.title, slug: created.slug },
@@ -102,6 +102,82 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json(
       { error: 'No se pudo crear el producto' },
+      { status: 500 },
+    )
+  }
+}
+
+/**
+ * Productos ocultos (`active=false`) de una categoría y sus tipos (MODO
+ * EDICIÓN). El storefront público nunca los lista, así que sin esto un
+ * producto en Oculto no se podría volver a encontrar para reactivarlo.
+ * Solo admin/staff por JWT.
+ */
+export async function GET(req: Request) {
+  const verified = await verifyStaff(req)
+  if ('error' in verified) return verified.error
+  const { payload } = verified
+
+  const category = Number(new URL(req.url).searchParams.get('category'))
+  if (!Number.isInteger(category) || category <= 0) {
+    return NextResponse.json({ error: 'Categoría inválida' }, { status: 400 })
+  }
+
+  try {
+    const children = await payload.find({
+      collection: 'categories',
+      where: { parent: { equals: category } },
+      limit: 200,
+      depth: 0,
+      pagination: false,
+    } as never)
+    const ids = [
+      category,
+      ...(children.docs as unknown as Array<{ id: number }>).map((c) => c.id),
+    ]
+    const found = await payload.find({
+      collection: 'products',
+      where: { and: [{ active: { equals: false } }, { category: { in: ids } }] },
+      limit: 100,
+      depth: 1,
+      sort: 'title',
+    } as never)
+    const docs = (
+      found.docs as unknown as Array<{
+        id: number
+        title: string
+        slug: string
+        price: number
+        stock?: number | null
+        soldOut?: boolean | null
+        images?: Array<number | { url?: string | null }>
+      }>
+    ).map((p) => {
+      const first = Array.isArray(p.images) ? p.images[0] : null
+      return {
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
+        price: p.price,
+        stock: p.stock ?? null,
+        soldOut: p.soldOut === true,
+        imageUrl:
+          first && typeof first === 'object' && typeof first.url === 'string'
+            ? first.url
+            : null,
+      }
+    })
+    const total =
+      typeof (found as { totalDocs?: number }).totalDocs === 'number'
+        ? (found as { totalDocs: number }).totalDocs
+        : docs.length
+    return NextResponse.json(
+      { docs, total },
+      { headers: { 'Cache-Control': 'no-store' } },
+    )
+  } catch {
+    return NextResponse.json(
+      { error: 'No se pudieron cargar los productos ocultos' },
       { status: 500 },
     )
   }

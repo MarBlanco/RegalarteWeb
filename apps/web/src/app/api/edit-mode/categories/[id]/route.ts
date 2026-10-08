@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { revalidateCatalog } from '@/lib/revalidate-catalog'
 import { reorderSiblings, sanitizeCategoryPatch } from '@/lib/catalog-edit'
 import { verifyStaff } from '../../auth'
 
@@ -99,7 +99,7 @@ export async function PUT(
       user: user as never,
       overrideAccess: false,
     })) as { id: number; title: string; slug: string }
-    revalidateTag('categories', { expire: 0 })
+    revalidateCatalog('categories')
     return NextResponse.json(
       { id: updated.id, title: updated.title, slug: updated.slug },
       { headers: { 'Cache-Control': 'no-store' } },
@@ -155,7 +155,7 @@ export async function DELETE(
         user: user as never,
         overrideAccess: false,
       })
-      revalidateTag('categories', { expire: 0 })
+      revalidateCatalog('categories')
       return NextResponse.json(
         { deactivated: true },
         { headers: { 'Cache-Control': 'no-store' } },
@@ -167,7 +167,7 @@ export async function DELETE(
       user: user as never,
       overrideAccess: false,
     })
-    revalidateTag('categories', { expire: 0 })
+    revalidateCatalog('categories')
     return NextResponse.json(
       { deleted: true },
       { headers: { 'Cache-Control': 'no-store' } },

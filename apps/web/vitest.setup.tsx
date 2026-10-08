@@ -17,6 +17,11 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }))
 
+// La Server Action de refresco no corre en jsdom (usa payload y next/cache)
+vi.mock('@/app/actions/refresh-storefront', () => ({
+  refreshStorefrontAction: vi.fn(async () => ({ ok: true })),
+}))
+
 // Mock next/image
 vi.mock('next/image', () => ({
   default: ({ src, alt, fill, priority, ...props }: { src: string; alt: string; fill?: boolean; priority?: boolean; [key: string]: unknown }) => (

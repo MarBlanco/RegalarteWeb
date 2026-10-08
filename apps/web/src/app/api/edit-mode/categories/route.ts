@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { revalidateCatalog } from '@/lib/revalidate-catalog'
 import { slugify, sanitizeCategoryCreate } from '@/lib/catalog-edit'
 import { verifyStaff, uniqueSlug } from '../auth'
 
@@ -137,7 +137,7 @@ export async function POST(req: Request) {
 
     // El selector de tipos y el catálogo cachean categorías (300s):
     // invalida para reflejo inmediato.
-    revalidateTag('categories', { expire: 0 })
+    revalidateCatalog('categories')
 
     return NextResponse.json(
       { id: created.id, title: created.title, slug: created.slug },

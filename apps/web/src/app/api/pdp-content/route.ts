@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidateStorefrontPages } from '@/lib/revalidate-catalog'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { canEditHomeContent } from '@/lib/home-content'
@@ -67,6 +68,7 @@ export async function PUT(req: Request) {
       slug: 'pdp-content',
       data: patch,
     })
+    revalidateStorefrontPages()
   } catch {
     return NextResponse.json(
       { error: 'No se pudo guardar el contenido' },

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { POST } from './route'
 import { PUT, DELETE } from './[id]/route'
 
@@ -13,6 +13,7 @@ vi.mock('@payload-config', () => ({
 
 vi.mock('next/cache', () => ({
   revalidateTag: vi.fn(),
+  revalidatePath: vi.fn(),
 }))
 
 const { getPayload } = await import('payload')
@@ -97,6 +98,8 @@ describe('Tipos — invalidación inmediata del caché', () => {
     const res = await POST(authedJson({ title: 'Nuevo Tipo', parent: 3 }))
     expect(res.status).toBe(201)
     expect(revalidateTag).toHaveBeenCalledWith('categories', { expire: 0 })
+    // las páginas ISR también se purgan: si no, el refresh inmediato muestra lo anterior
+    expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
   })
 
   it('PUT invalida categories', async () => {

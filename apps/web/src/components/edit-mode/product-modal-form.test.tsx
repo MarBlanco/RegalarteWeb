@@ -162,6 +162,51 @@ describe('Editar producto — estado', () => {
   })
 })
 
+const { refreshStorefrontAction } = await import('@/app/actions/refresh-storefront')
+
+describe('Editar producto — transiciones de estado se persisten y se reflejan sin F5', () => {
+  it.each([
+    ['Activo → Agotado', { active: true, soldOut: false }, 'Agotado', { active: true, soldOut: true }],
+    ['Agotado → Activo', { active: true, soldOut: true }, 'Activo', { active: true, soldOut: false }],
+    ['Activo → Oculto', { active: true, soldOut: false }, 'Oculto', { active: false, soldOut: false }],
+    ['Oculto → Activo', { active: false, soldOut: false }, 'Activo', { active: true, soldOut: false }],
+    ['Agotado → Oculto', { active: true, soldOut: true }, 'Oculto', { active: false, soldOut: false }],
+    ['Oculto → Agotado', { active: false, soldOut: false }, 'Agotado', { active: true, soldOut: true }],
+  ])('%s', async (_n, from, to, expected) => {
+    await openEditor({ ...PRODUCT, ...from })
+    fireEvent.click(screen.getByRole('radio', { name: to }))
+    fireEvent.click(screen.getByRole('button', { name: /Guardar/ }))
+    await waitFor(() => expect(saved).not.toBeNull())
+    expect(saved).toMatchObject(expected)
+    // tras guardar: se expira el caché del servidor y se refresca la página
+    await waitFor(() => expect(refreshStorefrontAction).toHaveBeenCalledWith('tok'))
+    await waitFor(() => expect(refresh).toHaveBeenCalled())
+  })
+
+  it('guarda el resto de los campos editables y refresca la UI sin F5', async () => {
+    await openEditor()
+    fireEvent.change(screen.getByLabelText('Nombre / título'), { target: { value: 'Vela Renombrada' } })
+    fireEvent.change(screen.getByLabelText('Precio'), { target: { value: '1234,5' } })
+    fireEvent.change(screen.getByLabelText('Stock'), { target: { value: '9' } })
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Destacado' }))
+    fireEvent.change(screen.getByLabelText('Descripción'), { target: { value: 'Nueva descripción' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Aromas' }))
+    fireEvent.click(within(screen.getByRole('group', { name: 'Aromas' })).getByRole('checkbox', { name: 'Cacao' }))
+    fireEvent.click(screen.getByRole('button', { name: /Guardar/ }))
+    await waitFor(() => expect(saved).not.toBeNull())
+    expect(saved).toMatchObject({
+      title: 'Vela Renombrada',
+      price: '1234.5',
+      stock: '9',
+      featured: false,
+      category: '3',
+    })
+    expect((saved?.tags as number[]).includes(13)).toBe(true)
+    expect(saved?.descriptionText).toBe('Nueva descripción')
+    await waitFor(() => expect(refreshStorefrontAction).toHaveBeenCalledWith('tok'))
+  })
+})
+
 describe('Editar producto — aromas y rituales', () => {
   it('cerrado muestra los aromas elegidos; abierto permite marcar y quitar varios', async () => {
     await openEditor()

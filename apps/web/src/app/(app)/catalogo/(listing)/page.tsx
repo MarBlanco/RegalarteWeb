@@ -18,6 +18,7 @@ import { BenefitsBlock } from '@/components/catalog/benefits-block'
 import { TipoSelector } from '@/components/catalog/tipo-selector'
 import { TipoSortSelect } from '@/components/catalog/tipo-sort-select'
 import { ProductAddButton } from '@/components/edit-mode/product-edit-modal'
+import { HiddenProductsStrip } from '@/components/edit-mode/hidden-products-strip'
 import {
   getCategoryTipos,
   mockCategoryName,
@@ -263,6 +264,7 @@ export default async function CatalogPage({ searchParams }: PageProps) {
                     />
                   </div>
                 )}
+                <HiddenProductsStrip categoryId={addProductCategoryId} />
               </section>
             </div>
           </div>
@@ -302,6 +304,13 @@ export default async function CatalogPage({ searchParams }: PageProps) {
                     </Suspense>
                   </>
                 )}
+                <HiddenProductsStrip
+                  categoryId={
+                    isFullListing && params.tipo && activeTipo?.real
+                      ? activeTipo.categoryId
+                      : category?.id
+                  }
+                />
               </section>
             </div>
           </div>
