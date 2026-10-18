@@ -35,7 +35,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.18.0",
-    "graphql": "^16.9.0",
+    "graphql": "^17.0.2",
     "next": "16.2.12",
     "payload": "3.87.1",
     "react": "19.1.0",
