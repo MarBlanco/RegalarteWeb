@@ -11,6 +11,7 @@ describe('resolveSocialLinks', () => {
   it('los defaults apuntan a las cuentas oficiales de Solística', () => {
     expect(DEFAULT_SOCIAL_LINKS.instagram).toBe('https://www.instagram.com/solistica_oficial/')
     expect(DEFAULT_SOCIAL_LINKS.tiktok).toBe('https://www.tiktok.com/@solistica_oficial')
+    expect(DEFAULT_SOCIAL_LINKS.facebook).toBe('https://www.facebook.com/profile.php?id=100090514800368')
   })
 
   it('usa los enlaces https guardados', () => {

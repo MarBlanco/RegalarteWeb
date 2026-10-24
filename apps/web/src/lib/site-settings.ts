@@ -1,9 +1,9 @@
 /**
  * Datos del sitio editables (global `site-settings`).
  *
- * Los defaults son las cuentas oficiales de Solística (Instagram y TikTok);
- * Facebook y WhatsApp conservan los valores que estaban hardcodeados. Lo que
- * se guarde en el admin prevalece sobre estos valores.
+ * Los defaults son las cuentas oficiales de Solística (Instagram, TikTok y
+ * Facebook); WhatsApp conserva el valor que estaba hardcodeado. Lo que se
+ * guarde en el admin prevalece sobre estos valores.
  */
 
 export interface SocialLinks {
@@ -16,7 +16,7 @@ export interface SocialLinks {
 export const DEFAULT_SOCIAL_LINKS: SocialLinks = {
   instagram: 'https://www.instagram.com/solistica_oficial/',
   tiktok: 'https://www.tiktok.com/@solistica_oficial',
-  facebook: 'https://facebook.com',
+  facebook: 'https://www.facebook.com/profile.php?id=100090514800368',
   whatsapp: 'https://wa.me/5491158582146',
 }
 
