@@ -253,7 +253,7 @@ export function Footer() {
                 <SocialLink href={social.facebook} label="Facebook">
                   <FacebookIcon className="w-5 h-5" />
                 </SocialLink>
-                <SocialLink href="/ayuda#contacto" label="WhatsApp">
+                <SocialLink href={social.whatsapp} label="WhatsApp">
                   <WhatsAppIcon className="w-5 h-5" />
                 </SocialLink>
               </div>
