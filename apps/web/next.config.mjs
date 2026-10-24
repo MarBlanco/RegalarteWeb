@@ -3,6 +3,8 @@ import { withPayload } from '@payloadcms/next/withPayload'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  // No generar AGENTS.md al correr `next dev`: el contrato de agentes es CLAUDE.md.
+  agentRules: false,
   images: {
     remotePatterns: [
       // Cloudflare R2 public URL (configured via R2_PUBLIC_URL)

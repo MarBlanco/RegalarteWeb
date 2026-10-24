@@ -33,6 +33,10 @@ export default buildConfig({
   },
   admin: {
     user: 'users',
+    // El import map y los tipos no se regeneran solos al arrancar: sin R2 en el entorno local
+    // el import map perdería el handler de storage-s3 y rompería el admin de producción.
+    // Regenerar a mano (generate:importmap con R2 habilitado, generate:types).
+    importMap: { autoGenerate: false },
     components: {
       beforeDashboard: ['@/components/admin/dashboard#AdminDashboard'],
     },
@@ -49,6 +53,7 @@ export default buildConfig({
     },
   }),
   typescript: {
+    autoGenerate: false,
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   email:
