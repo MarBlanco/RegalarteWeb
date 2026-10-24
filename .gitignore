@@ -45,3 +45,6 @@ coverage/
 
 # Claude Code personal settings
 .claude/settings.local.json
+
+# Payload local uploads (R2 disabled in dev)
+apps/web/media/
