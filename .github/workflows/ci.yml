@@ -28,6 +28,11 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
+      - name: Audit production dependencies
+        # El lockfile fija dompurify y happy-dom a mano (npm overrides no aplican): si se regenera,
+        # esta guarda falla en vez de dejar volver las vulnerabilidades altas o críticas.
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Typecheck
         run: npm run type-check --workspace=apps/web
 

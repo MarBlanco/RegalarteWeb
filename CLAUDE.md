@@ -82,7 +82,8 @@ El reporte final dice qué se hizo, con qué evidencia se verificó, qué acció
 - `apps/web/src/payload-types.ts` es autogenerado (`npm run generate:types --workspace=apps/web`). No editarlo a mano.
 - Cambios de schema solo vía migraciones versionadas (`npm run migrate:create --workspace=apps/web`). El adapter usa `push: false` y `prodMigrations`. No generar ni tocar el schema fuera de ese mecanismo.
 - `apps/web/package.json` tiene `"type": "module"`. Los alias `@/*` y `@payload-config` dependen de eso.
-- Si se agregan componentes al admin, regenerar el import map (`generate:importmap`).
+- Si se agregan componentes al admin, regenerar el import map (`generate:importmap`). El import map y `payload-types.ts` no se autogeneran al arrancar (`autoGenerate: false` en `payload.config.ts`): regenerar el import map con las variables de R2 definidas, o pierde el handler de `storage-s3`.
+- `package-lock.json` fija `dompurify` y `happy-dom` a mano (los `overrides` de npm no aplican a esas dependencias). Si se regenera el lockfile, correr `npm audit --omit=dev`: el CI lo exige en nivel alto.
 - Precios (`apps/web/src/lib/cart/pricing.ts`): el mayorista aplica solo si el modo es `WHOLESALE`, el producto tiene `isWholesaleAvailable` y `wholesalePrice` es un número finito `>= 0`. En cualquier otro caso se usa el precio minorista.
 - Pagos: `getPaymentProvider()` devuelve `mock` por defecto; `mercadopago` solo con `NEXT_PUBLIC_PAYMENT_PROVIDER=mercadopago`.
 - R2 y Resend se activan solo si sus variables existen y no empiezan con `placeholder`.
