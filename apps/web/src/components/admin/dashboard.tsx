@@ -64,11 +64,25 @@ export async function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Resumen</h1>
-        <p className="text-sm text-muted-foreground">
-          Vista general del estado actual del catálogo y las orders.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Resumen</h1>
+          <p className="text-sm text-muted-foreground">
+            Vista general del estado actual del catálogo y las orders.
+          </p>
+        </div>
+        {/* El panel de Payload no carga Tailwind: se usan las clases de botón del propio admin.
+            La sesión admin es la misma cookie, así que la tienda se ve logueado como admin. */}
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn--icon-style-without-border btn--size-medium btn--withoutPopup btn--style-primary"
+        >
+          <span className="btn__content">
+            <span className="btn__label">Ver la tienda</span>
+          </span>
+        </a>
       </header>
 
       <section
