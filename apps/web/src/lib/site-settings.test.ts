@@ -8,6 +8,11 @@ describe('resolveSocialLinks', () => {
     expect(resolveSocialLinks({ instagramUrl: '' })).toEqual(DEFAULT_SOCIAL_LINKS)
   })
 
+  it('los defaults apuntan a las cuentas oficiales de Solística', () => {
+    expect(DEFAULT_SOCIAL_LINKS.instagram).toBe('https://www.instagram.com/solistica_oficial/')
+    expect(DEFAULT_SOCIAL_LINKS.tiktok).toBe('https://www.tiktok.com/@solistica_oficial')
+  })
+
   it('usa los enlaces https guardados', () => {
     const links = resolveSocialLinks({
       instagramUrl: 'https://instagram.com/solistica',
