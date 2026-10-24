@@ -62,15 +62,42 @@ describe('AuthProvider — valida sesión persistida', () => {
     expect(useAuth.getState().isLoading).toBe(false)
   })
 
-  it('sin token no verifica nada', () => {
-    const fetchMock = vi.fn()
+  it('sin token adopta la sesión del panel (cookie)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ user: ADMIN, token: 'jwt-cookie' }),
+    })
     vi.stubGlobal('fetch', fetchMock)
     render(
       <AuthProvider>
         <span>hijo</span>
       </AuthProvider>,
     )
-    expect(fetchMock).not.toHaveBeenCalled()
+    await waitFor(() => {
+      expect(useAuth.getState().token).toBe('jwt-cookie')
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/users/me',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    )
+    expect(useAuth.getState().user?.role).toBe('admin')
+    expect(useAuth.getState().isLoading).toBe(false)
+  })
+
+  it('sin token y sin sesión de panel queda como visitante', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ user: null }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    render(
+      <AuthProvider>
+        <span>hijo</span>
+      </AuthProvider>,
+    )
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    expect(useAuth.getState().user).toBeNull()
+    expect(useAuth.getState().token).toBeNull()
     expect(useAuth.getState().isLoading).toBe(false)
   })
 })

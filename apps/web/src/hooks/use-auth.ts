@@ -61,7 +61,14 @@ export const useAuth = create<AuthState>()(
       setToken: (token) => set({ token }),
       setLoading: (isLoading) => set({ isLoading }),
 
-      logout: () => set({ user: null, token: null }),
+      logout: () => {
+        set({ user: null, token: null })
+        // Cierra también la cookie de sesión (compartida con /admin); si no, el
+        // AuthProvider volvería a adoptarla al recargar.
+        if (typeof window !== 'undefined') {
+          void fetch('/api/users/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {})
+        }
+      },
 
       isAuthenticated: () => !!get().user && !!get().token,
       isWholesale: () => get().user?.customer_type === 'WHOLESALE',
