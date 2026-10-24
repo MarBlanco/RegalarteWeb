@@ -72,17 +72,16 @@ export async function AdminDashboard() {
           </p>
         </div>
         {/* El panel de Payload no carga Tailwind: se usan las clases de botón del propio admin.
-            La sesión admin es la misma cookie, así que la tienda se ve logueado como admin. */}
-        <a
+            La sesión admin es la misma cookie, así que la tienda se ve logueado como admin.
+            Misma pestaña: Next hace carga completa al cambiar de layout raíz (admin -> tienda). */}
+        <Link
           href="/"
-          target="_blank"
-          rel="noopener noreferrer"
           className="btn btn--icon-style-without-border btn--size-medium btn--withoutPopup btn--style-primary"
         >
           <span className="btn__content">
             <span className="btn__label">Ver la tienda</span>
           </span>
-        </a>
+        </Link>
       </header>
 
       <section
