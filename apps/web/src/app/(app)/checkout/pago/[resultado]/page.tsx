@@ -84,7 +84,7 @@ export default async function PagoRetornoPage({ params, searchParams }: PageProp
                 <Link href="/orders">Ver mis compras</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/catalogo">Volver al catálogo</Link>
+                <Link href="/">Volver al inicio</Link>
               </Button>
             </div>
           </CardContent>

@@ -401,10 +401,10 @@ export function OrdersClient() {
           </p>
           <Button
             type="button"
-            onClick={() => router.push('/catalogo')}
+            onClick={() => router.push('/')}
             className="mt-5 h-11 rounded-xl bg-[#B85C33] px-8 text-xs font-semibold uppercase tracking-wider text-white hover:bg-[#9E4E2B]"
           >
-            Explorar catálogo
+            Ir al inicio
           </Button>
         </div>
       ) : null}

@@ -72,7 +72,7 @@ export async function submitCheckout(
   if (items.length === 0) {
     return {
       status: 'error',
-      message: 'Tu carrito está vacío. Volvé al catálogo para elegir productos.',
+      message: 'Tu carrito está vacío. Volvé al inicio para elegir productos.',
     }
   }
 

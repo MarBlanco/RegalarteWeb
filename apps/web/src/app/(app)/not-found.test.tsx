@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import AppNotFound from './not-found'
 
 describe('AppNotFound', () => {
-  it('muestra el 404 del storefront en español con salidas al inicio y al catálogo', () => {
+  it('muestra el 404 del storefront en español con una única salida al inicio', () => {
     render(<AppNotFound />)
     expect(
       screen.getByRole('heading', { name: 'Página no encontrada' }),
@@ -12,9 +12,6 @@ describe('AppNotFound', () => {
       'href',
       '/',
     )
-    expect(screen.getByRole('link', { name: 'Ver catálogo' })).toHaveAttribute(
-      'href',
-      '/catalogo',
-    )
+    expect(screen.queryByRole('link', { name: /catálogo/i })).toBeNull()
   })
 })

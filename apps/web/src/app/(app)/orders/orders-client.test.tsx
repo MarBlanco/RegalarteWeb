@@ -66,7 +66,7 @@ describe('Mis compras — estados de página', () => {
     render(<OrdersClient />)
     expect(await screen.findByText('Todavía no tenés pedidos')).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Explorar catálogo' }),
+      screen.getByRole('button', { name: 'Ir al inicio' }),
     ).toBeInTheDocument()
   })
 

@@ -25,7 +25,7 @@ export const AYUDA_SECTIONS: AyudaSection[] = [
       'Completá tus datos y dirección en el checkout.',
       'Confirmá el pedido y continuá al pago con Mercado Pago.',
     ],
-    cta: { label: 'Ir al catálogo', href: '/catalogo' },
+    cta: { label: 'Ir al inicio', href: '/' },
   },
   {
     id: 'envios',

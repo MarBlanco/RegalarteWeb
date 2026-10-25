@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { OrderConfirmation } from './order-confirmation'
 
 describe('OrderConfirmation', () => {
-  it('muestra número, estado y total del pedido con salidas a compras y catálogo', () => {
+  it('muestra número, estado y total del pedido con salidas a compras e inicio', () => {
     render(
       <OrderConfirmation
         order={{ orderNumber: 'RG-0001', status: 'pending', total: 12500 }}
@@ -19,7 +19,7 @@ describe('OrderConfirmation', () => {
       '/orders',
     )
     expect(
-      screen.getByRole('link', { name: 'Volver al catálogo' }),
-    ).toHaveAttribute('href', '/catalogo')
+      screen.getByRole('link', { name: 'Volver al inicio' }),
+    ).toHaveAttribute('href', '/')
   })
 })

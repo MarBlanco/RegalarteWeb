@@ -12,10 +12,10 @@ export default function CatalogProductNotFound() {
         </p>
         <div className="mt-6">
           <Link
-            href="/catalogo"
+            href="/"
             className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            Volver al catálogo
+            Volver al inicio
           </Link>
         </div>
       </div>

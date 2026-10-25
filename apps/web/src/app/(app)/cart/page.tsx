@@ -314,7 +314,7 @@ export default function CartPage() {
 
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                   <Link
-                    href="/catalogo"
+                    href="/"
                     className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#B85C33] hover:text-[#9E4E2B]"
                   >
                     <span aria-hidden="true">←</span> Seguir comprando
@@ -411,10 +411,10 @@ export default function CartPage() {
                   </p>
                 </div>
                 <Link
-                  href="/catalogo"
+                  href="/"
                   className="shrink-0 text-[13px] font-medium text-[#B85C33] hover:text-[#9E4E2B]"
                 >
-                  Ver todos →
+                  Ir al inicio →
                 </Link>
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
@@ -467,7 +467,7 @@ function CartEmptyState() {
         asChild
         className="mt-5 h-11 rounded-md bg-[#B85C33] px-8 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-[#9E4E2B]"
       >
-        <Link href="/catalogo">Explorar catálogo</Link>
+        <Link href="/">Ir al inicio</Link>
       </Button>
     </div>
   )

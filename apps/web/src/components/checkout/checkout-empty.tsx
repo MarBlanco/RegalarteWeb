@@ -31,12 +31,12 @@ export function CheckoutEmptyState() {
         </span>
         <h2 className="text-lg font-semibold">Tu carrito está vacío</h2>
         <p className="text-sm text-muted-foreground">
-          No podés avanzar al checkout sin productos. Volvé al catálogo y elegí
+          No podés avanzar al checkout sin productos. Volvé al inicio y elegí
           los regalos que querés enviar.
         </p>
         <div className="mt-2">
           <Button asChild size="lg">
-            <Link href="/catalogo">Explorar catálogo</Link>
+            <Link href="/">Ir al inicio</Link>
           </Button>
         </div>
       </CardContent>
