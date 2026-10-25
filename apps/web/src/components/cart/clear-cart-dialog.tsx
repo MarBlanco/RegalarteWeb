@@ -40,7 +40,9 @@ export function ClearCartDialog({ open, itemCount, onClose, onConfirm }: Readonl
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+    // pointer-events-auto: dentro del panel lateral el contenedor es pointer-events-none y, sin esto,
+    // los clics reales atraviesan el diálogo (element.click() por JS no lo detecta).
+    <div className="pointer-events-auto fixed inset-0 z-[70] flex items-center justify-center p-4">
       {/* Fondo clickeable: botón real (fuera del orden de tabulación) para no poner handlers en divs. */}
       <button
         type="button"

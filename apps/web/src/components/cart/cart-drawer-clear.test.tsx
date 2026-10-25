@@ -93,6 +93,16 @@ describe('CartDrawer — vaciar carrito pide confirmación', () => {
     expect(useCartUIStore.getState().isOpen).toBe(true)
   })
 
+  it('el diálogo recibe clics reales: el contenedor del panel es pointer-events-none', () => {
+    openDrawer()
+    fireEvent.click(screen.getByRole('button', { name: 'Vaciar carrito' }))
+    const root = screen.getByRole('alertdialog').parentElement
+    // jsdom no hace hit-testing: se verifica la clase que lo habilita. Sin ella, en el navegador
+    // los clics atraviesan el diálogo y "Vaciar" no hace nada.
+    expect(root).toHaveClass('pointer-events-auto')
+    expect(root?.parentElement).toHaveClass('pointer-events-none')
+  })
+
   it('si el panel se cierra, la confirmación pendiente se descarta', () => {
     openDrawer()
     fireEvent.click(screen.getByRole('button', { name: 'Vaciar carrito' }))
