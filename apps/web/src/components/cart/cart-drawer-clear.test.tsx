@@ -84,6 +84,15 @@ describe('CartDrawer — vaciar carrito pide confirmación', () => {
     expect(useCartUIStore.getState().isOpen).toBe(true)
   })
 
+  it('clic en el fondo cierra solo la confirmación', () => {
+    openDrawer()
+    fireEvent.click(screen.getByRole('button', { name: 'Vaciar carrito' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar confirmación' }))
+    expect(screen.queryByRole('alertdialog')).toBeNull()
+    expect(useCartStore.getState().items).toHaveLength(2)
+    expect(useCartUIStore.getState().isOpen).toBe(true)
+  })
+
   it('si el panel se cierra, la confirmación pendiente se descarta', () => {
     openDrawer()
     fireEvent.click(screen.getByRole('button', { name: 'Vaciar carrito' }))
