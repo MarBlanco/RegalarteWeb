@@ -40,7 +40,7 @@ export function TipoSortSelect() {
           value={sort}
           onChange={(e) => onChange(e.target.value)}
           disabled={isPending}
-          className="h-[30px] w-auto max-w-full cursor-pointer appearance-none truncate rounded-full border border-[#E5DDD1] bg-background pl-3 pr-8 text-xs text-[#38271D] outline-none focus-visible:ring-2 focus-visible:ring-[#B85C33]/40 disabled:cursor-wait disabled:opacity-60"
+          className="h-9 w-auto max-w-full cursor-pointer sm:h-[30px] appearance-none truncate rounded-full border border-[#E5DDD1] bg-background pl-3 pr-8 text-xs text-[#38271D] outline-none focus-visible:ring-2 focus-visible:ring-[#B85C33]/40 disabled:cursor-wait disabled:opacity-60"
           aria-label="Ordenar por"
         >
           {SORT_OPTIONS.map((opt) => (

@@ -305,7 +305,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         />
 
         {/* Principal: galería | info | notas */}
-        <div className="mt-5 grid gap-8 lg:grid-cols-12 lg:gap-6 xl:gap-8">
+        <div className="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-6 xl:gap-8">
           <div className="lg:col-span-5">
             <ImageGallery images={galleryImages} fallbackAlt={product.title} />
           </div>

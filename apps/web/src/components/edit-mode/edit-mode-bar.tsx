@@ -39,7 +39,7 @@ export function EditModeBar() {
 
   const editing = !viewAsClient
   const base =
-    'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors sm:text-xs'
+    'inline-flex min-h-10 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] sm:min-h-0 font-bold uppercase tracking-wider transition-colors sm:text-xs'
   const selected = 'bg-[#B85C33] text-white shadow-sm'
   const neutral = 'text-[#5A3A28] hover:bg-[#EFDCC2]'
 
@@ -73,7 +73,7 @@ export function EditModeBar() {
         {isAdmin ? (
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#B85C33] bg-[#B85C33] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[#9E4E2B] sm:text-xs"
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-[#B85C33] bg-[#B85C33] px-3 py-1.5 sm:min-h-0 text-[11px] font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[#9E4E2B] sm:text-xs"
           >
             <ShieldIcon />
             Administrar

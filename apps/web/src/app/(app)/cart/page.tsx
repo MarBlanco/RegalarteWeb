@@ -117,7 +117,7 @@ export default function CartPage() {
         </header>
 
         {!hydrated ? (
-          <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
             <div className="h-64 animate-pulse rounded-lg border border-[#EBDFD1] bg-[#FCF8F1]" aria-hidden />
             <div className="h-72 animate-pulse rounded-lg border border-[#EBDFD1] bg-[#FCF8F1]" aria-hidden />
           </div>
@@ -125,7 +125,7 @@ export default function CartPage() {
           <CartEmptyState />
         ) : (
           <>
-            <div className="mt-6 grid items-start gap-6 lg:grid-cols-[1fr_360px] lg:gap-8">
+            <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_360px] lg:gap-8">
               <section aria-label="Productos en el carrito" className="min-w-0">
                 {/* Barra de envío gratis */}
                 <div className="rounded-lg border border-[#EBDFD1] bg-[#FCF8F1] p-4">
@@ -315,14 +315,14 @@ export default function CartPage() {
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                   <Link
                     href="/"
-                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#B85C33] hover:text-[#9E4E2B]"
+                    className="inline-flex min-h-11 items-center gap-1.5 text-[13px] font-medium text-[#B85C33] hover:text-[#9E4E2B] sm:min-h-0"
                   >
                     <span aria-hidden="true">←</span> Seguir comprando
                   </Link>
                   <button
                     type="button"
                     onClick={() => setConfirmClear(true)}
-                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#B85C33] hover:text-[#9E4E2B]"
+                    className="inline-flex min-h-11 items-center gap-1.5 text-[13px] font-medium text-[#B85C33] hover:text-[#9E4E2B]"
                   >
                     <TrashIcon className="h-4 w-4" />
                     Vaciar carrito

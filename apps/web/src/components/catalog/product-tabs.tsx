@@ -56,7 +56,7 @@ export function ProductTabs({ description, characteristics, editorial }: Product
             aria-selected={active === tab.id}
             onClick={() => setActive(tab.id)}
             className={cn(
-              'shrink-0 whitespace-nowrap border-b-2 pb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
+              'shrink-0 whitespace-nowrap border-b-2 py-3 text-[11px] sm:pb-2.5 sm:pt-0 font-semibold uppercase tracking-[0.12em] transition-colors',
               active === tab.id
                 ? 'border-[#B85C33] text-[#38271D]'
                 : 'border-transparent text-[#9A8A7A] hover:text-[#38271D]',

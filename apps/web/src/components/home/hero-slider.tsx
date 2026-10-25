@@ -149,7 +149,7 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setHasFocus(false)
       }}
-      className="relative h-[560px] w-full overflow-hidden sm:h-[600px] lg:h-[650px] bg-[#2C221E]"
+      className="relative h-[620px] w-full overflow-hidden min-[380px]:h-[560px] sm:h-[600px] lg:h-[650px] bg-[#2C221E]"
     >
       <AnimatePresence>
         <motion.div
@@ -166,8 +166,8 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 z-10 flex items-center">
-        <div className="w-full px-6 sm:px-10 lg:pl-[6.8vw] lg:pr-0">
+      <div className="absolute inset-0 z-10 flex items-center pb-24 sm:pb-0">
+        <div className="w-full px-6 sm:pl-[88px] sm:pr-10 lg:pl-[max(6.8vw,96px)] lg:pr-0">
           <div className="relative max-w-[500px] min-h-[320px] sm:min-h-[350px]">
             <AnimatePresence>
               <motion.div
@@ -178,16 +178,16 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
                 transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
                 className="absolute inset-0 flex flex-col justify-center"
               >
-                <span aria-hidden className="mb-6 block h-[2px] w-[48px] bg-primary" />
-                <h1 className="font-serif text-[44px] font-normal leading-[1.05] tracking-tight text-white sm:text-[48px] lg:text-[54px]">
+                <span aria-hidden className="mb-4 block h-[2px] w-[48px] bg-primary sm:mb-6" />
+                <h1 className="font-serif text-[36px] font-normal leading-[1.05] tracking-tight text-white min-[380px]:text-[44px] sm:text-[48px] lg:text-[54px]">
                   {activeSlide.title}
                 </h1>
-                <p className="mt-6 max-w-[500px] text-[17px] leading-[1.5] text-white sm:text-[18px]">
+                <p className="mt-4 max-w-[500px] text-[16px] leading-[1.5] text-white min-[380px]:text-[17px] sm:mt-6 sm:text-[18px]">
                   {activeSlide.description}
                 </p>
                 <Button
                   asChild
-                  className="mt-8 h-[52px] w-[190px] uppercase tracking-wider"
+                  className="mt-6 h-[52px] w-[190px] uppercase tracking-wider sm:mt-8"
                 >
                   <Link href={cta.href}>{cta.text}</Link>
                 </Button>
@@ -198,10 +198,10 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
       </div>
 
       {/* Navigation arrows */}
-      <div className="absolute inset-0 z-20 flex items-center justify-between px-4 sm:px-10 pointer-events-none">
+      <div className="absolute inset-0 z-20 flex items-end justify-between px-4 pb-6 sm:items-center sm:px-10 sm:pb-0 pointer-events-none">
         <button
           onClick={handlePrev}
-          className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          className="pointer-events-auto flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
           aria-label="Diapositiva anterior"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,7 +210,7 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
         </button>
         <button
           onClick={handleNext}
-          className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          className="pointer-events-auto flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
           aria-label="Diapositiva siguiente"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,7 +226,7 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
             <button
               key={index}
               onClick={() => handleIndicatorClick(index)}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
+              className={`relative h-2.5 rounded-full transition-all duration-300 before:absolute before:-inset-x-1 before:-inset-y-3 before:content-[''] ${
                 current === index ? 'w-8 bg-white' : 'w-2.5 bg-white/50'
               }`}
               aria-label={`Ir a diapositiva ${index + 1}`}

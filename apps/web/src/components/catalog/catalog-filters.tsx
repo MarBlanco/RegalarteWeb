@@ -43,7 +43,7 @@ function FilterSection({
       open={defaultOpen}
       className="group border-b border-[#EBDFD1] pb-3 last:border-b-0 last:pb-0"
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#38271D] [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between py-1 text-[11px] lg:min-h-0 font-semibold uppercase tracking-[0.12em] text-[#38271D] [&::-webkit-details-marker]:hidden">
         {title}
         <svg
           aria-hidden="true"
@@ -277,7 +277,7 @@ export function CatalogFilters({
           type="button"
           onClick={clearFilters}
           disabled={isPending}
-          className="flex w-full items-center justify-center gap-1.5 py-1 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-[#7A6A5D] transition-colors hover:text-[#C45A37] disabled:opacity-50"
+          className="flex min-h-11 w-full items-center justify-center gap-1.5 py-1 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-[#7A6A5D] lg:min-h-0 transition-colors hover:text-[#C45A37] disabled:opacity-50"
         >
           Limpiar filtros
           <svg
