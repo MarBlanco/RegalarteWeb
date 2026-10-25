@@ -89,13 +89,33 @@ describe('CartPage', () => {
     ).toBeUndefined()
   })
 
-  it('vacía el carrito y enlaza al checkout', () => {
+  it('vaciar carrito pide confirmación antes de ejecutar', () => {
     seed()
     render(<CartPage />)
     const cta = screen.getByText(/^Continuar →$/)
     expect(cta.closest('a')).toHaveAttribute('href', '/checkout')
     fireEvent.click(screen.getByText('Vaciar carrito'))
+    // Todavía no se vació: aparece la confirmación.
+    expect(useCartStore.getState().items).toHaveLength(2)
+    const dialog = screen.getByRole('alertdialog', { name: '¿Vaciar el carrito?' })
+    expect(dialog).toHaveTextContent('3 productos')
+    fireEvent.click(screen.getByRole('button', { name: 'Vaciar' }))
     expect(useCartStore.getState().items).toHaveLength(0)
+    expect(screen.queryByRole('alertdialog')).toBeNull()
     expect(screen.getByText('Tu carrito está vacío')).toBeInTheDocument()
+  })
+
+  it('cancelar o Esc en la confirmación no toca el carrito', () => {
+    seed()
+    render(<CartPage />)
+    fireEvent.click(screen.getByText('Vaciar carrito'))
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
+    expect(screen.queryByRole('alertdialog')).toBeNull()
+    expect(useCartStore.getState().items).toHaveLength(2)
+
+    fireEvent.click(screen.getByText('Vaciar carrito'))
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(screen.queryByRole('alertdialog')).toBeNull()
+    expect(useCartStore.getState().items).toHaveLength(2)
   })
 })

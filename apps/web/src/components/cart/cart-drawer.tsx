@@ -2,8 +2,9 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { ClearCartDialog } from '@/components/cart/clear-cart-dialog'
 import {
   selectItemCount,
   selectTotals,
@@ -32,6 +33,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
   const hydrated = useCartStore((s) => s.hydrated)
 
   const itemCount = useCartStore(selectItemCount)
+  const [confirmClear, setConfirmClear] = useState(false)
   // Mientras el carrito está abierto se revalida la disponibilidad real.
   const { reasons, hasUnavailable } = useCartAvailability(isOpen)
   const availableItems = useMemo(
@@ -42,6 +44,11 @@ export function CartDrawer({ className }: CartDrawerProps) {
     () => selectTotals({ items: availableItems, mode }),
     [availableItems, mode],
   )
+
+  // Si el panel se cierra con una confirmación pendiente, no la dejamos colgada.
+  useEffect(() => {
+    if (!isOpen) setConfirmClear(false)
+  }, [isOpen])
 
   useEffect(() => {
     if (!isOpen) return
@@ -288,7 +295,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
               type="button"
               variant="outline"
               size="sm"
-              onClick={clearCart}
+              onClick={() => setConfirmClear(true)}
               disabled={!hydrated || items.length === 0}
             >
               Vaciar carrito
@@ -299,6 +306,16 @@ export function CartDrawer({ className }: CartDrawerProps) {
           </div>
         </footer>
       </aside>
+
+      <ClearCartDialog
+        open={confirmClear}
+        itemCount={itemCount}
+        onClose={() => setConfirmClear(false)}
+        onConfirm={() => {
+          clearCart()
+          setConfirmClear(false)
+        }}
+      />
     </div>
   )
 }

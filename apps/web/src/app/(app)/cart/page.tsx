@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { RitualCard } from '@/components/cart/ritual-card'
+import { ClearCartDialog } from '@/components/cart/clear-cart-dialog'
 import {
   RemoveItemDialog,
   type ConfirmRemoveItem,
@@ -62,6 +63,7 @@ export default function CartPage() {
   const availableCount = availableItems.reduce((n, i) => n + i.quantity, 0)
   const nothingBuyable = availableItems.length === 0
   const [confirmItem, setConfirmItem] = useState<ConfirmRemoveItem | null>(null)
+  const [confirmClear, setConfirmClear] = useState(false)
   const [ritualCandidates, setRitualCandidates] = useState<unknown>(null)
 
   // "Completá tu ritual": productos reales del CMS (nunca datos de relleno).
@@ -319,7 +321,7 @@ export default function CartPage() {
                   </Link>
                   <button
                     type="button"
-                    onClick={clearCart}
+                    onClick={() => setConfirmClear(true)}
                     className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#B85C33] hover:text-[#9E4E2B]"
                   >
                     <TrashIcon className="h-4 w-4" />
@@ -429,6 +431,16 @@ export default function CartPage() {
       <div className="mt-12">
         <BenefitsBlock />
       </div>
+
+      <ClearCartDialog
+        open={confirmClear}
+        itemCount={itemCount}
+        onClose={() => setConfirmClear(false)}
+        onConfirm={() => {
+          clearCart()
+          setConfirmClear(false)
+        }}
+      />
 
       <RemoveItemDialog
         item={confirmItem}
