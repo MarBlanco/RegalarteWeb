@@ -223,7 +223,7 @@ export function HomeCategorySection({
           </p>
           <Link
             href={`/catalogo?category=${meta.categorySlug}`}
-            className="inline-flex items-center text-[11px] sm:text-xs font-medium tracking-wider text-[#C45A37] hover:text-[#9E4024] uppercase mt-3 gap-1 transition-colors"
+            className="inline-flex min-h-11 items-center text-[11px] sm:min-h-0 sm:text-xs font-medium tracking-wider text-[#C45A37] hover:text-[#9E4024] uppercase mt-1 sm:mt-3 gap-1 transition-colors"
           >
             VER COLECCIÓN <span aria-hidden="true">&rarr;</span>
           </Link>

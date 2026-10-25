@@ -118,6 +118,7 @@ function AddressFields({
         <Label htmlFor={`${idPrefix}-street`}>Calle</Label>
         <Input
           id={`${idPrefix}-street`}
+          autoComplete="address-line1"
           value={value.street ?? ''}
           maxLength={120}
           onChange={(e) => onChange({ street: e.target.value })}
@@ -142,6 +143,7 @@ function AddressFields({
         </Label>
         <Input
           id={`${idPrefix}-apartment`}
+          autoComplete="address-line2"
           value={value.apartment ?? ''}
           maxLength={60}
           onChange={(e) => onChange({ apartment: e.target.value })}
@@ -152,6 +154,7 @@ function AddressFields({
         <Label htmlFor={`${idPrefix}-postalCode`}>Código postal</Label>
         <Input
           id={`${idPrefix}-postalCode`}
+          autoComplete="postal-code"
           value={value.postalCode ?? ''}
           maxLength={20}
           onChange={(e) => onChange({ postalCode: e.target.value })}
@@ -163,6 +166,7 @@ function AddressFields({
         <Label htmlFor={`${idPrefix}-locality`}>Localidad</Label>
         <Input
           id={`${idPrefix}-locality`}
+          autoComplete="address-level2"
           value={value.locality ?? ''}
           maxLength={80}
           onChange={(e) => onChange({ locality: e.target.value })}
@@ -427,6 +431,7 @@ export default function ProfilePage() {
                   <Label htmlFor="name">Nombre y apellido</Label>
                   <Input
                     id="name"
+                    autoComplete="name"
                     value={form.name}
                     maxLength={120}
                     onChange={(e) => patch({ name: e.target.value })}
@@ -456,6 +461,8 @@ export default function ProfilePage() {
                   <Label htmlFor="phone">Teléfono principal</Label>
                   <Input
                     id="phone"
+                    type="tel"
+                    autoComplete="tel"
                     value={form.phone}
                     maxLength={40}
                     onChange={(e) => patch({ phone: e.target.value })}
