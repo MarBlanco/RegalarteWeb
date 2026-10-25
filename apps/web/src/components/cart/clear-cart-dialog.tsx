@@ -14,7 +14,7 @@ interface ClearCartDialogProps {
  * Cancelar, Esc y el fondo no tocan el store. Esc en fase de captura para no
  * cerrar también el panel lateral que lo contiene.
  */
-export function ClearCartDialog({ open, itemCount, onClose, onConfirm }: ClearCartDialogProps) {
+export function ClearCartDialog({ open, itemCount, onClose, onConfirm }: Readonly<ClearCartDialogProps>) {
   const [confirming, setConfirming] = useState(false)
   const cancelRef = useRef<HTMLButtonElement>(null)
 
@@ -40,18 +40,21 @@ export function ClearCartDialog({ open, itemCount, onClose, onConfirm }: ClearCa
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-[#2C221E]/50 p-4 backdrop-blur-[2px]"
-      onClick={onClose}
-      role="presentation"
-    >
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      {/* Fondo clickeable: botón real (fuera del orden de tabulación) para no poner handlers en divs. */}
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-label="Cerrar confirmación"
+        onClick={onClose}
+        className="absolute inset-0 cursor-default bg-[#2C221E]/50 backdrop-blur-[2px]"
+      />
       <div
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="clear-cart-title"
         aria-describedby="clear-cart-desc"
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-[#EBDFD1] bg-[#FFFDF9] p-5 shadow-xl sm:p-6"
+        className="relative w-full max-w-sm rounded-xl border border-[#EBDFD1] bg-[#FFFDF9] p-5 shadow-xl sm:p-6"
       >
         <h2 id="clear-cart-title" className="font-serif text-xl font-normal text-[#38271D]">
           ¿Vaciar el carrito?
