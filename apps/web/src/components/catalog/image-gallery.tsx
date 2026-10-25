@@ -140,12 +140,19 @@ export function ImageGallery({ images, fallbackAlt }: ImageGalleryProps) {
 
       {zoomOpen && activeImage.url ? (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4"
-          onClick={closeZoom}
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Vista ampliada del producto"
         >
+          {/* Fondo clickeable: botón real (fuera del orden de tabulación) para no poner handlers en divs. */}
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Cerrar vista ampliada (fondo)"
+            onClick={closeZoom}
+            className="absolute inset-0 cursor-default bg-black/80"
+          />
           <div className="relative h-[85vh] w-full max-w-3xl overflow-hidden rounded-lg bg-background">
             <Image
               src={activeImage.url}

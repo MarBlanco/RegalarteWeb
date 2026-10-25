@@ -19,7 +19,7 @@ interface RemoveItemDialogProps {
  * Confirmación antes de eliminar una línea del carrito.
  * Solo se monta cuando hay un item pendiente; Cancelar no toca el store.
  */
-export function RemoveItemDialog({ item, onClose, onConfirm }: RemoveItemDialogProps) {
+export function RemoveItemDialog({ item, onClose, onConfirm }: Readonly<RemoveItemDialogProps>) {
   const [confirming, setConfirming] = useState(false)
   const cancelRef = useRef<HTMLButtonElement>(null)
 
@@ -47,18 +47,21 @@ export function RemoveItemDialog({ item, onClose, onConfirm }: RemoveItemDialogP
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-[#2C221E]/50 p-4 backdrop-blur-[2px]"
-      onClick={onClose}
-      role="presentation"
-    >
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      {/* Fondo clickeable: botón real (fuera del orden de tabulación) para no poner handlers en divs. */}
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-label="Cerrar confirmación"
+        onClick={onClose}
+        className="absolute inset-0 cursor-default bg-[#2C221E]/50 backdrop-blur-[2px]"
+      />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="remove-item-title"
         aria-describedby="remove-item-desc"
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-[#EBDFD1] bg-[#FFFDF9] p-5 shadow-xl sm:p-6"
+        className="relative w-full max-w-sm rounded-xl border border-[#EBDFD1] bg-[#FFFDF9] p-5 shadow-xl sm:p-6"
       >
         <div className="flex items-start justify-between gap-3">
           <h2
