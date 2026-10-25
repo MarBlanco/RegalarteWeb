@@ -154,8 +154,8 @@ export function CartDrawer({ className }: CartDrawerProps) {
                 Tu carrito está vacío.
               </p>
               <Button asChild variant="outline" size="sm">
-                <Link href="/catalogo" onClick={close}>
-                  Explorar catálogo
+                <Link href="/" onClick={close}>
+                  Ir al inicio
                 </Link>
               </Button>
             </div>

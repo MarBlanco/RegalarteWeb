@@ -17,12 +17,6 @@ export default function AppNotFound() {
           >
             Volver al inicio
           </Link>
-          <Link
-            href="/catalogo"
-            className="inline-flex items-center justify-center rounded-lg border px-5 py-2 text-sm font-medium hover:bg-muted"
-          >
-            Ver catálogo
-          </Link>
         </div>
       </div>
     </div>

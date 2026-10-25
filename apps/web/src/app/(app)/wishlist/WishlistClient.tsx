@@ -138,8 +138,8 @@ export function WishlistClient() {
             <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
               Empieza a guardar tus productos favoritos para encontrarlos fácilmente.
             </p>
-            <Link href="/catalogo" className="mt-6 inline-block">
-              <Button>Ir al catálogo</Button>
+            <Link href="/" className="mt-6 inline-block">
+              <Button>Ir al inicio</Button>
             </Link>
           </div>
         ) : (

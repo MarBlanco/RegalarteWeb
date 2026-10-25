@@ -56,7 +56,7 @@ export default async function SolisticaPage() {
                 <Link href="#productos">Descubrir aromas</Link>
               </Button>
               <Button asChild size="xl" variant="outline">
-                <Link href="/catalogo">Ver catálogo</Link>
+                <Link href="/">Ir al inicio</Link>
               </Button>
             </div>
           </div>
@@ -110,7 +110,7 @@ export default async function SolisticaPage() {
               </h2>
             </div>
             <Button asChild variant="outline">
-              <Link href="/catalogo">Ver todo el catálogo</Link>
+              <Link href="/">Ir al inicio</Link>
             </Button>
           </div>
 
