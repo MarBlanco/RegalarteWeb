@@ -43,7 +43,7 @@ function FilterSection({
       open={defaultOpen}
       className="group border-b border-[#EBDFD1] pb-3 last:border-b-0 last:pb-0"
     >
-      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between py-1 text-[11px] lg:min-h-0 font-semibold uppercase tracking-[0.12em] text-[#38271D] [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between py-1 text-[11px] lg:min-h-0 font-semibold uppercase tracking-[0.12em] text-[#38271D] [&::-webkit-details-marker]:hidden">
         {title}
         <svg
           aria-hidden="true"

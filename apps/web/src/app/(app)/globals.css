@@ -102,14 +102,14 @@
 }
 
 /*
- * iOS Safari hace zoom al enfocar un campo con fuente menor a 16px. En móvil se fuerza 16px
- * (por eso !important: las utilidades text-sm/text-xs de cada componente tienen más especificidad
- * que un selector de elemento). En >=768px cada campo conserva su tamaño de diseño.
+ * iOS Safari hace zoom al enfocar un campo con fuente menor a 16px. En móvil se fuerza 16px;
+ * el prefijo :root sube la especificidad por encima de las utilidades text-sm/text-xs de cada
+ * componente, sin usar !important. En >=768px cada campo conserva su tamaño de diseño.
  */
 @media (max-width: 767px) {
-  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='hidden']),
-  select,
-  textarea {
-    font-size: 16px !important;
+  :root input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='hidden']),
+  :root select,
+  :root textarea {
+    font-size: 16px;
   }
 }
