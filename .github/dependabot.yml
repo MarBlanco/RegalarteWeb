@@ -11,6 +11,21 @@ updates:
       interval: 'weekly'
       day: 'monday'
     open-pull-requests-limit: 5
+    # Majors bloqueados a propósito (ver el cierre de los PR #36, #40, #41, #42 y #43):
+    #  - graphql 17: Payload 3.x exige graphql ^16.8.1.
+    #  - tailwindcss 4: migración de configuración y de shadcn/ui; se hace como tarea propia.
+    #  - typescript 6/7: el tsconfig usa target es5 (deprecado) y falta validar Next y Payload.
+    #  - @types/node: debe coincidir con el runtime (Node 22), no saltar de major.
+    # Los menores y parches siguen entrando por el grupo minor-and-patch.
+    ignore:
+      - dependency-name: 'graphql'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'tailwindcss'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
     groups:
       # Group minor/patch updates to avoid one-PR-per-dependency noise.
       minor-and-patch:
@@ -31,6 +46,21 @@ updates:
       interval: 'weekly'
       day: 'monday'
     open-pull-requests-limit: 5
+    # Majors bloqueados a propósito (ver el cierre de los PR #36, #40, #41, #42 y #43):
+    #  - graphql 17: Payload 3.x exige graphql ^16.8.1.
+    #  - tailwindcss 4: migración de configuración y de shadcn/ui; se hace como tarea propia.
+    #  - typescript 6/7: el tsconfig usa target es5 (deprecado) y falta validar Next y Payload.
+    #  - @types/node: debe coincidir con el runtime (Node 22), no saltar de major.
+    # Los menores y parches siguen entrando por el grupo minor-and-patch.
+    ignore:
+      - dependency-name: 'graphql'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'tailwindcss'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
     groups:
       minor-and-patch:
         update-types:
