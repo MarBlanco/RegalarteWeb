@@ -76,8 +76,16 @@ export function getTotals(
 export function clampQuantity(requested: number, stock?: number | null): number {
   if (!Number.isFinite(requested)) return 0
   const lower = Math.max(0, Math.floor(requested))
+  return Math.min(lower, quantityCap(stock))
+}
+
+/** Tope de unidades por producto en un pedido (decisión de negocio). */
+export const MAX_QUANTITY_PER_PRODUCT = 10
+
+/** Máximo comprable de un producto: el tope general o el stock, el que sea menor. */
+export function quantityCap(stock?: number | null): number {
   if (typeof stock === 'number' && Number.isFinite(stock) && stock > 0) {
-    return Math.min(lower, stock)
+    return Math.min(stock, MAX_QUANTITY_PER_PRODUCT)
   }
-  return lower
+  return MAX_QUANTITY_PER_PRODUCT
 }

@@ -1,0 +1,5 @@
+# Falsos positivos revisados (harness G6, 31-10-2026).
+# design-loop/EXAMPLE.md:32 es texto de ejemplo; .env.example:22 es un placeholder (no un secreto).
+79086ac82bba6abe5f8569f5b2ac3c7f579c9806:.claude/skills/design-loop/EXAMPLE.md:generic-api-key:32
+a67c78d031d7677edc25e4cffa3ab4068fcbf318:.claude/skills/design-loop/EXAMPLE.md:generic-api-key:32
+d50e3cee84afbf2415634bd7a4d960d731560452:.env.example:generic-api-key:22

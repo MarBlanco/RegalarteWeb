@@ -51,18 +51,30 @@ beforeEach(() => {
   useCouponStore.getState().clear()
 })
 
-describe('CheckoutSummary — cupón', () => {
-  it('muestra campo con Aplicar y total sin descuento', () => {
+describe('CheckoutSummary — cupón opcional', () => {
+  it('muestra el botón de cupón (campo cerrado) y el botón Pagar y finalizar', () => {
     render(<CheckoutSummary />)
-    expect(screen.getByText('¿Tenés un cupón?')).toBeInTheDocument()
+    expect(screen.getByText('Resumen de compra')).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Aplicar' }),
+      screen.getByRole('button', { name: 'Ingresar código de cupón' }),
     ).toBeInTheDocument()
+    expect(screen.queryByLabelText('Código de cupón')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Pagar y finalizar' })).toHaveAttribute(
+      'type',
+      'submit',
+    )
     expect(screen.getAllByText(/19\.000/).length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('el cupón es opcional: sin usarlo el total es el subtotal y se puede pagar directo', () => {
+    render(<CheckoutSummary />)
+    expect(screen.queryByText(/Descuento/)).toBeNull()
+    expect(screen.getByRole('button', { name: 'Pagar y finalizar' })).toBeEnabled()
   })
 
   it('cupón válido actualiza descuento y total', async () => {
     render(<CheckoutSummary />)
+    fireEvent.click(screen.getByRole('button', { name: 'Ingresar código de cupón' }))
     fireEvent.change(screen.getByLabelText('Código de cupón'), {
       target: { value: 'regalarte10' },
     })
@@ -72,13 +84,36 @@ describe('CheckoutSummary — cupón', () => {
     expect(screen.getAllByText(/17\.100/).length).toBeGreaterThanOrEqual(1)
   })
 
+  it('Enter en el campo aplica el cupón y NO envía el pedido', async () => {
+    const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault())
+    render(
+      <form onSubmit={onSubmit}>
+        <CheckoutSummary />
+      </form>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Ingresar código de cupón' }))
+    const input = screen.getByLabelText('Código de cupón')
+    fireEvent.change(input, { target: { value: 'regalarte10' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(await screen.findByText(/Descuento \(REGALARTE10\)/)).toBeInTheDocument()
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
   it('cupón inválido muestra error sin tocar el total', async () => {
     render(<CheckoutSummary />)
+    fireEvent.click(screen.getByRole('button', { name: 'Ingresar código de cupón' }))
     fireEvent.change(screen.getByLabelText('Código de cupón'), {
       target: { value: 'TRUCHO' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }))
     expect(await screen.findByRole('alert')).toHaveTextContent(/inválido/i)
     expect(screen.queryByText(/Descuento/)).toBeNull()
+  })
+
+  it('muestra el envío y bloquea el botón mientras se procesa', () => {
+    const { rerender } = render(<CheckoutSummary shipping={{ label: 'Gratis', free: true }} />)
+    expect(screen.getByText('Gratis')).toBeInTheDocument()
+    rerender(<CheckoutSummary shipping={{ label: 'Gratis', free: true }} status="submitting" />)
+    expect(screen.getByRole('button', { name: /Procesando/ })).toBeDisabled()
   })
 })

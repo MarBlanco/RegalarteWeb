@@ -38,6 +38,10 @@ export interface User {
   whatsapp?: string
 }
 
+/** Cierre de la cookie de sesión en curso; el AuthProvider lo espera antes de adoptar la cookie. */
+let pendingLogout: Promise<unknown> = Promise.resolve()
+export const waitForLogout = () => pendingLogout
+
 interface AuthState {
   user: User | null
   token: string | null
@@ -66,7 +70,10 @@ export const useAuth = create<AuthState>()(
         // Cierra también la cookie de sesión (compartida con /admin); si no, el
         // AuthProvider volvería a adoptarla al recargar.
         if (typeof window !== 'undefined') {
-          void fetch('/api/users/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {})
+          pendingLogout = fetch('/api/users/logout', {
+            method: 'POST',
+            credentials: 'same-origin',
+          }).catch(() => {})
         }
       },
 

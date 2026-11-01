@@ -6,14 +6,12 @@ import { useCartStore, selectUnitPrice } from '@/lib/cart'
 import { formatPrice } from '@/lib/format'
 
 export function CheckoutLineRow({
-  id,
   slug,
   name,
   image,
   quantity,
   unitPrice,
 }: {
-  id: string
   slug: string
   name: string
   image?: { url?: string | null; alt?: string | null } | null
@@ -64,7 +62,6 @@ export function CheckoutLineList() {
       {items.map((item) => (
         <CheckoutLineRow
           key={item.id}
-          id={item.id}
           slug={item.slug}
           name={item.name}
           image={item.image ?? null}

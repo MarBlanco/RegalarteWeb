@@ -1,0 +1,12 @@
+{
+  "enabledPlugins": {
+    "harness-web@harness": true,
+    "harness-payments@harness": true,
+    "mercadopago@claude-plugins-official": true
+  },
+  "permissions": {
+    "deny": [
+      "mcp__rea"
+    ]
+  }
+}

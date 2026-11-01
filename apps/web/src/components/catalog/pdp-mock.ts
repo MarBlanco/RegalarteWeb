@@ -3,23 +3,6 @@
  * Solo se usa cuando el CMS no provee esos datos. No modifica el modelo CMS.
  */
 
-export interface MockNotes {
-  salida: string
-  corazon: string
-  fondo: string
-  ritualTitle: string
-  ritualText: string
-}
-
-export const MOCK_NOTES: MockNotes = {
-  salida: 'Vainilla, leche tibia, azúcar rubia',
-  corazon: 'Cacao, caramelo, flor de vainilla',
-  fondo: 'Sándalo, ámbar, almizcle suave',
-  ritualTitle: 'Ritual de noche',
-  ritualText:
-    'Encendela al final del día para bajar el ritmo y crear tu momento de calma.',
-}
-
 export interface MockTab {
   id: string
   label: string

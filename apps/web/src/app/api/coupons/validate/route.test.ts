@@ -24,10 +24,10 @@ describe('POST /api/coupons/validate', () => {
     expect(await res.json()).toEqual({ valid: true, code: 'REGALARTE10', percent: 10 })
   })
 
-  it('cupón desconocido o inactivo responde 404 sin datos', async () => {
+  it('cupón desconocido o inactivo responde 200 con valid:false y sin datos', async () => {
     vi.mocked(findActiveCoupon).mockResolvedValue(null)
     const res = await POST(req({ code: 'NOPE' }))
-    expect(res.status).toBe(404)
+    expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ valid: false })
   })
 

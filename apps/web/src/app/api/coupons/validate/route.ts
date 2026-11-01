@@ -24,7 +24,8 @@ export async function POST(req: Request) {
   try {
     const coupon = await findActiveCoupon(code)
     if (!coupon) {
-      return NextResponse.json({ valid: false }, { status: 404, headers: NO_STORE })
+      // 200: un código desconocido es un resultado esperado, no un error HTTP (evita ruido en consola).
+      return NextResponse.json({ valid: false }, { headers: NO_STORE })
     }
     return NextResponse.json(
       { valid: true, code: coupon.code, percent: coupon.percent },

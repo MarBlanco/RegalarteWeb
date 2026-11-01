@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { useAuth, type User } from '@/hooks/use-auth'
+import { useEffect, useRef, useState } from 'react'
+import { useAuth, waitForLogout, type User } from '@/hooks/use-auth'
 
 /**
  * Valida la sesión persistida al arrancar (y cuando cambia el token).
@@ -20,13 +20,24 @@ import { useAuth, type User } from '@/hooks/use-auth'
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setLoading, token, logout, setUser, setToken } = useAuth()
   const checked = useRef<string | null>(null)
+  // El store persistido puede hidratarse después del primer render: hasta entonces `token` no es fiable.
+  // En el servidor no hay localStorage y `persist` no existe: ahí no corren efectos.
+  const [hydrated, setHydrated] = useState(() => useAuth.persist?.hasHydrated() ?? true)
 
   useEffect(() => {
-    setLoading(false)
+    if (hydrated) return
+    return useAuth.persist?.onFinishHydration(() => setHydrated(true))
+  }, [hydrated])
+
+  useEffect(() => {
+    if (!hydrated) return
     if (!token) {
       let cancelled = false
       const adoptCookieSession = async () => {
         try {
+          // Tras cerrar sesión la cookie sigue viva hasta que responde el logout: sin esperar,
+          // se readoptaba la sesión recién cerrada y se disparaba un segundo logout (400).
+          await waitForLogout()
           const res = await fetch('/api/users/me', { credentials: 'same-origin', cache: 'no-store' })
           if (!res.ok) return
           const data = (await res.json()) as { user?: User | null; token?: string }
@@ -35,6 +46,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setToken(data.token)
         } catch {
           // sin sesión de panel: la tienda queda como visitante
+        } finally {
+          // `isLoading` baja recién con la sesión resuelta: si bajara antes, los guards
+          // (/orders, /profile) verían `user: null` y redirigirían al login pese a haber cookie.
+          // Una ejecución descartada (StrictMode, cambio de token) no decide: lo hace la vigente.
+          if (!cancelled) setLoading(false)
         }
       }
       void adoptCookieSession()
@@ -42,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         cancelled = true
       }
     }
+    setLoading(false)
     if (checked.current === token) return
     checked.current = token
     let cancelled = false
@@ -62,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [token, setLoading, logout, setUser, setToken])
+  }, [hydrated, token, setLoading, logout, setUser, setToken])
 
   return <>{children}</>
 }

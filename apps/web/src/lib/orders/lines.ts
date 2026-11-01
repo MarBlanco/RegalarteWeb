@@ -13,7 +13,7 @@
  * crear ordenes de productos inexistentes, despublicados o agotados.
  */
 
-import { resolveUnitPrice } from '@/lib/cart/pricing'
+import { quantityCap, resolveUnitPrice } from '@/lib/cart/pricing'
 import type { CartProductSnapshot, CartMode } from '@/lib/cart/types'
 import type {
   CreateOrderInput,
@@ -82,6 +82,13 @@ export function buildLinesFromProducts(
   input: CreateOrderInput,
   productsById: ReadonlyMap<number, ProductPricingSource>,
 ): OrderItemLine[] {
+  // Un mismo producto puede venir en varias líneas: el stock se compara con el total pedido.
+  const requested = new Map<number, number>()
+  for (const item of input.items) {
+    const id = parseProductId(item.productId)
+    requested.set(id, (requested.get(id) ?? 0) + normalizeQuantity(item.quantity))
+  }
+
   return input.items.map((item) => {
     const productId = parseProductId(item.productId)
     const product = productsById.get(productId)
@@ -99,8 +106,21 @@ export function buildLinesFromProducts(
       )
     }
 
+    // Tope por producto (10) o el stock, el que sea menor.
+    if ((requested.get(productId) ?? 0) > quantityCap(product.stock)) {
+      throw new OrderRejectedError(
+        `Cantidad superior al máximo permitido (id=${item.productId})`,
+        'QUANTITY',
+      )
+    }
+
     const quantity = normalizeQuantity(item.quantity)
     const unitPrice = resolveUnitPrice(buildSnapshot(item, product), input.mode)
+    if (!(unitPrice > 0)) {
+      throw new OrderRejectedError(
+        `Precio inválido para la venta (id=${item.productId})`,
+      )
+    }
     const lineTotal = roundMoney(unitPrice * quantity)
 
     return {

@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
@@ -38,6 +38,9 @@ jobs:
 
       - name: Lint
         run: npm run lint --workspace=apps/web
+
+      - name: Test
+        run: npm run test --workspace=apps/web
 
       - name: Build
         run: npm run build --workspace=apps/web

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { CartItemInput } from '@/lib/cart'
 import { useCartStore, useCartUIStore } from '@/lib/cart'
 import { useWishlistStore } from '@/lib/wishlist/store'
+import { quantityCap } from '@/lib/cart/pricing'
 import { trackAddToCart } from '@/lib/analytics/ga'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -48,10 +49,7 @@ export function ProductDetailActions({
   const isOutOfStock =
     soldOut === true ||
     (typeof stock === 'number' && Number.isFinite(stock) && stock <= 0)
-  const stockCap =
-    typeof stock === 'number' && Number.isFinite(stock) && stock > 0
-      ? stock
-      : undefined
+  const stockCap = quantityCap(stock)
   const clamp = (v: number) => {
     const cap = stockCap ?? Number.POSITIVE_INFINITY
     return Math.max(1, Math.min(cap, Math.floor(v)))
@@ -108,7 +106,7 @@ export function ProductDetailActions({
             onClick={() => setQuantity((q) => clamp(q - 1))}
             disabled={quantity <= 1}
             aria-label="Disminuir cantidad"
-            className="flex h-9 w-9 items-center justify-center text-[#38271D] disabled:opacity-40"
+            className="flex h-11 w-11 items-center justify-center text-[#38271D] disabled:opacity-40 sm:h-9 sm:w-9"
           >
             <span className="text-base leading-none">−</span>
           </button>
@@ -123,7 +121,7 @@ export function ProductDetailActions({
             onClick={() => setQuantity((q) => clamp(q + 1))}
             disabled={typeof stockCap === 'number' && quantity >= stockCap}
             aria-label="Aumentar cantidad"
-            className="flex h-9 w-9 items-center justify-center text-[#38271D] disabled:opacity-40"
+            className="flex h-11 w-11 items-center justify-center text-[#38271D] disabled:opacity-40 sm:h-9 sm:w-9"
           >
             <span className="text-base leading-none">+</span>
           </button>

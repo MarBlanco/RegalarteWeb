@@ -26,3 +26,14 @@ export {
   validateCheckoutForm,
   fieldErrorsToMessage,
 } from './validation'
+export {
+  PICKUP_NOTE_PREFIX,
+  PICKUP_POINT,
+  applyDelivery,
+  checkoutDefaultsFromProfile,
+  formatAddressLine,
+  isAddressComplete,
+  shippingQuote,
+  type DeliveryMethod,
+  type ShippingQuote,
+} from './delivery'

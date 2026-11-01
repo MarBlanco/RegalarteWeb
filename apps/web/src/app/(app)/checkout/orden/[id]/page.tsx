@@ -5,6 +5,7 @@ import {
   OrderConfirmation,
   type OrderConfirmationData,
 } from '@/components/checkout/order-confirmation'
+import { getPaymentProvider } from '@/lib/payment'
 import { verifyOrderSig } from '@/lib/mercadopago/return-urls'
 import { isOrderStatus } from '@/lib/orders/transitions'
 
@@ -45,5 +46,10 @@ export default async function OrdenPage({
     status: order.status,
     total: order.total,
   }
-  return <OrderConfirmation order={data} />
+  return (
+    <OrderConfirmation
+      order={data}
+      simulated={getPaymentProvider().name !== 'mercadopago'}
+    />
+  )
 }

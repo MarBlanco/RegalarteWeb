@@ -48,3 +48,8 @@ coverage/
 
 # Payload local uploads (R2 disabled in dev)
 apps/web/media/
+
+# >>> harness (gestionado por SyncProject; no editar este bloque)
+.harness/
+.claude/.harness-backup/
+# <<< harness

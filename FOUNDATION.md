@@ -7,7 +7,7 @@ PRE BUILD
 Stack:
 
 Frontend
-- Next.js 15
+- Next.js 16
 - React 19
 - TypeScript
 - Tailwind

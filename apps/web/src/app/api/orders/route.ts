@@ -10,8 +10,11 @@
  */
 
 import { NextResponse, type NextRequest } from 'next/server'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 
 import { createOrder, OrderRejectedError } from '@/lib/orders/service'
+import { validateCheckoutForm } from '@/lib/checkout/validation'
 import type { CreateOrderInput, CreateOrderResult } from '@/lib/orders/types'
 
 const REQUIRED_CUSTOMER_FIELDS = [
@@ -91,6 +94,28 @@ function validate(input: unknown): {
       errors.push({ path: 'couponCode', message: 'Cupón inválido' })
     } else {
       couponCode = rawCoupon
+    }
+  }
+
+  // Mismas reglas que el formulario (fuente única): el cliente no es la autoridad.
+  if (errors.length === 0) {
+    const semantic = validateCheckoutForm({
+      customer: {
+        firstName: String(customer.firstName),
+        lastName: String(customer.lastName),
+        email: String(customer.email),
+        phone: String(customer.phone),
+      },
+      address: {
+        province: String(address.province),
+        city: String(address.city),
+        street: String(address.street),
+        postalCode: String(address.postalCode),
+      },
+      notes: { message: '' },
+    })
+    for (const [path, message] of Object.entries(semantic)) {
+      if (message) errors.push({ path, message })
     }
   }
 
@@ -182,6 +207,32 @@ function mapFieldErrorsToMessage(
     : 'Revisá los datos obligatorios antes de continuar.'
 }
 
+/**
+ * El precio mayorista es B2B: el modo lo manda el cliente, así que el servidor solo lo honra si el
+ * canal está habilitado y la sesión (cookie o JWT) pertenece a una cuenta mayorista. Ante cualquier
+ * fallo, falla cerrado.
+ */
+async function isWholesaleAccount(req: NextRequest): Promise<boolean> {
+  try {
+    const headers = new Headers(req.headers)
+    const authorization = headers.get('authorization')
+    if (authorization) {
+      const token = authorization.trim().split(/\s+/).pop()
+      headers.set('authorization', `JWT ${token}`)
+    }
+    const payload = await getPayload({ config })
+    const { user } = await payload.auth({ headers })
+    if ((user as { customer_type?: string } | null)?.customer_type !== 'WHOLESALE') return false
+    // El canal mayorista debe estar habilitado en la configuración de la tienda (apagado por defecto).
+    const settings = (await payload.findGlobal({ slug: 'commerce-settings', depth: 0 })) as {
+      wholesale_enabled?: boolean
+    }
+    return settings.wholesale_enabled === true
+  } catch {
+    return false
+  }
+}
+
 const NO_STORE: ResponseInit['headers'] = {
   'Cache-Control': 'no-store, max-age=0',
 }
@@ -212,6 +263,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     )
   }
 
+  if (result.value.mode === 'WHOLESALE' && !(await isWholesaleAccount(req))) {
+    return NextResponse.json(
+      {
+        status: 'error',
+        message: 'El precio mayorista solo está disponible para cuentas mayoristas.',
+      } satisfies CreateOrderResult,
+      { status: 403, headers: NO_STORE },
+    )
+  }
+
   try {
     const created = await createOrder(result.value)
     return NextResponse.json(created, { status: 201, headers: NO_STORE })
@@ -223,7 +284,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           message:
             err.code === 'INVALID_COUPON'
               ? 'El cupón ingresado no es válido. Revisalo e intentá de nuevo.'
-              : 'Algunos productos de tu carrito ya no están disponibles. Revisá el catálogo e intentá nuevamente.',
+              : err.code === 'QUANTITY'
+                ? 'Superaste la cantidad máxima por producto (10 unidades o el stock disponible). Ajustá tu carrito e intentá de nuevo.'
+                : 'Algunos productos de tu carrito ya no están disponibles. Revisá el catálogo e intentá nuevamente.',
         } satisfies CreateOrderResult,
         { status: 409, headers: NO_STORE },
       )

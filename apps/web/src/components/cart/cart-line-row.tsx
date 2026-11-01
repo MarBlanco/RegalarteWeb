@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCartStore, selectItemCount, selectTotals } from '@/lib/cart'
+import { quantityCap } from '@/lib/cart/pricing'
 import { formatPrice } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -27,14 +28,11 @@ export function CartLineRow({
   const updateQuantity = useCartStore((s) => s.updateQuantity)
   const removeItem = useCartStore((s) => s.removeItem)
 
-  const stockCap =
-    typeof stock === 'number' && Number.isFinite(stock) && stock > 0
-      ? stock
-      : undefined
+  const stockCap = quantityCap(stock)
 
   const onDec = () => updateQuantity(id, Math.max(0, quantity - 1))
   const onInc = () =>
-    updateQuantity(id, Math.min(stockCap ?? Number.POSITIVE_INFINITY, quantity + 1))
+    updateQuantity(id, Math.min(stockCap, quantity + 1))
 
   return (
     <li className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center">
@@ -68,7 +66,7 @@ export function CartLineRow({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-none"
+            className="h-11 w-11 rounded-none sm:h-8 sm:w-8"
             onClick={onDec}
             aria-label="Disminuir cantidad"
           >
@@ -81,9 +79,9 @@ export function CartLineRow({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-none"
+            className="h-11 w-11 rounded-none sm:h-8 sm:w-8"
             onClick={onInc}
-            disabled={typeof stockCap === 'number' && quantity >= stockCap}
+            disabled={quantity >= stockCap}
             aria-label="Aumentar cantidad"
           >
             <span className="text-base leading-none">+</span>
@@ -99,7 +97,7 @@ export function CartLineRow({
           variant="ghost"
           size="sm"
           onClick={() => removeItem(id)}
-          className="text-xs text-muted-foreground hover:text-destructive"
+          className="min-h-11 text-xs text-muted-foreground hover:text-destructive sm:min-h-0"
         >
           Eliminar
         </Button>

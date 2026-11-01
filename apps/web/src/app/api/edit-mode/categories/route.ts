@@ -71,6 +71,9 @@ export async function GET(req: Request) {
  * El slug se genera en servidor desde el título (Guale nunca ve URLs).
  */
 export async function POST(req: Request) {
+  const verified = await verifyStaff(req)
+  if ('error' in verified) return verified.error
+  const { payload, user } = verified
   let body: unknown
   try {
     body = await req.json()
@@ -84,10 +87,6 @@ export async function POST(req: Request) {
       { status: 400 },
     )
   }
-
-  const verified = await verifyStaff(req)
-  if ('error' in verified) return verified.error
-  const { payload, user } = verified
 
   try {
     const parent = await payload

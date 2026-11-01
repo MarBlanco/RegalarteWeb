@@ -5,10 +5,9 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CheckoutForm } from '@/components/checkout/checkout-form'
-import { CheckoutSummary } from '@/components/checkout/checkout-summary'
-import { CheckoutLineList } from '@/components/checkout/checkout-line-list'
 import { CheckoutEmptyState } from '@/components/checkout/checkout-empty'
 import { useCartStore, getSubtotal } from '@/lib/cart'
+import { getPaymentProvider } from '@/lib/payment'
 import { trackBeginCheckout } from '@/lib/analytics/ga'
 import { unavailableMessage, type UnavailableReason } from '@/lib/cart/availability'
 import { useCartAvailability } from '@/lib/cart/use-cart-availability'
@@ -31,20 +30,7 @@ export default function CheckoutPage() {
       />
     )
   } else {
-    body = (
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
-        <section aria-label="Datos de envío y pago">
-          <CheckoutForm />
-        </section>
-        <aside
-          aria-label="Resumen de compra"
-          className="space-y-4 lg:sticky lg:top-24 lg:self-start"
-        >
-          <CheckoutLineList />
-          <CheckoutSummary />
-        </aside>
-      </div>
-    )
+    body = <CheckoutForm />
   }
 
   useEffect(() => {
@@ -54,7 +40,7 @@ export default function CheckoutPage() {
   }, [hydrated, items])
 
   return (
-      <main className="flex-1 bg-background">
+      <div className="flex-1 bg-background">
         <div className="container py-8 lg:py-12">
           <nav aria-label="Breadcrumb" className="mb-6 text-sm">
             <ol className="flex flex-wrap items-center gap-1 text-muted-foreground">
@@ -76,16 +62,18 @@ export default function CheckoutPage() {
 
           <header className="mb-8 lg:mb-12">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Checkout
+              Finalizá tu compra
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Confirmá tus datos y dirección para finalizar el pedido.
+              {getPaymentProvider().name === 'mercadopago'
+                ? 'Elegí cómo recibir tu pedido y pagá de forma segura con Mercado Pago.'
+                : 'Elegí cómo recibir tu pedido. El pago está en modo prueba: no se realiza ningún cobro.'}
             </p>
           </header>
 
           {body}
         </div>
-      </main>
+      </div>
   )
 }
 

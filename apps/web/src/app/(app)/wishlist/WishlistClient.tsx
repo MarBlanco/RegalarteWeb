@@ -114,7 +114,7 @@ export function WishlistClient() {
           </h1>
           <p className="mt-2 text-muted-foreground">
             {items.length === 0
-              ? 'Aún no tienes productos guardados.'
+              ? 'Aún no tenés productos guardados.'
               : `${items.length} ${items.length === 1 ? 'producto guardado' : 'productos guardados'}`}
           </p>
         </header>
@@ -134,7 +134,7 @@ export function WishlistClient() {
                 d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3 3 5.1 3 7.5c0 1.387.63 2.642 1.593 3.498a12.061 12.061 0 002.817 5.023c.418.486.707 1.002.842 1.53l.61.814a9.495 9.495 0 011.892 3.183 11.958 11.958 0 003.01.738c2.892 0 5.235-1.568 6.307-3.865a2.879 2.879 0 00.765-2.02c0-1.116-.695-2.056-1.76-2.386a22.63 22.63 0 00-1.565-3.665A2.99 2.99 0 0018.766 5H6.5a2.99 2.99 0 00-1.464.55c-.376.302-.756.646-1.142.972a22.6 22.6 0 00-1.565-3.666 2.99 2.99 0 00-.77 1.737c-.06.32-.107.651-.107.99a2.88 2.88 0 00.767 2.02 28.748 28.748 0 015.907 3.857 11.958 11.958 0 003.01-.738 9.496 9.496 0 011.892-3.183l.61-.814c.135-.528.424-1.044.842-1.53a12.061 12.061 0 002.818-5.023C21 6.642 21 5.375 21 4c0-2.485-2.099-4.5-4.688-4.5z"
               />
             </svg>
-            <h2 className="mt-4 text-lg font-semibold">No tienes favoritos aún</h2>
+            <h2 className="mt-4 text-lg font-semibold">No tenés favoritos aún</h2>
             <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
               Empieza a guardar tus productos favoritos para encontrarlos fácilmente.
             </p>

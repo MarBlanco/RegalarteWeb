@@ -29,7 +29,7 @@ export function CartTrigger({ className, badgeClassName }: CartTriggerProps) {
       } productos)`}
       className={cn('relative inline-flex', className)}
     >
-      <span className="flex h-8 w-8 items-center justify-center text-[#38271D] transition-colors hover:text-[#C45A37] sm:h-9 sm:w-9">
+      <span className="flex h-11 w-11 items-center justify-center text-[#38271D] transition-colors hover:text-[#C45A37] sm:h-9 sm:w-9">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"

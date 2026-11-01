@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { CartItemInput } from '@/lib/cart'
 import { useCartStore, useCartUIStore } from '@/lib/cart'
+import { quantityCap } from '@/lib/cart/pricing'
 import { trackAddToCart } from '@/lib/analytics/ga'
 import { Button } from '@/components/ui/button'
 
@@ -49,10 +50,7 @@ export function AddToCartButton({
     soldOut === true ||
     (typeof stock === 'number' && Number.isFinite(stock) && stock <= 0)
   const outLabel = soldOut === true ? 'Agotado' : 'Sin stock'
-  const stockCap =
-    typeof stock === 'number' && Number.isFinite(stock) && stock > 0
-      ? stock
-      : undefined
+  const stockCap = quantityCap(stock)
 
   const handleAdd = () => {
     if (isOutOfStock) return
@@ -113,7 +111,7 @@ export function AddToCartButton({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-none"
+            className="h-11 w-11 rounded-none sm:h-9 sm:w-9"
             onClick={() =>
               setQuantity((q) => Math.max(1, q - 1))
             }
@@ -140,7 +138,7 @@ export function AddToCartButton({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-none"
+            className="h-11 w-11 rounded-none sm:h-9 sm:w-9"
             onClick={() =>
               setQuantity((q) => {
                 const cap = stockCap ?? Number.POSITIVE_INFINITY
