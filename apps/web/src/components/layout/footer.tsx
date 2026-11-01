@@ -110,7 +110,7 @@ function SocialLink({
       <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#C9A24B]/60 text-[#F4EDE4] transition-colors duration-200 group-hover:border-[#C9A24B] group-hover:text-[#C9A24B] sm:h-14 sm:w-14">
         {children}
       </span>
-      <span className="text-xs sm:text-sm text-[#C4B8A8] transition-colors duration-200 group-hover:text-white">
+      <span className="text-xs sm:text-sm lg:text-[11px] xl:text-sm text-[#C4B8A8] transition-colors duration-200 group-hover:text-white">
         {label}
       </span>
     </a>
@@ -143,6 +143,7 @@ export function Footer() {
                 <Input
                   id="newsletter-email"
                   type="email"
+                  autoComplete="email"
                   placeholder="Ingresá tu email"
                   className="h-11 rounded-lg border bg-background px-4 text-sm"
                 />
@@ -243,7 +244,7 @@ export function Footer() {
               <p className="mt-3 text-[13px] leading-relaxed text-[#C4B8A8]">
                 Formá parte de nuestra comunidad y descubrí más inspiración.
               </p>
-              <div className="mt-4 grid grid-cols-4 gap-2 sm:gap-3">
+              <div className="mt-4 grid grid-cols-4 gap-2 sm:gap-3 lg:gap-1 xl:gap-3">
                 <SocialLink href={social.instagram} label="Instagram">
                   <InstagramIcon className="w-5 h-5" />
                 </SocialLink>

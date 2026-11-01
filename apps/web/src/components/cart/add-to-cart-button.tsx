@@ -87,7 +87,7 @@ export function AddToCartButton({
           type="button"
           onClick={handleAdd}
           disabled={!hydrated || isOutOfStock}
-          className="h-9 w-full rounded-md bg-[#B85C33] text-[11px] font-semibold uppercase tracking-wider text-white hover:bg-[#9E4E2B]"
+          className="h-auto min-h-9 w-full whitespace-normal rounded-md bg-[#B85C33] px-2 py-1.5 text-center text-[11px] font-semibold uppercase leading-tight tracking-wider text-white hover:bg-[#9E4E2B]"
         >
           {isOutOfStock
             ? outLabel

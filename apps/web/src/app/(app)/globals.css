@@ -100,3 +100,16 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
+
+/*
+ * iOS Safari hace zoom al enfocar un campo con fuente menor a 16px. En móvil se fuerza 16px;
+ * el prefijo :root sube la especificidad por encima de las utilidades text-sm/text-xs de cada
+ * componente, sin usar !important. En >=768px cada campo conserva su tamaño de diseño.
+ */
+@media (max-width: 767px) {
+  :root input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='hidden']),
+  :root select,
+  :root textarea {
+    font-size: 16px;
+  }
+}

@@ -32,7 +32,7 @@ export default function CheckoutPage() {
     )
   } else {
     body = (
-      <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
         <section aria-label="Datos de envío y pago">
           <CheckoutForm />
         </section>
@@ -130,7 +130,7 @@ function CheckoutBlocked({
 
 function CheckoutSkeleton() {
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
       <section className="space-y-6" aria-hidden>
         {[0, 1, 2].map((i) => (
           <Card key={i}>

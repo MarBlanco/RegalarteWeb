@@ -173,7 +173,7 @@ function NavLinks({
             aria-current={active ? 'page' : undefined}
             className={
               mobile
-                ? `flex shrink-0 items-center gap-1 whitespace-nowrap py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                ? `flex min-h-[44px] shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.14em] ${
                     active
                       ? 'text-[#A15C38] underline decoration-[#C45A37] decoration-1 underline-offset-4'
                       : link.accent
@@ -201,7 +201,7 @@ function NavLinks({
 const DESKTOP_NAV_CLS =
   'hidden min-w-0 flex-1 items-center justify-center gap-5 lg:flex lg:gap-7'
 const MOBILE_NAV_CLS =
-  'flex items-center gap-5 overflow-x-auto border-t border-[#E5DDD1]/60 px-4 py-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden'
+  'flex items-center gap-5 overflow-x-auto border-t border-[#E5DDD1]/60 px-4 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden'
 
 function HeaderNavDesktop() {
   const pathname = usePathname()
