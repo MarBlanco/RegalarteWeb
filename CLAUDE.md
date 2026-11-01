@@ -12,7 +12,7 @@ REGALARTE es una plataforma de Discovery Commerce de regalos (B2C minorista + B2
 - Next.js `16.4.2` (App Router), React `19.1.0`, TypeScript, Tailwind `3.x`, shadcn/ui (Radix), Framer Motion, Zustand, TanStack Query.
 - Payload CMS `3.92.0` con `@payloadcms/db-postgres`, Lexical, `storage-s3` (Cloudflare R2), `email-resend`.
 - Tests: Vitest (jsdom). Lint: ESLint 9.
-- Node `>=20.9.0` (`engines` en el `package.json` raíz; CI usa Node 20).
+- Node `>=20.9.0` (`engines` en el `package.json` raíz) para ejecutar la app; los tests y la CI requieren Node 22 (jsdom depende de `undici` 8). Vercel: Node 20 ya no tiene soporte, usar 22 o superior.
 - Deploy: Vercel (`apps/web/vercel.json`).
 
 Atención: `FOUNDATION.md` y `docs/README.md` conservan el estado histórico "PRE BUILD". Para versiones prevalece `package.json` y para el estado, el código.
