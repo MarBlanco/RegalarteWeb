@@ -1,0 +1,66 @@
+{
+  "$comment": "Gestionado por el harness (SyncProject v2). No editar: los ajustes del proyecto van en .claude/harness.project.json.",
+  "harnessVersion": "0.11.4",
+  "profile": "next-payload",
+  "modules": [
+    "web",
+    "payments"
+  ],
+  "gates": [
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6",
+    "G7",
+    "G8"
+  ],
+  "gateCommands": {
+    "G1": [
+      "npm run type-check",
+      "npm run lint",
+      "npm run build"
+    ],
+    "G2": "npm test --workspace=apps/web",
+    "G6": [
+      "gitleaks git --no-banner --redact -v .",
+      "osv-scanner scan source -r ."
+    ],
+    "G8": "npm run migrate:status --workspace=apps/web"
+  },
+  "gateNotes": {
+    "G8": "solo base local; nunca producción"
+  },
+  "quality": {
+    "typecheck": {
+      "command": "npm run type-check",
+      "extensions": [
+        ".ts",
+        ".tsx"
+      ],
+      "timeoutSec": 240
+    }
+  },
+  "optionalMcp": [
+    "vercel"
+  ],
+  "managed": {
+    "enabledPlugins:harness-web@harness": true,
+    "enabledPlugins:harness-payments@harness": true,
+    "enabledPlugins:mercadopago@claude-plugins-official": true,
+    "permissions.deny:mcp__rea": true,
+    "mcpServers:next-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "next-devtools-mcp@0.4.0"
+      ]
+    }
+  },
+  "adopted": {},
+  "managedFiles": {
+    ".github/workflows/harness-security.yml": "b51c6956e4ac750d1c100ce3969be372dab5e37ace9ddc7f3de10e770ba80d33"
+  },
+  "syncedAt": "2026-11-01T14:28:36.817Z"
+}
