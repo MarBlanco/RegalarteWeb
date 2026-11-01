@@ -196,6 +196,21 @@ describe('buildLinesFromProducts (AUDIT-004)', () => {
     ).toBe(3)
   })
 
+  it('rechaza más de 10 unidades de un producto aunque el stock sea mayor o no esté cargado', () => {
+    const noStock: ProductPricingSource = { ...plainRetailProduct, id: 8 }
+    const bigStock: ProductPricingSource = { ...plainRetailProduct, id: 9, stock: 50 }
+    const products = new Map<number, ProductPricingSource>([[8, noStock], [9, bigStock]])
+
+    for (const id of ['8', '9']) {
+      expect(() =>
+        buildLinesFromProducts(makeInput([makeItem({ productId: id, quantity: 11 })]), products),
+      ).toThrow(OrderRejectedError)
+      expect(
+        buildLinesFromProducts(makeInput([makeItem({ productId: id, quantity: 10 })]), products)[0].quantity,
+      ).toBe(10)
+    }
+  })
+
   it('suma las cantidades de un mismo producto repartido en varias líneas contra el stock', () => {
     const limited: ProductPricingSource = { ...plainRetailProduct, id: 6, stock: 3 }
     const products = new Map<number, ProductPricingSource>([[6, limited]])

@@ -13,7 +13,7 @@
  * crear ordenes de productos inexistentes, despublicados o agotados.
  */
 
-import { resolveUnitPrice } from '@/lib/cart/pricing'
+import { quantityCap, resolveUnitPrice } from '@/lib/cart/pricing'
 import type { CartProductSnapshot, CartMode } from '@/lib/cart/types'
 import type {
   CreateOrderInput,
@@ -106,13 +106,11 @@ export function buildLinesFromProducts(
       )
     }
 
-    if (
-      typeof product.stock === 'number' &&
-      Number.isFinite(product.stock) &&
-      (requested.get(productId) ?? 0) > product.stock
-    ) {
+    // Tope por producto (10) o el stock, el que sea menor.
+    if ((requested.get(productId) ?? 0) > quantityCap(product.stock)) {
       throw new OrderRejectedError(
-        `Cantidad superior al stock (id=${item.productId})`,
+        `Cantidad superior al máximo permitido (id=${item.productId})`,
+        'QUANTITY',
       )
     }
 

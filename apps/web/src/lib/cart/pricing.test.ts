@@ -6,6 +6,7 @@ import {
   getTotals,
   hasWholesaleEligibleItem,
   clampQuantity,
+  quantityCap,
 } from '@/lib/cart/pricing'
 import type { CartItem, CartMode } from '@/lib/cart/types'
 
@@ -137,6 +138,14 @@ describe('Cart Pricing', () => {
 
     it('respects stock limit', () => {
       expect(clampQuantity(10, 5)).toBe(5)
+    })
+
+    it('caps at 10 units per product even with larger or unknown stock', () => {
+      expect(clampQuantity(25)).toBe(10)
+      expect(clampQuantity(25, 40)).toBe(10)
+      expect(quantityCap(40)).toBe(10)
+      expect(quantityCap(4)).toBe(4)
+      expect(quantityCap(null)).toBe(10)
     })
 
     it('ignores null/undefined stock', () => {

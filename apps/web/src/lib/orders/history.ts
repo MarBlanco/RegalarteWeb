@@ -14,8 +14,8 @@ export interface OrderStatusMeta {
 export const ORDER_STATUS_META: Record<OrderStatus, OrderStatusMeta> = {
   pending: {
     label: 'Pendiente',
-    headline: () => 'Estamos preparando tu pedido',
-    subline: 'Te avisaremos cuando sea enviado.',
+    headline: () => 'Recibimos tu pedido',
+    subline: 'Está pendiente de pago: lo preparamos apenas se confirme.',
     badgeClass: 'bg-[#F6E9D8] text-[#8A5A33]',
   },
   paid: {

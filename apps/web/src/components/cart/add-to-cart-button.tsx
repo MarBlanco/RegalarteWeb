@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { CartItemInput } from '@/lib/cart'
 import { useCartStore, useCartUIStore } from '@/lib/cart'
+import { quantityCap } from '@/lib/cart/pricing'
 import { trackAddToCart } from '@/lib/analytics/ga'
 import { Button } from '@/components/ui/button'
 
@@ -49,10 +50,7 @@ export function AddToCartButton({
     soldOut === true ||
     (typeof stock === 'number' && Number.isFinite(stock) && stock <= 0)
   const outLabel = soldOut === true ? 'Agotado' : 'Sin stock'
-  const stockCap =
-    typeof stock === 'number' && Number.isFinite(stock) && stock > 0
-      ? stock
-      : undefined
+  const stockCap = quantityCap(stock)
 
   const handleAdd = () => {
     if (isOutOfStock) return

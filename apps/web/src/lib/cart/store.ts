@@ -22,7 +22,7 @@ import type {
   CartMode,
   CartProductSnapshot,
 } from './types'
-import { clampQuantity, getTotals, resolveUnitPrice } from './pricing'
+import { clampQuantity, getTotals, MAX_QUANTITY_PER_PRODUCT, resolveUnitPrice } from './pricing'
 
 interface CartState {
   items: CartItem[]
@@ -87,7 +87,7 @@ export const useCartStore = create<CartState>()(
                 if (i.id !== targetId) return i
                 return {
                   ...i,
-                  quantity: i.quantity + quantityToAdd,
+                  quantity: Math.min(MAX_QUANTITY_PER_PRODUCT, i.quantity + quantityToAdd),
                   price: incomingPrice,
                   wholesalePrice: input.wholesalePrice ?? i.wholesalePrice,
                   compareAtPrice:
@@ -101,7 +101,10 @@ export const useCartStore = create<CartState>()(
 
           const snapshot = buildSnapshot(input)
           return {
-            items: [...state.items, { ...snapshot, quantity: quantityToAdd }],
+            items: [
+              ...state.items,
+              { ...snapshot, quantity: Math.min(MAX_QUANTITY_PER_PRODUCT, quantityToAdd) },
+            ],
           }
         }),
 

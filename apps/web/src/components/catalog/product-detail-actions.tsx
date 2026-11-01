@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { CartItemInput } from '@/lib/cart'
 import { useCartStore, useCartUIStore } from '@/lib/cart'
 import { useWishlistStore } from '@/lib/wishlist/store'
+import { quantityCap } from '@/lib/cart/pricing'
 import { trackAddToCart } from '@/lib/analytics/ga'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -48,10 +49,7 @@ export function ProductDetailActions({
   const isOutOfStock =
     soldOut === true ||
     (typeof stock === 'number' && Number.isFinite(stock) && stock <= 0)
-  const stockCap =
-    typeof stock === 'number' && Number.isFinite(stock) && stock > 0
-      ? stock
-      : undefined
+  const stockCap = quantityCap(stock)
   const clamp = (v: number) => {
     const cap = stockCap ?? Number.POSITIVE_INFINITY
     return Math.max(1, Math.min(cap, Math.floor(v)))

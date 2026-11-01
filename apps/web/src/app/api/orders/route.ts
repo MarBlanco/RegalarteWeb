@@ -208,8 +208,9 @@ function mapFieldErrorsToMessage(
 }
 
 /**
- * El precio mayorista es B2B: el modo lo manda el cliente, así que el servidor solo lo honra si la
- * sesión (cookie o JWT) pertenece a una cuenta mayorista. Ante cualquier fallo, falla cerrado.
+ * El precio mayorista es B2B: el modo lo manda el cliente, así que el servidor solo lo honra si el
+ * canal está habilitado y la sesión (cookie o JWT) pertenece a una cuenta mayorista. Ante cualquier
+ * fallo, falla cerrado.
  */
 async function isWholesaleAccount(req: NextRequest): Promise<boolean> {
   try {
@@ -221,7 +222,12 @@ async function isWholesaleAccount(req: NextRequest): Promise<boolean> {
     }
     const payload = await getPayload({ config })
     const { user } = await payload.auth({ headers })
-    return (user as { customer_type?: string } | null)?.customer_type === 'WHOLESALE'
+    if ((user as { customer_type?: string } | null)?.customer_type !== 'WHOLESALE') return false
+    // El canal mayorista debe estar habilitado en la configuración de la tienda (apagado por defecto).
+    const settings = (await payload.findGlobal({ slug: 'commerce-settings', depth: 0 })) as {
+      wholesale_enabled?: boolean
+    }
+    return settings.wholesale_enabled === true
   } catch {
     return false
   }
@@ -278,7 +284,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           message:
             err.code === 'INVALID_COUPON'
               ? 'El cupón ingresado no es válido. Revisalo e intentá de nuevo.'
-              : 'Algunos productos de tu carrito ya no están disponibles. Revisá el catálogo e intentá nuevamente.',
+              : err.code === 'QUANTITY'
+                ? 'Superaste la cantidad máxima por producto (10 unidades o el stock disponible). Ajustá tu carrito e intentá de nuevo.'
+                : 'Algunos productos de tu carrito ya no están disponibles. Revisá el catálogo e intentá nuevamente.',
         } satisfies CreateOrderResult,
         { status: 409, headers: NO_STORE },
       )

@@ -9,6 +9,7 @@
   - **[AUTH]** `/orders` y `/profile` ya no redirigen al login antes de resolver la sesión (cookie incluida); el logout no dispara un segundo POST.
   - **[SEO]** Sin canonical global a la home (cada página declara el suyo), datos estructurados `Product`, sitemap con productos y `robots.txt` ampliado.
   - **[UI]** Un solo `<main>` por página, modales de edición fuera de formularios (sin `<form>` anidado), notas aromáticas solo con datos reales, descuento en el detalle de "Mis compras", tap targets de 44 px en móvil, aviso de pago simulado en la confirmación.
+  - **[NEGOCIO]** Tope de 10 unidades por producto (carrito, ficha y servidor). El texto de un pedido pendiente ahora dice "Recibimos tu pedido / pendiente de pago". El canal mayorista exige `wholesale_enabled` activo además de una cuenta mayorista.
   - **[CI]** El workflow ejecuta los tests de Vitest.
   - **[DOCS]** `CLAUDE.md`: versiones reales (Next 16.4.2, Payload 3.92.0), `AGENTS.md` de OpenCode, capacidades del Harness por plugins.
 

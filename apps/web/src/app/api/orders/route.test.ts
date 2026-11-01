@@ -28,9 +28,10 @@ const req = (payload: unknown, headers: Record<string, string> = {}) =>
     body: JSON.stringify(payload),
   })
 
-function authAs(user: Record<string, unknown> | null) {
+function authAs(user: Record<string, unknown> | null, wholesaleEnabled = true) {
   const auth = vi.fn().mockResolvedValue({ user })
-  vi.mocked(getPayload).mockResolvedValue({ auth } as never)
+  const findGlobal = vi.fn().mockResolvedValue({ wholesale_enabled: wholesaleEnabled })
+  vi.mocked(getPayload).mockResolvedValue({ auth, findGlobal } as never)
   return auth
 }
 
@@ -62,6 +63,13 @@ describe('POST /api/orders — precio mayorista', () => {
     expect(createOrder).toHaveBeenCalledTimes(1)
     const sent = auth.mock.calls[0][0].headers as Headers
     expect(sent.get('authorization')).toBe('JWT tok123')
+  })
+
+  it('canal mayorista deshabilitado en la configuración: 403 incluso para una cuenta mayorista', async () => {
+    authAs({ customer_type: 'WHOLESALE', role: 'wholesale' }, false)
+    const res = await POST(req(body('WHOLESALE'), { authorization: 'Bearer tok' }))
+    expect(res.status).toBe(403)
+    expect(createOrder).not.toHaveBeenCalled()
   })
 
   it('modo RETAIL no consulta la sesión y sigue funcionando para visitantes', async () => {
