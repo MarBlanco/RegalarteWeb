@@ -10,6 +10,9 @@ const MAX_BYTES = 6 * 1024 * 1024
  * Solo admin/staff. Límite 6MB, solo imagen.
  */
 export async function POST(req: Request) {
+  const verified = await verifyStaff(req)
+  if ('error' in verified) return verified.error
+  const { payload, user } = verified
   let file: File | null = null
   let alt = ''
   try {
@@ -35,10 +38,6 @@ export async function POST(req: Request) {
       { status: 400 },
     )
   }
-
-  const verified = await verifyStaff(req)
-  if ('error' in verified) return verified.error
-  const { payload, user } = verified
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer())

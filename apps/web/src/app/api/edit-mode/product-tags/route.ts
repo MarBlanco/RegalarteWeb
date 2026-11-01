@@ -11,6 +11,9 @@ export const dynamic = 'force-dynamic'
  * servidor; la opción nace activa. Solo admin/staff por JWT.
  */
 export async function POST(req: Request) {
+  const verified = await verifyStaff(req)
+  if ('error' in verified) return verified.error
+  const { payload, user } = verified
   let body: unknown
   try {
     body = await req.json()
@@ -24,10 +27,6 @@ export async function POST(req: Request) {
       { status: 400 },
     )
   }
-
-  const verified = await verifyStaff(req)
-  if ('error' in verified) return verified.error
-  const { payload, user } = verified
 
   try {
     const slug = await uniqueSlug(

@@ -40,6 +40,10 @@ function ResetPasswordContent() {
         body: JSON.stringify({ token, password }),
       })
 
+      if (res.status === 403) {
+        // Payload responde 403 "Token is either invalid or has expired." (en inglés).
+        throw new Error('El link no es válido o ya fue usado. Pedí uno nuevo desde "Olvidé mi contraseña".')
+      }
       if (!res.ok) {
         const data = await res.json()
         throw new Error(data.errors?.[0]?.message || 'Error al restablecer la contraseña')

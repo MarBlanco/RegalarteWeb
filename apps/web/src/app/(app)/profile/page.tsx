@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { useAuth } from '@/hooks/use-auth'
+import { isValidPhone } from '@/lib/checkout/validation'
 import { useEditMode, useIsStaff } from '@/hooks/use-edit-mode'
 import {
   EMPTY_ADDRESS,
@@ -275,6 +276,14 @@ export default function ProfilePage() {
     if (!currentUser) return
     if (!form.name.trim()) {
       setError('El nombre es requerido')
+      return
+    }
+    if (form.phone.trim() && !isValidPhone(form.phone)) {
+      setError('El teléfono principal no es válido: usá solo números, espacios, + y guiones.')
+      return
+    }
+    if (form.showAltPhone && form.phoneAlt.trim() && !isValidPhone(form.phoneAlt)) {
+      setError('El teléfono alternativo no es válido: usá solo números, espacios, + y guiones.')
       return
     }
     setIsLoading(true)

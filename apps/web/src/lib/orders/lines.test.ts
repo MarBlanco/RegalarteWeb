@@ -183,6 +183,39 @@ describe('buildLinesFromProducts (AUDIT-004)', () => {
     )
   })
 
+  it('rechaza la orden si la cantidad supera el stock disponible', () => {
+    const limited: ProductPricingSource = { ...plainRetailProduct, id: 6, stock: 3 }
+    const products = new Map<number, ProductPricingSource>([[6, limited]])
+
+    expect(() =>
+      buildLinesFromProducts(makeInput([makeItem({ productId: '6', quantity: 4 })]), products),
+    ).toThrow(OrderRejectedError)
+    expect(
+      buildLinesFromProducts(makeInput([makeItem({ productId: '6', quantity: 3 })]), products)[0]
+        .quantity,
+    ).toBe(3)
+  })
+
+  it('suma las cantidades de un mismo producto repartido en varias líneas contra el stock', () => {
+    const limited: ProductPricingSource = { ...plainRetailProduct, id: 6, stock: 3 }
+    const products = new Map<number, ProductPricingSource>([[6, limited]])
+    const input = makeInput([
+      makeItem({ id: 'a', productId: '6', quantity: 2 }),
+      makeItem({ id: 'b', productId: '6', quantity: 2 }),
+    ])
+
+    expect(() => buildLinesFromProducts(input, products)).toThrow(OrderRejectedError)
+  })
+
+  it('rechaza la orden si el precio resultante no es mayor a cero (dato inválido en el CMS)', () => {
+    const free: ProductPricingSource = { ...plainRetailProduct, id: 7, price: 0 }
+    const products = new Map<number, ProductPricingSource>([[7, free]])
+
+    expect(() =>
+      buildLinesFromProducts(makeInput([makeItem({ productId: '7' })]), products),
+    ).toThrow(OrderRejectedError)
+  })
+
   it('rechaza la orden si el producto no existe en la DB', () => {
     const products = new Map<number, ProductPricingSource>()
     const input = makeInput([makeItem({ productId: '9999' })])

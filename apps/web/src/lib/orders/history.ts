@@ -65,6 +65,9 @@ export interface HistoryOrder {
   total: number
   subtotal: number
   shipping: number
+  /** Descuento por cupón (0 o ausente si no hubo). */
+  discount?: number
+  couponCode?: string | null
   city: string
   province: string
 }

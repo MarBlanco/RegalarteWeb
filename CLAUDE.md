@@ -1,6 +1,6 @@
 # CLAUDE.md — RegalarteWeb
 
-Contrato operativo de Claude Code para este repositorio. Es el único archivo de reglas: no existe `AGENTS.md` ni otro paralelo.
+Contrato operativo de Claude Code para este repositorio. Es el contrato de Claude Code. `AGENTS.md` (reglas de OpenCode, junto a `.opencode/`) está versionado pero no rige a Claude Code: ante cualquier conflicto prevalece este archivo.
 
 ## 1. Contexto
 
@@ -9,13 +9,13 @@ REGALARTE es una plataforma de Discovery Commerce de regalos (B2C minorista + B2
 ## 2. Stack real (verificado en `package.json`)
 
 - Monorepo npm workspaces (`apps/*`); única app: `apps/web`.
-- Next.js `16.2.12` (App Router), React `19.1.0`, TypeScript, Tailwind `3.x`, shadcn/ui (Radix), Framer Motion, Zustand, TanStack Query.
-- Payload CMS `3.87.1` con `@payloadcms/db-postgres`, Lexical, `storage-s3` (Cloudflare R2), `email-resend`.
+- Next.js `16.4.2` (App Router), React `19.1.0`, TypeScript, Tailwind `3.x`, shadcn/ui (Radix), Framer Motion, Zustand, TanStack Query.
+- Payload CMS `3.92.0` con `@payloadcms/db-postgres`, Lexical, `storage-s3` (Cloudflare R2), `email-resend`.
 - Tests: Vitest (jsdom). Lint: ESLint 9.
 - Node `>=20.9.0` (`engines` en el `package.json` raíz; CI usa Node 20).
 - Deploy: Vercel (`apps/web/vercel.json`).
 
-Atención: `FOUNDATION.md` y `docs/README.md` dicen "Next.js 15" y "PRE BUILD". Prevalece `package.json`.
+Atención: `FOUNDATION.md` y `docs/README.md` conservan el estado histórico "PRE BUILD". Para versiones prevalece `package.json` y para el estado, el código.
 
 ## 3. Estructura relevante
 
@@ -28,7 +28,7 @@ Atención: `FOUNDATION.md` y `docs/README.md` dicen "Next.js 15" y "PRE BUILD". 
 - `apps/web/src/payload.config.ts` — configuración de Payload.
 - `apps/web/scripts/migrate-on-build.mjs` — migra en el build de Vercel.
 - `.github/workflows/` — CI, CodeQL, SonarCloud.
-- `.claude/agents/`, `.claude/skills/` — capacidades de Claude Code.
+- `.claude/settings.json` (plugins del Harness habilitados) y `.claude/harness.manifest.json` (perfil y gates; lo gestiona SyncProject, no se edita a mano). `.claude/agents/` y `.claude/skills/` ya no contienen copias: las capacidades vienen de plugins.
 
 ## 4. Jerarquía de autoridad
 
@@ -96,7 +96,7 @@ El reporte final dice qué se hizo, con qué evidencia se verificó, qué acció
 - Tests: `npm run test --workspace=apps/web` (Vitest; no hay script `test` en la raíz).
 - Payload: `npm run migrate | migrate:status | migrate:create | migrate:down | generate:types | generate:importmap --workspace=apps/web`.
 
-CI (`.github/workflows/ci.yml`) ejecuta type-check, lint y build en cada PR y en push a `main`. No ejecuta los tests de Vitest. Antes de declarar un cambio verificado, correr los que apliquen: type-check, lint, test y build. Si no se corrió alguno, decirlo.
+CI (`.github/workflows/ci.yml`) ejecuta auditoría de dependencias de producción, type-check, lint, tests de Vitest y build en cada PR y en push a `main`. Antes de declarar un cambio verificado, correr los que apliquen: type-check, lint, test y build. Si no se corrió alguno, decirlo.
 
 ## 9. Referencias (consultar según la tarea, evaluando vigencia)
 
@@ -120,8 +120,14 @@ CI (`.github/workflows/ci.yml`) ejecuta type-check, lint y build en cada PR y en
 
 ## 11. Capacidades de Claude Code
 
-- Agente: `.claude/agents/code-reviewer.md` — revisión de cambios antes de cerrar o abrir un PR.
-- Skills en `.claude/skills/` (copias del Harness central; no editarlas acá, ver `~/.claude/HARNESS.md`): `harness-plan`, `harness-work`, `harness-review`, `chrome-devtools`, `design-loop`, `frontend-design`, `playwright-cli`, `skill-development`, `systematic-debugging`, `vercel-composition-patterns`, `vercel-react-best-practices`, `web-design-guidelines`. Usarlas cuando la tarea coincida con su descripción; su contenido no se duplica acá.
+Las capacidades vienen de los plugins del Harness (marketplace local `harness`; versiones en el manifiesto `.claude/harness.manifest.json`), no de copias en el repo. Para actualizarlas se usa SyncProject desde el repo central del Harness; ver `~/.claude/HARNESS.md`.
+
+- Agentes: `harness-core:code-reviewer` (revisión antes de cerrar o abrir un PR), `harness-core:qa-verifier` (verificación independiente de gates), `harness-web:qa-explorer` (QA exploratoria como cliente; solo localhost) y `harness-payments:payments-engineer` (cambios de pago).
+- Skills de proceso (`harness-core`): `harness-plan`, `harness-work`, `harness-review`, `systematic-debugging`, `product-spec`, `architecture-decisions`, `ops-delivery`, `tech-docs`, `maintenance-upgrades`.
+- Skills web (`harness-web`): `qa-explore`, `web-qa`, `chrome-devtools`, `playwright-cli`, `design-loop`, `frontend-design`, `web-design-guidelines`, `vercel-react-best-practices`, `vercel-composition-patterns`, `owasp-security`, `seo`.
+- Skills de pagos: `harness-payments:payments-core` y `payments-review`, más el plugin oficial `mercadopago`.
+
+Usarlas cuando la tarea coincida con su descripción; su contenido no se duplica acá.
 
 ### Caveman (ahorro de tokens)
 

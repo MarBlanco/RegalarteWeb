@@ -63,7 +63,7 @@ const topBarItems = [
 ]
 
 const iconBtn =
-  'flex h-8 w-8 items-center justify-center text-[#38271D] transition-colors hover:text-[#C45A37] sm:h-9 sm:w-9'
+  'flex h-11 w-11 items-center justify-center text-[#38271D] transition-colors hover:text-[#C45A37] sm:h-9 sm:w-9'
 
 function HeaderIcons() {
   return (

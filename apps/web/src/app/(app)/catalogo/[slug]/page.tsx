@@ -21,6 +21,9 @@ import { formatPrice } from '@/lib/format'
 import { ViewItemTracker } from '@/components/analytics/view-item-tracker'
 import { PdpEditButton } from '@/components/edit-mode/pdp-edit-drawer'
 import { getPdpContent } from '@/lib/pdp-content'
+import { buildProductJsonLd, serializeJsonLd } from '@/lib/seo/product-jsonld'
+
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || ''
 
 interface PageProps {
   params?: Promise<{ slug: string }>
@@ -147,6 +150,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: { canonical: `/catalogo/${product.slug}` },
     openGraph: {
       type: 'website',
       siteName: 'Regalarte',
@@ -270,8 +274,23 @@ export default async function ProductDetailPage({ params }: PageProps) {
     if (rel.featured) relatedBadges[rel.id] = 'FAVORITO'
   }
 
+  const jsonLd = buildProductJsonLd({
+    siteUrl: SITE_URL,
+    slug: product.slug,
+    title: product.title,
+    description:
+      product.seoDescription ?? `Descubrí ${product.title} en el catálogo de Regalarte.`,
+    imageUrls: galleryImages.map((g) => g.url).filter((u): u is string => typeof u === 'string' && u.length > 0),
+    price: product.price,
+    soldOut: agotado,
+  })
+
   return (
     <article className="bg-[#FDFBF7]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
       <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8">
         <nav aria-label="Breadcrumb" className="text-xs text-[#9A8A7A]">
           <Link href="/" className="transition-colors hover:text-[#C45A37]">

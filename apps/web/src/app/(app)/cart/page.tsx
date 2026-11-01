@@ -88,7 +88,7 @@ export default function CartPage() {
   )
 
   return (
-    <main className="flex-1 bg-[#FDFBF7]">
+    <div className="flex-1 bg-[#FDFBF7]">
       <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8">
         <nav aria-label="Breadcrumb" className="text-xs text-[#9A8A7A]">
           <Link href="/" className="transition-colors hover:text-[#C45A37]">
@@ -111,7 +111,7 @@ export default function CartPage() {
             {!hydrated
               ? 'Cargando carrito…'
               : itemCount === 0
-                ? 'Tu carrito está vacío.'
+                ? 'Sumá productos para empezar tu compra.'
                 : 'Revisá tus productos y continuá con tu compra.'}
           </p>
         </header>
@@ -450,7 +450,7 @@ export default function CartPage() {
           setConfirmItem(null)
         }}
       />
-    </main>
+    </div>
   )
 }
 

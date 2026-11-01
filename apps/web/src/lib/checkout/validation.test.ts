@@ -21,6 +21,40 @@ const makeValidForm = (overrides: Partial<CheckoutFormValues> = {}): CheckoutFor
   ...overrides,
 })
 
+describe('Checkout Validation — valores sin sentido', () => {
+  const withAddress = (a: Partial<CheckoutFormValues['address']>) =>
+    makeValidForm({ address: { ...makeValidForm().address, ...a } })
+
+  it.each([
+    ['address.street', { street: 'x' }, 'Dirección inválida'],
+    ['address.street', { street: '1234' }, 'Dirección inválida'],
+    ['address.city', { city: '1' }, 'Ciudad inválida'],
+    ['address.province', { province: '99' }, 'Provincia inválida'],
+    ['address.postalCode', { postalCode: '!!' }, 'Código postal inválido'],
+    ['address.postalCode', { postalCode: 'abcd' }, 'Código postal inválido'],
+  ])('rechaza %s con %j', (key, patch, message) => {
+    expect(validateCheckoutForm(withAddress(patch))[key]).toBe(message)
+  })
+
+  it.each(['3280', 'C1414', 'C1414ABC', '1043', '3280 '])('acepta el código postal %j', (postalCode) => {
+    expect(validateCheckoutForm(withAddress({ postalCode }))['address.postalCode']).toBeUndefined()
+  })
+
+  it.each(['12ab', 'abc-<script>', '123456x'])('rechaza el teléfono %j', (phone) => {
+    const errors = validateCheckoutForm(
+      makeValidForm({ customer: { ...makeValidForm().customer, phone } }),
+    )
+    expect(errors['customer.phone']).toBe('Teléfono inválido')
+  })
+
+  it.each(['+54 11 5555 5555', '(011) 4444-3333', '3447111111'])('acepta el teléfono %j', (phone) => {
+    const errors = validateCheckoutForm(
+      makeValidForm({ customer: { ...makeValidForm().customer, phone } }),
+    )
+    expect(errors['customer.phone']).toBeUndefined()
+  })
+})
+
 describe('Checkout Validation', () => {
   describe('validateCheckoutForm', () => {
     it('returns empty errors for valid form', () => {

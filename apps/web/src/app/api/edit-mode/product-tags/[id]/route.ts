@@ -19,6 +19,9 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const verified = await verifyStaff(req)
+  if ('error' in verified) return verified.error
+  const { payload, user } = verified
   const { id: rawId } = await params
   const id = parseId(rawId)
   if (id === null) {
@@ -37,10 +40,6 @@ export async function PUT(
       { status: 400 },
     )
   }
-
-  const verified = await verifyStaff(req)
-  if ('error' in verified) return verified.error
-  const { payload, user } = verified
 
   try {
     const existing = await payload

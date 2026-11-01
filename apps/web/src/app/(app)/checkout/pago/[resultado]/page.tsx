@@ -53,7 +53,7 @@ export default async function PagoRetornoPage({ params, searchParams }: PageProp
   const pending = order.status === 'pending'
 
   return (
-    <main className="flex-1 bg-background">
+    <div className="flex-1 bg-background">
       <div className="container max-w-xl py-8 lg:py-12">
         <Card>
           <CardContent className="space-y-4 p-6 text-center sm:p-8">
@@ -90,6 +90,6 @@ export default async function PagoRetornoPage({ params, searchParams }: PageProp
           </CardContent>
         </Card>
       </div>
-    </main>
+    </div>
   )
 }

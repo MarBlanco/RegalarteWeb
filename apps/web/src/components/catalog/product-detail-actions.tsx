@@ -108,7 +108,7 @@ export function ProductDetailActions({
             onClick={() => setQuantity((q) => clamp(q - 1))}
             disabled={quantity <= 1}
             aria-label="Disminuir cantidad"
-            className="flex h-9 w-9 items-center justify-center text-[#38271D] disabled:opacity-40"
+            className="flex h-11 w-11 items-center justify-center text-[#38271D] disabled:opacity-40 sm:h-9 sm:w-9"
           >
             <span className="text-base leading-none">−</span>
           </button>
@@ -123,7 +123,7 @@ export function ProductDetailActions({
             onClick={() => setQuantity((q) => clamp(q + 1))}
             disabled={typeof stockCap === 'number' && quantity >= stockCap}
             aria-label="Aumentar cantidad"
-            className="flex h-9 w-9 items-center justify-center text-[#38271D] disabled:opacity-40"
+            className="flex h-11 w-11 items-center justify-center text-[#38271D] disabled:opacity-40 sm:h-9 sm:w-9"
           >
             <span className="text-base leading-none">+</span>
           </button>

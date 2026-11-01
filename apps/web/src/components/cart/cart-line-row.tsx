@@ -68,7 +68,7 @@ export function CartLineRow({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-none"
+            className="h-11 w-11 rounded-none sm:h-8 sm:w-8"
             onClick={onDec}
             aria-label="Disminuir cantidad"
           >
@@ -81,7 +81,7 @@ export function CartLineRow({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-none"
+            className="h-11 w-11 rounded-none sm:h-8 sm:w-8"
             onClick={onInc}
             disabled={typeof stockCap === 'number' && quantity >= stockCap}
             aria-label="Aumentar cantidad"
@@ -99,7 +99,7 @@ export function CartLineRow({
           variant="ghost"
           size="sm"
           onClick={() => removeItem(id)}
-          className="text-xs text-muted-foreground hover:text-destructive"
+          className="min-h-11 text-xs text-muted-foreground hover:text-destructive sm:min-h-0"
         >
           Eliminar
         </Button>

@@ -10,7 +10,7 @@ const STAFF = {
   name: 'Guale',
   role: 'staff' as const,
   customer_type: 'RETAIL' as const,
-  phone: '111',
+  phone: '1155551234',
   address: null,
   addresses: [],
 }
@@ -76,7 +76,7 @@ describe('Mi cuenta — guardado con estado real', () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          doc: { name: 'Guale Nuevo', phone: '111', address: null, addresses: [] },
+          doc: { name: 'Guale Nuevo', phone: '1155551234', address: null, addresses: [] },
         }),
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -105,6 +105,17 @@ describe('Mi cuenta — guardado con estado real', () => {
       screen.getByRole('button', { name: 'Guardar cambios' }),
     ).toBeDisabled()
     expect(useAuth.getState().user?.name).toBe('Guale Nuevo')
+  })
+
+  it('teléfono inválido: avisa y no envía nada al servidor', async () => {
+    useAuth.setState({ user: STAFF, token: 'tok', isLoading: false })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    render(<ProfilePage />)
+    fireEvent.change(screen.getByLabelText('Teléfono principal'), { target: { value: '12ab' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+    expect(await screen.findByText(/teléfono principal no es válido/i)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('error conserva los datos introducidos', async () => {    useAuth.setState({ user: STAFF, token: 'tok', isLoading: false })

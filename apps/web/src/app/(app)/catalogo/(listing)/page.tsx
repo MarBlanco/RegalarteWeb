@@ -28,6 +28,7 @@ import type { Media } from '@/payload-types'
 
 export const metadata: Metadata = {
   title: 'Catálogo',
+  alternates: { canonical: '/catalogo' },
   description:
     'Descubrí todos los regalos y propuestas de Regalarte. Filtrá por categoría, etiqueta y precio.',
   openGraph: {

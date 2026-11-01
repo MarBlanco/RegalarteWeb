@@ -34,16 +34,15 @@ async function idsExist(
  * de la colección.
  */
 export async function POST(req: Request) {
+  const verified = await verifyStaff(req)
+  if ('error' in verified) return verified.error
+  const { payload, user } = verified
   let body: unknown
   try {
     body = await req.json()
   } catch {
     return NextResponse.json({ error: 'Cuerpo inválido' }, { status: 400 })
   }
-
-  const verified = await verifyStaff(req)
-  if ('error' in verified) return verified.error
-  const { payload, user } = verified
 
   // Producto nuevo: la descripción parte de un documento simple vacío.
   const data = sanitizeProductPatch(body, plainTextToLexical(''))

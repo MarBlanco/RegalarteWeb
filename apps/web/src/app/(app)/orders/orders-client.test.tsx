@@ -90,6 +90,28 @@ describe('Mis compras — estados de página', () => {
     expect(screen.getByText('Destino')).toBeInTheDocument()
   })
 
+  it('el detalle muestra el descuento del cupón cuando hubo uno y lo omite cuando no', async () => {
+    login()
+    const withCoupon = { ...ORDER, total: 33300, discount: 3700, couponCode: 'REGALARTE10', shipping: 0 }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ docs: [withCoupon] }) }),
+    )
+    const { unmount } = render(<OrdersClient />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Ver pedido' }))
+    expect(screen.getByText('Descuento (REGALARTE10)')).toBeInTheDocument()
+    expect(screen.getByText(/−\s?\$\s?3\.700/)).toBeInTheDocument()
+    unmount()
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ docs: [ORDER] }) }),
+    )
+    render(<OrdersClient />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Ver pedido' }))
+    expect(screen.queryByText(/^Descuento/)).toBeNull()
+  })
+
   it('filtros por estado y búsqueda funcionan', async () => {
     login()
     vi.stubGlobal(

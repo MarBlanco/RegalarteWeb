@@ -39,6 +39,9 @@ jobs:
       - name: Lint
         run: npm run lint --workspace=apps/web
 
+      - name: Test
+        run: npm run test --workspace=apps/web
+
       - name: Build
         run: npm run build --workspace=apps/web
         env:

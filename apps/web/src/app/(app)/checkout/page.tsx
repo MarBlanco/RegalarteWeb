@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { CheckoutForm } from '@/components/checkout/checkout-form'
 import { CheckoutEmptyState } from '@/components/checkout/checkout-empty'
 import { useCartStore, getSubtotal } from '@/lib/cart'
+import { getPaymentProvider } from '@/lib/payment'
 import { trackBeginCheckout } from '@/lib/analytics/ga'
 import { unavailableMessage, type UnavailableReason } from '@/lib/cart/availability'
 import { useCartAvailability } from '@/lib/cart/use-cart-availability'
@@ -39,7 +40,7 @@ export default function CheckoutPage() {
   }, [hydrated, items])
 
   return (
-      <main className="flex-1 bg-background">
+      <div className="flex-1 bg-background">
         <div className="container py-8 lg:py-12">
           <nav aria-label="Breadcrumb" className="mb-6 text-sm">
             <ol className="flex flex-wrap items-center gap-1 text-muted-foreground">
@@ -64,13 +65,15 @@ export default function CheckoutPage() {
               Finalizá tu compra
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Elegí cómo recibir tu pedido y pagá de forma segura con Mercado Pago.
+              {getPaymentProvider().name === 'mercadopago'
+                ? 'Elegí cómo recibir tu pedido y pagá de forma segura con Mercado Pago.'
+                : 'Elegí cómo recibir tu pedido. El pago está en modo prueba: no se realiza ningún cobro.'}
             </p>
           </header>
 
           {body}
         </div>
-      </main>
+      </div>
   )
 }
 

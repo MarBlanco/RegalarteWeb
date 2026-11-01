@@ -199,6 +199,14 @@ function OrderCard({ order }: Readonly<{ order: HistoryOrder }>) {
                 <dt className="text-[#7A6A5D]">Subtotal</dt>
                 <dd className="tabular-nums">{formatPrice(order.subtotal)}</dd>
               </div>
+              {order.discount && order.discount > 0 ? (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-[#7A6A5D]">
+                    Descuento{order.couponCode ? ` (${order.couponCode})` : ''}
+                  </dt>
+                  <dd className="tabular-nums">−{formatPrice(order.discount)}</dd>
+                </div>
+              ) : null}
               <div className="flex justify-between gap-3">
                 <dt className="text-[#7A6A5D]">Envío</dt>
                 <dd className="tabular-nums">{formatPrice(order.shipping)}</dd>

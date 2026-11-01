@@ -21,6 +21,8 @@ interface OrderRow {
   total: number
   subtotal: number
   shipping: number
+  discount?: number | null
+  couponCode?: string | null
   address?: { city?: unknown; province?: unknown } | null
   items?: Array<{
     product?: unknown
@@ -115,6 +117,8 @@ export async function GET(req: Request) {
         total: d.total,
         subtotal: d.subtotal,
         shipping: d.shipping,
+        discount: typeof d.discount === 'number' ? d.discount : 0,
+        couponCode: typeof d.couponCode === 'string' ? d.couponCode : null,
         city: typeof address.city === 'string' ? address.city : '',
         province:
           typeof address.province === 'string' ? address.province : '',

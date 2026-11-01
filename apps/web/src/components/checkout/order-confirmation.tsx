@@ -17,10 +17,16 @@ export interface OrderConfirmationData {
  */
 export function OrderConfirmation({
   order,
-}: Readonly<{ order: OrderConfirmationData }>) {
+  simulated = false,
+}: Readonly<{
+  order: OrderConfirmationData
+  /** true cuando el pago es simulado (sin pasarela): el pedido NO está pagado. */
+  simulated?: boolean
+}>) {
   const meta = ORDER_STATUS_META[order.status]
+  const testOrder = simulated && order.status === 'pending'
   return (
-    <main className="flex-1 bg-background">
+    <div className="flex-1 bg-background">
       <div className="container max-w-xl py-8 lg:py-12">
         <Card>
           <CardContent className="space-y-4 p-6 text-center sm:p-8">
@@ -28,9 +34,18 @@ export function OrderConfirmation({
               Pedido {order.orderNumber}
             </p>
             <h1 className="text-2xl font-bold tracking-tight">
-              {meta.headline({ createdAt: '' })}
+              {testOrder ? 'Pedido registrado (modo prueba)' : meta.headline({ createdAt: '' })}
             </h1>
-            <p className="text-sm text-muted-foreground">{meta.subline}</p>
+            {testOrder ? (
+              <p
+                role="status"
+                className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+              >
+                El pago está simulado: no se realizó ningún cobro y este pedido no está pagado.
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">{meta.subline}</p>
+            )}
             <p className="text-sm font-medium tabular-nums">
               Estado: {meta.label} · Total: {formatPrice(order.total)}
             </p>
@@ -45,6 +60,6 @@ export function OrderConfirmation({
           </CardContent>
         </Card>
       </div>
-    </main>
+    </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -53,7 +54,7 @@ export function ModalShell({
     }
   }, [onClose])
 
-  return (
+  const overlay = (
     <div
       className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-6"
       onMouseDown={(e) => {
@@ -94,6 +95,10 @@ export function ModalShell({
       </div>
     </div>
   )
+
+  // En <body>: varios disparadores viven dentro de otro <form> (filtros del catálogo) y un
+  // <form> anidado es HTML inválido (error de hidratación).
+  return typeof document === 'undefined' ? overlay : createPortal(overlay, document.body)
 }
  
 /**
