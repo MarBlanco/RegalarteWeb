@@ -1,24 +1,9 @@
 # Vulnerabilidades conocidas y aceptadas temporalmente (gate G6, osv-scanner).
-# Todas son de severidad media. Cada una vence el 2027-02-01: pasada esa fecha vuelven a fallar el gate
-# y hay que revisar si ya existe una versión corregida. Las dependencias de producción de severidad
-# alta o crítica no se aceptan acá: las bloquea `npm audit --omit=dev --audit-level=high` en CI.
-
-[[IgnoredVulns]]
-id = "GHSA-67mh-4wv8-2f99"
-ignoreUntil = 2027-02-01
-reason = "esbuild 0.18.20 llega por drizzle-kit (payload/db-postgres); el fallo afecta solo al servidor de desarrollo de esbuild, que no se ejecuta. El arreglo requiere un cambio mayor en la cadena de Payload."
+# Las dependencias de producción de severidad alta o crítica no se aceptan acá: las bloquea
+# `npm audit --omit=dev --audit-level=high` en CI. esbuild, minimatch y postcss-selector-parser se
+# corrigen con `overrides` en el package.json raíz; no hay entradas para ellos.
 
 [[IgnoredVulns]]
 id = "GHSA-gcqx-w48m-w2h4"
 ignoreUntil = 2027-02-01
-reason = "deepmerge 4.3.1 (dependencia transitiva): no existe versión corregida publicada."
-
-[[IgnoredVulns]]
-id = "GHSA-g3hv-75wg-m249"
-ignoreUntil = 2027-02-01
-reason = "minimatch 3.x y 10.x solo en herramientas de desarrollo (ESLint y similares); el arreglo exige minimatch 11, incompatible con esos consumidores."
-
-[[IgnoredVulns]]
-id = "GHSA-rj75-hqrm-r3gf"
-ignoreUntil = 2027-02-01
-reason = "postcss-selector-parser 6.0.10 lo fija @tailwindcss/typography (solo build de estilos, sin entrada de usuarios)."
+reason = "deepmerge 4.3.1 lo usa payload (severidad media); no existe versión corregida publicada (4.3.1 es la última). Vence el 2027-02-01: revisar si ya hay corrección."

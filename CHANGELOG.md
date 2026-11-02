@@ -1,5 +1,10 @@
 # REGALARTE
 
+## 2026-11-02
+
+- **[RUNTIME]** Node mínimo 20.9 → 22 (`engines` raíz y `.nvmrc`): jsdom exige `undici` 8 y Node 20 ya no tiene soporte; app, tests, CI y Vercel quedan alineados.
+- **[SEGURIDAD]** `overrides` en el `package.json` raíz para `esbuild` (0.28.2), `minimatch` (11.0.1) y `postcss-selector-parser` de `@tailwindcss/typography` (6.1.5): se eliminan 3 de los 4 avisos aceptados de `osv-scanner.toml`. Queda solo `deepmerge` 4.3.1 (sin versión corregida), vence el 2027-02-01.
+
 ## 2026-11-01
 
 - **[DEPENDENCIAS]** Tailwind CSS 3.4 → 4.3 con la herramienta oficial de migración. La configuración pasó a `globals.css` (`@theme`, `@plugin` de typography y forms); `autoprefixer` se reemplazó por `@tailwindcss/postcss`. Se agregó una utilidad `space-y-*` con la semántica de v3 (v4 pone el margen en el hermano anterior y no afecta a `<label>` inline) y se revirtió un renombre falso de `variant="outline"`. Verificado con capturas de 18 páginas en 390 y 1280 px contra la versión anterior.
