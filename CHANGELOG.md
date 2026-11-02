@@ -2,6 +2,8 @@
 
 ## 2026-11-01
 
+- **[DEPENDENCIAS]** TypeScript 5.9.3 → 7.0.2 en `apps/web` (tsconfig `target` es5 → ES2022, removido en TS 7). La raíz mantiene `typescript ~5.9.3` para `typescript-eslint`. Type-check, lint, 575 tests y build verificados.
+
 - **[AUDITORIA]** Auditoría integral con QA exploratoria (`.harness/qa/20261101-regalarte-integral/`) y correcciones.
   - **[SEGURIDAD]** `POST /api/orders` solo acepta `mode: WHOLESALE` de una sesión con `customer_type` mayorista (antes cualquiera obtenía precio B2B). Las rutas de `/api/edit-mode` autentican antes de validar el cuerpo.
   - **[NEGOCIO]** El servidor rechaza ítems con cantidad mayor al `stock` (sumando líneas del mismo producto) y precio resultante menor o igual a cero.
