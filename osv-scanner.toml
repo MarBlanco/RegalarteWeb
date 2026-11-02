@@ -22,13 +22,3 @@ reason = "minimatch 3.x y 10.x solo en herramientas de desarrollo (ESLint y simi
 id = "GHSA-rj75-hqrm-r3gf"
 ignoreUntil = 2027-02-01
 reason = "postcss-selector-parser 6.0.10 lo fija @tailwindcss/typography (solo build de estilos, sin entrada de usuarios)."
-
-[[IgnoredVulns]]
-id = "GHSA-qxg6-89mg-rqv8"
-ignoreUntil = 2027-02-01
-reason = "@vitest/mocker 4.1.11, solo en tests; vitest entra como dependencia peer sin declarar y se actualiza con el resto de la herramienta de tests."
-
-[[IgnoredVulns]]
-id = "GHSA-xp26-3454-mjgp"
-ignoreUntil = 2027-02-01
-reason = "@vitest/mocker 4.1.11, solo en tests (ver GHSA-qxg6-89mg-rqv8)."
