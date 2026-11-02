@@ -53,7 +53,7 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
     : tags
 
   const pillBase =
-    'inline-flex h-9 flex-shrink-0 items-center whitespace-nowrap rounded-full border px-3.5 sm:h-[30px] text-[12px] transition-colors duration-150'
+    'inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border px-3.5 sm:h-[30px] text-[12px] transition-colors duration-150'
   const countNode = (
     <span className="whitespace-nowrap text-xs text-[#7A6A5D]">
       {totalDocs} {totalDocs === 1 ? 'producto' : 'productos'}
@@ -71,7 +71,7 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
           )
         }
         disabled={isPending}
-        className="h-9 rounded-full border border-[#E5DDD1] bg-background pl-2.5 pr-1.5 sm:h-[30px] text-xs text-[#38271D] outline-none"
+        className="h-9 rounded-full border border-[#E5DDD1] bg-background pl-2.5 pr-1.5 sm:h-[30px] text-xs text-[#38271D] outline-hidden"
       >
         {SORT_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -87,7 +87,7 @@ export function SubcategoryBar({ tags, totalDocs, currentCategory }: Subcategory
       <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-4 py-2 sm:px-6 lg:h-[48px] lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:py-0">
         <nav
           aria-label="Subcategorías"
-          className="-mx-1 flex flex-1 items-center gap-2 overflow-x-auto px-1 py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:overflow-visible [&::-webkit-scrollbar]:hidden"
+          className="-mx-1 flex flex-1 items-center gap-2 overflow-x-auto px-1 py-0.5 [-ms-overflow-style:none] scrollbar-none lg:overflow-visible [&::-webkit-scrollbar]:hidden"
         >
           <button
             type="button"

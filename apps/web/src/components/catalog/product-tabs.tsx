@@ -46,7 +46,7 @@ export function ProductTabs({ description, characteristics, editorial }: Product
       <div
         role="tablist"
         aria-label="Secciones de información"
-        className="flex gap-5 overflow-x-auto border-b border-[#EBDFD1] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-5 overflow-x-auto border-b border-[#EBDFD1] [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden"
       >
         {tabs.map((tab) => (
           <button

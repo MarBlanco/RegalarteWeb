@@ -31,7 +31,7 @@ export function CatalogAsideFilters({ facets }: { facets?: FilterFacets }) {
   }, [])
 
   return (
-    <aside className="lg:w-[220px] lg:flex-shrink-0 xl:w-[230px]">
+    <aside className="lg:w-[220px] lg:shrink-0 xl:w-[230px]">
       <div className="lg:sticky lg:top-32">
         <p className="mb-2 hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#38271D] lg:flex">
           <svg

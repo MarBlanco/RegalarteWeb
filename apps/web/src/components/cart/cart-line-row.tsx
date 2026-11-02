@@ -36,7 +36,7 @@ export function CartLineRow({
 
   return (
     <li className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center">
-      <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-muted">
+      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-md bg-muted">
         {image?.url ? (
           <Image
             src={image.url}

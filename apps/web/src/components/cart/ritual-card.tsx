@@ -47,7 +47,7 @@ export function RitualCard({ product }: { product: RitualProduct }) {
     <div className="group flex h-full flex-col overflow-hidden rounded-lg border border-[#EBDFD1] bg-[#FFFDF9]">
       <Link
         href={`/catalogo/${product.slug}`}
-        className="relative block aspect-[4/3] w-full overflow-hidden bg-[#F4EDE4]"
+        className="relative block aspect-4/3 w-full overflow-hidden bg-[#F4EDE4]"
         aria-label={product.name}
       >
         {product.image ? (

@@ -126,7 +126,7 @@ export default function LoginPage() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-r from-[#F9F5F0]/80 via-[#F9F5F0]/25 to-transparent"
+          className="absolute inset-0 bg-linear-to-r from-[#F9F5F0]/80 via-[#F9F5F0]/25 to-transparent"
         />
         <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-10 lg:px-16">
           <h2 className="font-serif text-4xl font-normal tracking-tight text-[#38271D] sm:text-5xl lg:text-[56px] lg:leading-[1.05]">

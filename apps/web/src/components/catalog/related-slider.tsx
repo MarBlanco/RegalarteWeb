@@ -58,7 +58,7 @@ export function RelatedSlider({ products, badges }: RelatedSliderProps) {
 
       <div
         ref={trackRef}
-        className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 pt-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+        className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 pt-4 [-ms-overflow-style:none] scrollbar-none sm:gap-4 [&::-webkit-scrollbar]:hidden"
       >
         {products.map((product) => (
           <div

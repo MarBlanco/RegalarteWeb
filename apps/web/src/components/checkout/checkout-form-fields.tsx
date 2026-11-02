@@ -52,7 +52,7 @@ export function CheckoutFormFields({
             )
           }
           rows={4}
-          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-destructive"
+          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-hidden ring-offset-background focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive"
         />
       ) : (
         <Input

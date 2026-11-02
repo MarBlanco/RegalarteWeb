@@ -182,7 +182,7 @@ export function HeroSlider({ slides = DEFAULT_SLIDES }: { slides?: HeroSlideInpu
                 <h1 className="font-serif text-[36px] font-normal leading-[1.05] tracking-tight text-white min-[380px]:text-[44px] sm:text-[48px] lg:text-[54px]">
                   {activeSlide.title}
                 </h1>
-                <p className="mt-4 max-w-[500px] text-[16px] leading-[1.5] text-white min-[380px]:text-[17px] sm:mt-6 sm:text-[18px]">
+                <p className="mt-4 max-w-[500px] text-[16px] leading-normal text-white min-[380px]:text-[17px] sm:mt-6 sm:text-[18px]">
                   {activeSlide.description}
                 </p>
                 <Button

@@ -102,7 +102,7 @@ export function DeliverySection({
                 onClick={() => onMethodChange(option.id)}
                 className={`flex min-h-[48px] flex-col items-center justify-center rounded-md border px-4 py-1.5 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                   selected
-                    ? 'border-[#B85C33] bg-background shadow-sm'
+                    ? 'border-[#B85C33] bg-background shadow-xs'
                     : 'border-transparent hover:bg-background/60'
                 }`}
               >
@@ -156,7 +156,7 @@ export function DeliverySection({
           <div className="flex items-start gap-3 rounded-lg border border-[#B85C33]/60 p-4">
             <PinIcon />
             <div className="min-w-0 flex-1">
-              <p className="break-words text-sm font-semibold">
+              <p className="wrap-break-word text-sm font-semibold">
                 {formatAddressLine(values.address)}
               </p>
               <button

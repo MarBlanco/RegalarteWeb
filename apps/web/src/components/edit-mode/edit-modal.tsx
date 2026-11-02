@@ -56,7 +56,7 @@ export function ModalShell({
 
   const overlay = (
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-6"
+      className="fixed inset-0 z-100 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-6"
       onMouseDown={(e) => {
         pressedOnBackdrop.current = e.target === e.currentTarget
       }}
@@ -147,7 +147,7 @@ export function EditModal({
                     onChange={(e) =>
                       setValues((v) => ({ ...v, [field.name]: e.target.value }))
                     }
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 ) : field.type === 'select' ? (
                   <select
@@ -156,7 +156,7 @@ export function EditModal({
                     onChange={(e) =>
                       setValues((v) => ({ ...v, [field.name]: e.target.value }))
                     }
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {(field.options ?? []).map((opt) => (
                       <option key={opt.value} value={opt.value}>

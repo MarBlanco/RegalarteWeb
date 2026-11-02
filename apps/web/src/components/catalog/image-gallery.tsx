@@ -58,7 +58,7 @@ export function ImageGallery({ images, fallbackAlt }: ImageGalleryProps) {
       <div className="flex flex-col-reverse gap-3 lg:flex-row">
         {images.length > 1 ? (
           <ul
-            className="flex gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] lg:max-h-[520px] lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden [&::-webkit-scrollbar]:hidden"
+            className="flex gap-2 overflow-x-auto [-ms-overflow-style:none] scrollbar-none lg:max-h-[520px] lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden [&::-webkit-scrollbar]:hidden"
             role="tablist"
             aria-label="Miniaturas del producto"
           >
@@ -140,7 +140,7 @@ export function ImageGallery({ images, fallbackAlt }: ImageGalleryProps) {
 
       {zoomOpen && activeImage.url ? (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          className="fixed inset-0 z-60 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Vista ampliada del producto"

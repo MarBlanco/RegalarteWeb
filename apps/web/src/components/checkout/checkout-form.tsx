@@ -169,7 +169,7 @@ export function CheckoutForm() {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="mt-0.5 flex-shrink-0"
+            className="mt-0.5 shrink-0"
           >
             <path d="M20 6 9 17l-5-5" />
           </svg>
@@ -207,7 +207,7 @@ export function CheckoutForm() {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="mt-0.5 flex-shrink-0"
+            className="mt-0.5 shrink-0"
           >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />

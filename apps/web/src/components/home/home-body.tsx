@@ -46,9 +46,9 @@ export function SunEmblem({ className = 'w-6 h-6' }: { className?: string }) {
 export function DecorativeDivider({ className = '' }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className="h-[1px] w-8 sm:w-10 bg-[#C45A37]/50" />
+      <span className="h-px w-8 sm:w-10 bg-[#C45A37]/50" />
       <span className="h-1.5 w-1.5 rotate-45 bg-[#C45A37]" />
-      <span className="h-[1px] w-8 sm:w-10 bg-[#C45A37]/50" />
+      <span className="h-px w-8 sm:w-10 bg-[#C45A37]/50" />
     </div>
   )
 }
@@ -143,7 +143,7 @@ export function CategoryProductCard({ product }: { product: HomeShowcaseProduct 
     <div className="group flex flex-col">
       <div className="relative">
         <Link href={`/catalogo/${product.slug}`} className="block">
-          <span className="relative block aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#EDE6DC]">
+          <span className="relative block aspect-4/3 w-full overflow-hidden rounded-xl bg-[#EDE6DC]">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
@@ -159,7 +159,7 @@ export function CategoryProductCard({ product }: { product: HomeShowcaseProduct 
             )}
           </span>
           {product.soldOut ? (
-            <span className="absolute bottom-2 left-2 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#7A6A5D] shadow-sm">
+            <span className="absolute bottom-2 left-2 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#7A6A5D] shadow-xs">
               Agotado
             </span>
           ) : null}
@@ -177,11 +177,11 @@ export function CategoryProductCard({ product }: { product: HomeShowcaseProduct 
           </h3>
         </Link>
         {product.subtitle ? (
-          <p className="text-[11px] sm:text-xs text-[#8A786A] mt-0.5 min-h-[1rem]">
+          <p className="text-[11px] sm:text-xs text-[#8A786A] mt-0.5 min-h-4">
             {product.subtitle}
           </p>
         ) : (
-          <div className="min-h-[1rem]" />
+          <div className="min-h-4" />
         )}
         <p className="text-sm font-bold text-[#C45A37] mt-0.5">
           {formatPrice(product.price)}
@@ -205,7 +205,7 @@ export function HomeCategorySection({
     <section className="py-6 sm:py-8 px-4 sm:px-6 lg:px-12 max-w-[1440px] mx-auto">
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {/* Left Column - Category Summary */}
-        <div className="w-full lg:w-[180px] xl:w-[200px] flex-shrink-0 flex flex-col items-start text-left lg:pt-1">
+        <div className="w-full lg:w-[180px] xl:w-[200px] shrink-0 flex flex-col items-start text-left lg:pt-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-serif text-xl sm:text-2xl font-normal uppercase tracking-wider text-[#38271D]">
               {meta.title}
@@ -250,7 +250,7 @@ export function EditorialSeparator({
   return (
     <div className="w-full bg-[#EFE7DD] py-7 sm:py-9 px-4 my-4 sm:my-6 relative overflow-hidden text-center">
       {/* Subtle Leaf Pattern Background Effect */}
-      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#38271D_1px,transparent_1px)] [background-size:16px_16px]" />
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#38271D_1px,transparent_1px)] bg-size-[16px_16px]" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 flex flex-col items-center">
         <h2 className="font-serif text-xl sm:text-2xl font-normal text-[#38271D] leading-snug tracking-tight">

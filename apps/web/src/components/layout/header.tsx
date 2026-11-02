@@ -67,7 +67,7 @@ const iconBtn =
 
 function HeaderIcons() {
   return (
-    <div className="flex flex-shrink-0 items-center gap-0.5 md:gap-1">
+    <div className="flex shrink-0 items-center gap-0.5 md:gap-1">
       <Link href="/buscar" className={iconBtn} aria-label="Buscar">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px] sm:h-5 sm:w-5">
           <circle cx="11" cy="11" r="8" />
@@ -106,11 +106,11 @@ export function Header() {
       </div>
 
       {/* Header principal */}
-      <header className="sticky top-0 z-50 w-full border-b border-[#E5DDD1] bg-[#FBF7F1]/95 backdrop-blur supports-[backdrop-filter]:bg-[#FBF7F1]/80">
+      <header className="sticky top-0 z-50 w-full border-b border-[#E5DDD1] bg-[#FBF7F1]/95 backdrop-blur-sm supports-backdrop-filter:bg-[#FBF7F1]/80">
         <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-4 px-4 md:h-[76px] md:px-6">
           <Link
             href="/"
-            className="flex flex-shrink-0 flex-col items-center gap-0.5"
+            className="flex shrink-0 flex-col items-center gap-0.5"
             aria-label="Solística - Inicio"
           >
             <span className="relative block h-10 w-10 md:h-11 md:w-11">
@@ -201,7 +201,7 @@ function NavLinks({
 const DESKTOP_NAV_CLS =
   'hidden min-w-0 flex-1 items-center justify-center gap-5 lg:flex lg:gap-7'
 const MOBILE_NAV_CLS =
-  'flex items-center gap-5 overflow-x-auto border-t border-[#E5DDD1]/60 px-4 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden'
+  'flex items-center gap-5 overflow-x-auto border-t border-[#E5DDD1]/60 px-4 [-ms-overflow-style:none] scrollbar-none lg:hidden [&::-webkit-scrollbar]:hidden'
 
 function HeaderNavDesktop() {
   const pathname = usePathname()

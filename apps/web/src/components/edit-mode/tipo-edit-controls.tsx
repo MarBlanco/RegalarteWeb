@@ -197,7 +197,7 @@ function TipoForm({
   }
 
   const inputCls =
-    'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#F1ECE4] disabled:text-[#7A6A5D]'
+    'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#F1ECE4] disabled:text-[#7A6A5D]'
   const creating = mode === 'create'
 
   return (
@@ -227,7 +227,7 @@ function TipoForm({
             maxLength={600}
             placeholder={creating && noun ? `Descripción del tipo de ${noun}…` : ''}
             onChange={(e) => setDescription(e.target.value)}
-            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
         </div>
         <ImagePicker
@@ -281,7 +281,7 @@ function TipoForm({
               >
                 <span
                   aria-hidden="true"
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`}
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`}
                 />
               </button>
             </div>
@@ -353,7 +353,7 @@ export function TipoAddButton({
           setOpen(true)
         }}
         aria-label="Agregar tipo"
-        className="flex w-[210px] shrink-0 items-center justify-center gap-2 self-stretch rounded-lg border border-dashed border-[#C9A24B] bg-[#FFFDF9] p-2.5 text-[#8A5A33] shadow-sm transition-colors hover:bg-white sm:w-[230px]"
+        className="flex w-[210px] shrink-0 items-center justify-center gap-2 self-stretch rounded-lg border border-dashed border-[#C9A24B] bg-[#FFFDF9] p-2.5 text-[#8A5A33] shadow-xs transition-colors hover:bg-white sm:w-[230px]"
       >
         <span aria-hidden="true" className="text-xl font-light leading-none">
           +
@@ -488,7 +488,7 @@ export function TipoItemControls({ tipo, tipos, index }: TipoItemControlsProps) 
             setNotice('')
             setEditing(true)
           }}
-          className="inline-flex items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 px-2 py-0.5 text-[10px] font-medium text-[#8A5A33] shadow-sm hover:bg-[#F3E2CC]"
+          className="inline-flex items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 px-2 py-0.5 text-[10px] font-medium text-[#8A5A33] shadow-xs hover:bg-[#F3E2CC]"
           aria-label={`Editar tipo ${tipo.name}`}
         >
           <PencilIcon />
@@ -502,7 +502,7 @@ export function TipoItemControls({ tipo, tipos, index }: TipoItemControlsProps) 
               e.stopPropagation()
               void move(-1)
             }}
-            className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 text-[10px] font-bold text-[#8A5A33] shadow-sm disabled:opacity-50"
+            className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 text-[10px] font-bold text-[#8A5A33] shadow-xs disabled:opacity-50"
             aria-label={`Mover ${tipo.name} a la izquierda`}
           >
             ‹
@@ -517,7 +517,7 @@ export function TipoItemControls({ tipo, tipos, index }: TipoItemControlsProps) 
               e.stopPropagation()
               void move(1)
             }}
-            className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 text-[10px] font-bold text-[#8A5A33] shadow-sm disabled:opacity-50"
+            className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 text-[10px] font-bold text-[#8A5A33] shadow-xs disabled:opacity-50"
             aria-label={`Mover ${tipo.name} a la derecha`}
           >
             ›
@@ -531,7 +531,7 @@ export function TipoItemControls({ tipo, tipos, index }: TipoItemControlsProps) 
             e.stopPropagation()
             void remove()
           }}
-          className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 text-[#8A3A33] shadow-sm disabled:opacity-50"
+          className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 text-[#8A3A33] shadow-xs disabled:opacity-50"
           aria-label={`Eliminar tipo ${tipo.name}`}
         >
           <TrashIcon className="h-3 w-3" />

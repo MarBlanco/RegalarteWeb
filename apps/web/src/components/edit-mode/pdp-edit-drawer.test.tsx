@@ -131,7 +131,7 @@ describe('PDP piloto — un solo botón Editar + drawer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Editar producto' }))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     const backdrop = container.querySelector(
-      'div.fixed.inset-0.z-\\[99\\]',
+      'div.fixed.inset-0.z-99',
     ) as HTMLElement
     expect(backdrop).not.toBeNull()
     fireEvent.click(screen.getByRole('tab', { name: 'Notas aromáticas' }))

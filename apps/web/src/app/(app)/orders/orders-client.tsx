@@ -353,7 +353,7 @@ export function OrdersClient() {
                   status: e.target.value as HistoryFilters['status'],
                 }))
               }
-              className="flex h-11 w-full rounded-xl border border-input bg-white px-3 text-sm text-[#38271D] outline-none lg:w-40"
+              className="flex h-11 w-full rounded-xl border border-input bg-white px-3 text-sm text-[#38271D] outline-hidden lg:w-40"
             >
               <option value="all">Estado</option>
               <option value="pending">Pendiente</option>
@@ -376,7 +376,7 @@ export function OrdersClient() {
                   date: e.target.value as DateFilter,
                 }))
               }
-              className="flex h-11 w-full rounded-xl border border-input bg-white px-3 text-sm text-[#38271D] outline-none lg:w-40"
+              className="flex h-11 w-full rounded-xl border border-input bg-white px-3 text-sm text-[#38271D] outline-hidden lg:w-40"
             >
               <option value="all">Fecha</option>
               <option value="last30">Últimos 30 días</option>

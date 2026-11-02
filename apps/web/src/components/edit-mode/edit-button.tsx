@@ -60,7 +60,7 @@ export function EditButton({ onClick, label = 'Editar', className = '' }: EditBu
         e.stopPropagation()
         onClick()
       }}
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2] px-2.5 py-1 text-[11px] font-medium text-[#8A5A33] shadow-sm transition-colors hover:bg-[#F3E2CC] ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2] px-2.5 py-1 text-[11px] font-medium text-[#8A5A33] shadow-xs transition-colors hover:bg-[#F3E2CC] ${className}`}
       aria-label={label}
     >
       <PencilIcon />

@@ -334,7 +334,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               {badge}
             </span>
             {agotado ? (
-              <span className="ml-2 inline-block rounded-full bg-white/95 px-3.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7A6A5D] shadow-sm ring-1 ring-[#E5DDD1]">
+              <span className="ml-2 inline-block rounded-full bg-white/95 px-3.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7A6A5D] shadow-xs ring-1 ring-[#E5DDD1]">
                 Agotado
               </span>
             ) : null}
