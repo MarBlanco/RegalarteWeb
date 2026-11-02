@@ -80,7 +80,7 @@ export function ProductEditButton({
           e.stopPropagation()
           setOpen(true)
         }}
-        className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 px-2.5 py-1 text-[11px] font-medium text-[#8A5A33] shadow-sm transition-colors hover:bg-[#F3E2CC] ${className}`}
+        className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 px-2.5 py-1 text-[11px] font-medium text-[#8A5A33] shadow-xs transition-colors hover:bg-[#F3E2CC] ${className}`}
         aria-label="Editar producto"
       >
         <PencilIcon />
@@ -132,7 +132,7 @@ export function ProductAddButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#B85C33] px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#9E4E2B] ${className}`}
+        className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#B85C33] px-4 py-2 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-[#9E4E2B] ${className}`}
       >
         <span aria-hidden="true" className="text-sm font-light leading-none">
           +
@@ -204,11 +204,11 @@ export function CatalogProductControls({
   }
 
   const pill =
-    'inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 px-2.5 py-1 text-[11px] font-medium text-[#8A5A33] shadow-sm transition-colors hover:bg-[#F3E2CC] disabled:opacity-50'
+    'inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2]/95 px-2.5 py-1 text-[11px] font-medium text-[#8A5A33] shadow-xs transition-colors hover:bg-[#F3E2CC] disabled:opacity-50'
   // Toggle Agotado/Disponible: misma métrica compacta que Editar, pero
   // apagado (beige neutro, borde sutil, texto muted, baja prominencia).
   const togglePill =
-    'inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5DDD1] bg-[#FCF8F1]/95 px-2.5 py-1 text-[11px] font-medium text-[#7A6A5D] shadow-sm transition-colors hover:bg-[#F3EADB] disabled:opacity-50'
+    'inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5DDD1] bg-[#FCF8F1]/95 px-2.5 py-1 text-[11px] font-medium text-[#7A6A5D] shadow-xs transition-colors hover:bg-[#F3EADB] disabled:opacity-50'
   return (
     <>
       <span className="absolute bottom-2 left-2 z-10 flex gap-1.5">
@@ -536,7 +536,7 @@ export function ProductEditModal({
   }
 
   const inputCls =
-    'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+    'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
 
   return (
     <ModalShell
@@ -684,7 +684,7 @@ export function ProductEditModal({
                     : 'Protegida por formato avanzado'
                 }
                 onChange={(e) => setDescriptionText(e.target.value)}
-                className="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex min-h-[90px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
               {!descriptionEditable ? (
                 <p className="text-xs text-[#7A6A5D]">

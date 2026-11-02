@@ -181,7 +181,7 @@ function AddressFields({
           id={`${idPrefix}-province`}
           value={value.province ?? ''}
           onChange={(e) => onChange({ province: e.target.value })}
-          className="flex h-10 w-full rounded-xl border border-input bg-[#FFFEFB] px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="flex h-10 w-full rounded-xl border border-input bg-[#FFFEFB] px-3 py-2 text-sm ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <option value="">Seleccionar…</option>
           {PROVINCES.map((p) => (
@@ -202,7 +202,7 @@ function AddressFields({
           rows={3}
           maxLength={250}
           onChange={(e) => onChange({ references: e.target.value })}
-          className="flex min-h-[72px] w-full rounded-xl border border-input bg-[#FFFEFB] px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="flex min-h-[72px] w-full rounded-xl border border-input bg-[#FFFEFB] px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
         <p className="text-right text-[11px] tabular-nums text-muted-foreground">
           {(value.references ?? '').length}/250

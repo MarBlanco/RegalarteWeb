@@ -39,7 +39,7 @@ export default async function SolisticaPage() {
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/20 to-background" />
+          <div className="absolute inset-0 bg-linear-to-b from-background/60 via-background/20 to-background" />
           <div className="container relative flex h-full flex-col items-center justify-center text-center">
             <p className="text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">
               Universo sensorial de Regalarte

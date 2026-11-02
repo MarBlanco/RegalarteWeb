@@ -33,7 +33,7 @@ function TipoCard({
       className={cn(
         'flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition-colors',
         active
-          ? 'border-[#B85C33] bg-[#FFFDF9] shadow-sm'
+          ? 'border-[#B85C33] bg-[#FFFDF9] shadow-xs'
           : 'border-[#EBDFD1] bg-[#FCF8F1] hover:border-[#C45A37]/50',
       )}
     >
@@ -78,7 +78,7 @@ function TipoCard({
 }
 
 const NAV_CLASS =
-  '-mx-1 flex gap-3 overflow-x-auto px-1 py-1 [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-4 [&::-webkit-scrollbar]:hidden'
+  '-mx-1 flex gap-3 overflow-x-auto px-1 py-1 [-ms-overflow-style:none] scrollbar-none lg:gap-4 [&::-webkit-scrollbar]:hidden'
 
 /**
  * Selector horizontal de tipos/colecciones de la categoría.
@@ -96,7 +96,7 @@ export function TipoSelector({ categorySlug, tipos, activeSlug, editCategoryId, 
   }
 
   const arrowCls =
-    'hidden h-9 w-9 shrink-0 items-center justify-center self-center rounded-full border border-[#EBDFD1] bg-[#FCF8F1] text-[#7A6A5D] shadow-sm transition-colors hover:border-[#C45A37]/50 hover:text-[#38271D] sm:inline-flex'
+    'hidden h-9 w-9 shrink-0 items-center justify-center self-center rounded-full border border-[#EBDFD1] bg-[#FCF8F1] text-[#7A6A5D] shadow-xs transition-colors hover:border-[#C45A37]/50 hover:text-[#38271D] sm:inline-flex'
 
   if (tipos.length === 0 && editCategoryId === undefined) return null
 

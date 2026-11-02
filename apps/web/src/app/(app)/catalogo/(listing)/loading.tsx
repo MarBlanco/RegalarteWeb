@@ -7,7 +7,7 @@ export default function CatalogLoading() {
           <div className="mt-2 h-4 w-72 animate-pulse rounded-md bg-muted" />
         </header>
         <div className="flex flex-col gap-8 lg:flex-row">
-          <aside className="lg:w-64 lg:flex-shrink-0">
+          <aside className="lg:w-64 lg:shrink-0">
             <div className="h-96 animate-pulse rounded-xl border bg-card" />
           </aside>
           <section className="flex-1">

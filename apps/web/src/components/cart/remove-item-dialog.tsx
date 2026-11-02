@@ -47,7 +47,7 @@ export function RemoveItemDialog({ item, onClose, onConfirm }: Readonly<RemoveIt
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
       {/* Fondo clickeable: botón real (fuera del orden de tabulación) para no poner handlers en divs. */}
       <button
         type="button"

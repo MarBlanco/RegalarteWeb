@@ -70,7 +70,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         </header>
 
         <div className="flex flex-col gap-8 lg:flex-row">
-          <aside className="lg:w-64 lg:flex-shrink-0">
+          <aside className="lg:w-64 lg:shrink-0">
             <Suspense fallback={null}>
               <FiltersPanel
                 categories={categories}

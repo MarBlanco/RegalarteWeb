@@ -132,7 +132,7 @@ function IndexView({
               <button
                 type="button"
                 onClick={() => onSelect(section.id)}
-                className="flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-[#F9EFE2]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B85C33] sm:px-6"
+                className="flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-[#F9EFE2]/60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B85C33] sm:px-6"
               >
                 <span
                   aria-hidden="true"

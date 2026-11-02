@@ -77,7 +77,7 @@ export function MultiSelect({
         aria-expanded={open}
         aria-controls={`${id}-panel`}
         onClick={() => setOpen((v) => !v)}
-        className="flex h-10 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-left text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="flex h-10 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-left text-sm ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         <span className={`truncate ${chosen.length === 0 ? 'text-muted-foreground' : ''}`}>
           {summary}
@@ -98,7 +98,7 @@ export function MultiSelect({
       {open ? (
         <fieldset
           id={`${id}-panel`}
-          className="max-h-44 min-w-0 space-y-0.5 overflow-y-auto rounded-md border border-[#E5DDD1] bg-white p-1.5 shadow-sm"
+          className="max-h-44 min-w-0 space-y-0.5 overflow-y-auto rounded-md border border-[#E5DDD1] bg-white p-1.5 shadow-xs"
         >
           <legend className="sr-only">{label}</legend>
           {options.length === 0 ? (

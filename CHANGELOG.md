@@ -2,6 +2,8 @@
 
 ## 2026-11-01
 
+- **[DEPENDENCIAS]** Tailwind CSS 3.4 → 4.3 con la herramienta oficial de migración. La configuración pasó a `globals.css` (`@theme`, `@plugin` de typography y forms); `autoprefixer` se reemplazó por `@tailwindcss/postcss`. Se agregó una utilidad `space-y-*` con la semántica de v3 (v4 pone el margen en el hermano anterior y no afecta a `<label>` inline) y se revirtió un renombre falso de `variant="outline"`. Verificado con capturas de 18 páginas en 390 y 1280 px contra la versión anterior.
+
 - **[DEPENDENCIAS]** TypeScript 5.9.3 → 7.0.2 en `apps/web` (tsconfig `target` es5 → ES2022, removido en TS 7). La raíz mantiene `typescript ~5.9.3` para `typescript-eslint`. Type-check, lint, 575 tests y build verificados.
 
 - **[AUDITORIA]** Auditoría integral con QA exploratoria (`.harness/qa/20261101-regalarte-integral/`) y correcciones.

@@ -171,7 +171,7 @@ export function Footer() {
                   href="/"
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   aria-label="Solística - Inicio"
-                  className="group flex flex-col items-center rounded-lg transition-opacity duration-200 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A24B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#2C221E]"
+                  className="group flex flex-col items-center rounded-lg transition-opacity duration-200 hover:opacity-80 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C9A24B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#2C221E]"
                 >
                   <span className="relative block h-12 w-12">
                     <Image
@@ -191,7 +191,7 @@ export function Footer() {
                   Aromas que transforman tu casa en tu lugar feliz.
                 </p>
                 <span className="mt-3 flex items-center justify-center gap-2 text-[13px] text-[#C4B8A8]">
-                  <LocationPinIcon className="w-4 h-4 flex-shrink-0 text-[#C9A24B]" />
+                  <LocationPinIcon className="w-4 h-4 shrink-0 text-[#C9A24B]" />
                   <span>Colón, Entre Ríos · Argentina</span>
                 </span>
               </div>

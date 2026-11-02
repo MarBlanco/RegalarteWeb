@@ -69,7 +69,7 @@ export function CategoryHero({ title, description, imageUrl }: CategoryHeroProps
           {/* Transición suave contenido → imagen */}
           <div
             aria-hidden="true"
-            className="absolute inset-y-0 left-0 hidden w-20 bg-gradient-to-r from-[#FAF5EC] to-transparent md:block"
+            className="absolute inset-y-0 left-0 hidden w-20 bg-linear-to-r from-[#FAF5EC] to-transparent md:block"
           />
         </div>
       </div>

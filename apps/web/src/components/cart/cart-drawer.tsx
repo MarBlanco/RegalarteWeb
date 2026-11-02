@@ -101,7 +101,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
       <div
         onClick={close}
         className={cn(
-          'absolute inset-0 bg-foreground/40 backdrop-blur-sm transition-opacity duration-200',
+          'absolute inset-0 bg-foreground/40 backdrop-blur-xs transition-opacity duration-200',
           isOpen ? 'pointer-events-auto opacity-100' : 'opacity-0',
         )}
         aria-hidden
@@ -181,7 +181,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
                       reason && 'border-[#E7B9AE] bg-[#FBF3F0]',
                     )}
                   >
-                    <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-muted">
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md bg-muted">
                       {item.image?.url ? (
                         <Image
                           src={item.image.url}

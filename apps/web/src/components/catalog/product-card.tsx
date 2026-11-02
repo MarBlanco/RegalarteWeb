@@ -91,7 +91,7 @@ export function ProductCard({ product, badge, fallbackImage, fallbackSubtitle }:
 
         {/* Badge superior izquierdo: NUEVO, FAVORITO y Mayorista no se renderizan */}
         {badge && badge !== 'NUEVO' && badge !== 'FAVORITO' ? (
-          <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#38271D] shadow-sm">
+          <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#38271D] shadow-xs">
             {badge}
           </span>
         ) : null}
@@ -134,7 +134,7 @@ export function ProductCard({ product, badge, fallbackImage, fallbackSubtitle }:
           </h3>
         </Link>
         <p className="line-clamp-1 min-h-4 text-xs text-[#9A8A7A]">{subtitle}</p>
-        <div className="mt-1 flex min-h-[1.75rem] items-baseline gap-1.5">
+        <div className="mt-1 flex min-h-7 items-baseline gap-1.5">
           <span className="text-[15px] font-bold text-[#38271D]">
             {formatPrice(product.price)}
           </span>

@@ -177,14 +177,14 @@ export function AccountMenu() {
   }
 
   return (
-    <div ref={rootRef} className="relative flex-shrink-0">
+    <div ref={rootRef} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={authenticated ? `Cuenta de ${firstName}` : 'Ingresar a tu cuenta'}
-        className="flex h-10 items-center gap-2 rounded-full border border-[#E5DDD1] bg-white py-1 pl-1.5 pr-3 text-[#38271D] shadow-sm transition-colors hover:border-[#C45A37]/50 sm:h-11"
+        className="flex h-10 items-center gap-2 rounded-full border border-[#E5DDD1] bg-white py-1 pl-1.5 pr-3 text-[#38271D] shadow-xs transition-colors hover:border-[#C45A37]/50 sm:h-11"
       >
         {authenticated ? (
           <span

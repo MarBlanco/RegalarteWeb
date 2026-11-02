@@ -20,7 +20,7 @@ export function CheckoutLineRow({
 }) {
   return (
     <li className="flex items-center gap-3 py-2">
-      <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-muted">
+      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
         {image?.url ? (
           <Image
             src={image.url}

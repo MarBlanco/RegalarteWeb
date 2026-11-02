@@ -132,7 +132,7 @@ export function AddToCartButton({
               const cap = stockCap ?? Number.POSITIVE_INFINITY
               setQuantity(Math.max(1, Math.min(cap, Math.floor(v))))
             }}
-            className="h-9 w-12 border-x bg-background text-center text-sm tabular-nums outline-none"
+            className="h-9 w-12 border-x bg-background text-center text-sm tabular-nums outline-hidden"
           />
           <Button
             type="button"

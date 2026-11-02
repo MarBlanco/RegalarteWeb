@@ -114,7 +114,7 @@ export function PdpEditButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2] px-2.5 py-1 text-[11px] font-medium text-[#8A5A33] shadow-sm transition-colors hover:bg-[#F3E2CC] ${className}`}
+        className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-[#E5C9A8] bg-[#F9EFE2] px-2.5 py-1 text-[11px] font-medium text-[#8A5A33] shadow-xs transition-colors hover:bg-[#F3E2CC] ${className}`}
         aria-label="Editar producto"
       >
         <PencilIcon />
@@ -411,13 +411,13 @@ function PdpEditDrawer({
       <div
         aria-hidden="true"
         onClick={onClose}
-        className="fixed inset-0 z-[99] cursor-default"
+        className="fixed inset-0 z-99 cursor-default"
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={`Editar producto ${product.title}`}
-        className="fixed inset-y-0 right-0 z-[100] flex w-full max-w-md flex-col border-l border-[#EBDFD1] bg-white shadow-2xl"
+        className="fixed inset-y-0 right-0 z-100 flex w-full max-w-md flex-col border-l border-[#EBDFD1] bg-white shadow-2xl"
       >
       <div className="flex items-start justify-between border-b border-[#E5DDD1] px-5 py-4">
         <div className="min-w-0">
@@ -586,7 +586,7 @@ function PdpEditDrawer({
                   className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${visible ? 'bg-[#B85C33]' : 'bg-[#D8CFC2]'}`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${visible ? 'translate-x-6' : 'translate-x-1'}`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${visible ? 'translate-x-6' : 'translate-x-1'}`}
                   />
                 </span>
                 <span className="text-sm font-semibold text-[#38271D]">
@@ -645,7 +645,7 @@ function PdpEditDrawer({
                 descEditable ? 'Descripción del producto' : 'Protegida por formato avanzado'
               }
               onChange={(e) => setDescText(e.target.value)}
-              className="flex min-h-[180px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex min-h-[180px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
             {!descEditable ? (
               <p className="text-xs text-[#7A6A5D]">
@@ -675,7 +675,7 @@ function PdpEditDrawer({
                     onChange={(e) =>
                       setCaracTexts((v) => ({ ...v, [a.id]: e.target.value }))
                     }
-                    className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
               ))
@@ -700,7 +700,7 @@ function PdpEditDrawer({
               onChange={(e) =>
                 setEditorial((v) => ({ ...v, [tab]: e.target.value }))
               }
-              className="flex min-h-[180px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex min-h-[180px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
             <p className="text-xs text-[#7A6A5D]">
               Contenido editorial global: se muestra igual en todos los
@@ -764,7 +764,7 @@ function NotaField({
         disabled={disabled}
         placeholder={disabled ? 'Sin notas vinculadas' : `Notas de ${label.toLowerCase()}`}
         onChange={(e) => onChange(e.target.value)}
-        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       />
     </div>
   )
