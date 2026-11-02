@@ -12,7 +12,7 @@ REGALARTE es una plataforma de Discovery Commerce de regalos (B2C minorista + B2
 - Next.js `16.4.3` (App Router), React `19.3.1`, TypeScript `7.x` (`apps/web`; compilador nativo, `tsconfig` con `target: ES2022`), Tailwind `4.x` (config en CSS: `@theme`, `@plugin` y utilidades propias en `globals.css`; sin `tailwind.config.ts`), shadcn/ui (Radix), Framer Motion 14, Zustand, TanStack Query.
 - Payload CMS `3.92.1` con `@payloadcms/db-postgres`, Lexical, `storage-s3` (Cloudflare R2), `email-resend`.
 - Tests: Vitest 5 (jsdom). Lint: ESLint 10. La raíz fija `typescript ~5.9.3` solo para `typescript-eslint` y Lexical (su peer exige `<6.1`): no subirlo hasta que lo soporten; `tsc` y Next usan el TypeScript 7 de `apps/web`.
-- Node `>=20.9.0` (`engines` en el `package.json` raíz) para ejecutar la app; los tests y la CI requieren Node 22 (jsdom depende de `undici` 8). Vercel: Node 20 ya no tiene soporte, usar 22 o superior.
+- Node `>=22.0.0` (`engines` en el `package.json` raíz y `.nvmrc`): jsdom depende de `undici` 8 y Node 20 ya no tiene soporte, así que la app, los tests, la CI y Vercel usan 22 o superior.
 - Deploy: Vercel (`apps/web/vercel.json`).
 
 Atención: `FOUNDATION.md` y `docs/README.md` conservan el estado histórico "PRE BUILD". Para versiones prevalece `package.json` y para el estado, el código.
